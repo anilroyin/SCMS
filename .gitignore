@@ -15,6 +15,7 @@ pnpm-debug.log*
 
 # Build output
 dist/
+dist-ssr/
 build/
 
 # Coverage
@@ -29,6 +30,12 @@ coverage/
 
 # IDE
 .vscode-test/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS files
 .DS_Store
