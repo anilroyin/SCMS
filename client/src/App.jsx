@@ -1,9 +1,15 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Dashboard from "./pages/dashboard"
+import Login from "./pages/login"
+
 function App() {
   return (
-    <div>
-      <h1>Smart Coaching Management System</h1>
-      <p>SCMS frontend is running.</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
