@@ -1,13 +1,19 @@
-import express from "express";
+import express from "express"
+import dotenv from "dotenv"
+import connectDb from "./config/db.js"
 
-const app = express();
+dotenv.config({ quiet: true })
 
-const PORT = 3000;
+const app = express()
+
+const PORT = 3000
+
+connectDb()
 
 app.get("/", (req, res) => {
-  res.send("SCMS backend is running");
-});
+  res.send("SCMS backend is running")
+})
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  console.log(`Server is running on port ${PORT}`)
+})
