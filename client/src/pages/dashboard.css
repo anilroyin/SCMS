@@ -1,0 +1,150 @@
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f5f7f9;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background: #2f3a4a;
+  color: #ffffff;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 0 12px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-logo h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.sidebar-logo p {
+  margin: 6px 0 0;
+  color: #a3b1cc;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.sidebar-nav a {
+  padding: 11px 12px;
+  border-radius: 7px;
+  color: #d9dee3;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-nav a:hover {
+  background: #4b6276;
+  color: #ffffff;
+}
+
+.sidebar-nav a.active {
+  background: #80919f;
+  color: #ffffff;
+}
+
+.dashboard-content {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #26313f;
+  font-size: 28px;
+}
+
+.dashboard-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dashboard-user span {
+  color: #26313f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard-user button {
+  border: none;
+  border-radius: 7px;
+  padding: 9px 16px;
+  background: #80919f;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dashboard-user button:hover {
+  background: #4b6276;
+}
+
+.dashboard-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.overview-card {
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.overview-card h3 {
+  margin: 0;
+  color: #26313f;
+  font-size: 18px;
+}
+
+.overview-card p {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 210px;
+  }
+
+  .dashboard-content {
+    padding: 24px;
+  }
+
+  .dashboard-overview {
+    grid-template-columns: 1fr;
+  }
+}
