@@ -8,6 +8,10 @@ import Teachers from "./pages/teachers"
 import AddTeacher from "./pages/addTeacher"
 import TeacherDetails from "./pages/teacherDetails"
 import EditTeacher from "./pages/editTeacher"
+import Subjects from "./pages/subjects"
+import AddSubject from "./pages/addSubject"
+import SubjectDetails from "./pages/subjectDetails"
+import EditSubject from "./pages/editSubject"
 import ProtectedRoute from "./components/protectedRoute"
 
 function App() {
@@ -85,6 +89,42 @@ function App() {
           </ProtectedRoute>
           }
        />
+
+          <Route
+            path="/subjects"
+            element={
+           <ProtectedRoute>
+           <Subjects />
+           </ProtectedRoute>
+           }
+        />
+
+          <Route
+            path="/subjects/add"
+            element={
+           <ProtectedRoute>
+           <AddSubject />
+           </ProtectedRoute>
+          }
+       />
+
+          <Route
+           path="/subjects/:id"
+           element={
+          <ProtectedRoute>
+          <SubjectDetails />
+         </ProtectedRoute>
+          }
+       />
+        
+         <Route
+           path="/subjects/:id/edit"
+           element={
+          <ProtectedRoute>
+          <EditSubject />
+          </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </BrowserRouter>
