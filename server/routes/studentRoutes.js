@@ -3,7 +3,9 @@ import {
   getStudents,
   getStudentById,
   updateStudentStatus,
-  createStudent
+  createStudent,
+  addStudentSubject,
+  removeStudentSubject
 } from "../controllers/studentController.js"
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
@@ -29,6 +31,20 @@ router.put(
   protect,
   allowRoles("admin"),
   updateStudentStatus
+)
+
+router.post(
+  "/:id/subjects",
+  protect,
+  allowRoles("admin"),
+  addStudentSubject
+)
+
+router.delete(
+  "/:id/subjects/:subjectId",
+  protect,
+  allowRoles("admin"),
+  removeStudentSubject
 )
 
 router.post(
