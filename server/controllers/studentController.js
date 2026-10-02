@@ -69,13 +69,8 @@ const createStudent = async (req, res) => {
       })
     }
 
-    const subjectIds = subjects.map(
-      (subject) => subject.subjectId
-    )
-
-    const teacherIds = subjects.map(
-      (subject) => subject.teacherId
-    )
+    const subjectIds = subjects.map((subject) => subject.subjectId)
+    const teacherIds = subjects.map((subject) => subject.teacherId)
 
     const uniqueSubjectIds = [...new Set(subjectIds)]
 
@@ -143,7 +138,6 @@ const createStudent = async (req, res) => {
       subjectId: subject.subjectId,
       teacherId: subject.teacherId,
       fee: subject.fee,
-      status: "active",
       startedAt: new Date()
     }))
 
@@ -246,9 +240,13 @@ const updateStudentStatus = async (req, res) => {
 
     await student.save()
 
+    const updatedStudent = await Student.findById(student._id)
+      .populate("subjects.subjectId", "name")
+      .populate("subjects.teacherId", "name")
+
     res.json({
       message: "Student status updated successfully",
-      student
+      student: updatedStudent
     })
   } catch (error) {
     res.status(500).json({
@@ -258,9 +256,131 @@ const updateStudentStatus = async (req, res) => {
   }
 }
 
+const addStudentSubject = async (req, res) => {
+  try {
+    const { subjectId, teacherId, fee } = req.body
+
+    if (!subjectId || !teacherId || fee === undefined) {
+      return res.status(400).json({
+        message: "Subject, teacher and fee are required"
+      })
+    }
+
+    if (fee < 0) {
+      return res.status(400).json({
+        message: "Fee cannot be negative"
+      })
+    }
+
+    const student = await Student.findById(req.params.id)
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found"
+      })
+    }
+
+    const subject = await Subject.findById(subjectId)
+
+    if (!subject) {
+      return res.status(400).json({
+        message: "Subject not found"
+      })
+    }
+
+    const teacher = await Teacher.findOne({
+      _id: teacherId,
+      subjects: subjectId
+    })
+
+    if (!teacher) {
+      return res.status(400).json({
+        message: "Selected teacher does not teach the selected subject"
+      })
+    }
+
+    const alreadyEnrolled = student.subjects.some(
+      (studentSubject) =>
+        studentSubject.subjectId.toString() === subjectId
+    )
+
+    if (alreadyEnrolled) {
+      return res.status(409).json({
+        message: "Student is already enrolled in this subject"
+      })
+    }
+
+    student.subjects.push({
+      subjectId,
+      teacherId,
+      fee,
+      startedAt: new Date()
+    })
+
+    await student.save()
+
+    const updatedStudent = await Student.findById(student._id)
+      .populate("subjects.subjectId", "name")
+      .populate("subjects.teacherId", "name")
+
+    res.status(201).json({
+      message: "Subject added successfully",
+      student: updatedStudent
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to add subject",
+      error: error.message
+    })
+  }
+}
+
+const removeStudentSubject = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id)
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found"
+      })
+    }
+
+    const subjectIndex = student.subjects.findIndex(
+      (subject) =>
+        subject.subjectId.toString() === req.params.subjectId
+    )
+
+    if (subjectIndex === -1) {
+      return res.status(404).json({
+        message: "Student is not enrolled in this subject"
+      })
+    }
+
+    student.subjects.splice(subjectIndex, 1)
+
+    await student.save()
+
+    const updatedStudent = await Student.findById(student._id)
+      .populate("subjects.subjectId", "name")
+      .populate("subjects.teacherId", "name")
+
+    res.json({
+      message: "Subject removed successfully",
+      student: updatedStudent
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to remove subject",
+      error: error.message
+    })
+  }
+}
+
 export {
   getStudents,
+  createStudent,
   getStudentById,
   updateStudentStatus,
-  createStudent
+  addStudentSubject,
+  removeStudentSubject
 }
