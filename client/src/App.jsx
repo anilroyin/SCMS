@@ -4,6 +4,10 @@ import Login from "./pages/login"
 import Students from "./pages/students"
 import AdmitStudent from "./pages/admitStudent"
 import StudentDetails from "./pages/studentDetails"
+import Teachers from "./pages/teachers"
+import AddTeacher from "./pages/addTeacher"
+import TeacherDetails from "./pages/teacherDetails"
+import EditTeacher from "./pages/editTeacher"
 import ProtectedRoute from "./components/protectedRoute"
 
 function App() {
@@ -45,6 +49,42 @@ function App() {
            </ProtectedRoute>
            }
          />
+
+         <Route
+           path="/teachers"
+           element={
+           <ProtectedRoute>
+           <Teachers />
+           </ProtectedRoute>
+           }
+         />
+
+         <Route
+           path="/teachers/add"
+           element={
+          <ProtectedRoute>
+          <AddTeacher />
+          </ProtectedRoute>
+           }
+         />
+
+         <Route
+           path="/teachers/:id"
+           element={
+           <ProtectedRoute>
+           <TeacherDetails />
+           </ProtectedRoute>
+           }
+         />
+
+         <Route
+           path="/teachers/:id/edit"
+           element={
+          <ProtectedRoute>
+          <EditTeacher />
+          </ProtectedRoute>
+          }
+       />
 
       </Routes>
     </BrowserRouter>
