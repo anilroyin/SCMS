@@ -1,0 +1,125 @@
+.teacher-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.teacher-form-section {
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.teacher-form-section h2 {
+  margin: 0 0 20px;
+  color: #26313f;
+  font-size: 18px;
+}
+
+.form-description {
+  margin: -10px 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.teacher-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.teacher-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-form .form-group label {
+  margin-bottom: 8px;
+  color: #26313f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.teacher-form .form-group input,
+.teacher-form .form-group select,
+.teacher-form .form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+  outline: none;
+}
+
+.teacher-form .form-group input:focus,
+.teacher-form .form-group select:focus,
+.teacher-form .form-group textarea:focus {
+  border-color: #80919f;
+}
+
+.teacher-form .form-group textarea {
+  resize: vertical;
+}
+
+.teacher-form .form-group select[multiple] {
+  min-height: 130px;
+}
+
+.teacher-form .form-group small {
+  margin-top: 7px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.teacher-address {
+  margin-top: 20px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.cancel-button {
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  padding: 11px 18px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background: #f5f7f9;
+}
+
+.primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .teacher-form-section {
+    padding: 20px;
+  }
+
+  .teacher-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
