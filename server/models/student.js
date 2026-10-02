@@ -82,27 +82,9 @@ const studentSchema = new mongoose.Schema(
           min: 0
         },
 
-        status: {
-          type: String,
-          enum: ["active", "paused", "left"],
-          default: "active"
-        },
-
         startedAt: {
           type: Date,
           default: Date.now
-        },
-
-        pausedAt: {
-          type: Date
-        },
-
-        resumedAt: {
-          type: Date
-        },
-
-        leftAt: {
-          type: Date
         }
       }
     ],
