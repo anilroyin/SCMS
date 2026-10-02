@@ -1,7 +1,9 @@
 import express from "express"
 import {
   getSubjects,
-  createSubject
+  createSubject,
+  getSubjectById,
+  updateSubject
 } from "../controllers/subjectController.js"
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
@@ -13,6 +15,20 @@ router.get(
   protect,
   allowRoles("admin"),
   getSubjects
+)
+
+router.get(
+  "/:id",
+  protect,
+  allowRoles("admin"),
+  getSubjectById
+)
+
+router.put(
+  "/:id",
+  protect,
+  allowRoles("admin"),
+  updateSubject
 )
 
 router.post(
