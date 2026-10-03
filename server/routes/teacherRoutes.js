@@ -1,10 +1,14 @@
 import express from "express"
+
 import {
   getTeachers,
   createTeacher,
+  getMyTeacherProfile,
+  getMyTeacherStudents,
   getTeacherById,
   updateTeacher
 } from "../controllers/teacherController.js"
+
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
 
@@ -15,6 +19,20 @@ router.get(
   protect,
   allowRoles("admin"),
   getTeachers
+)
+
+router.get(
+  "/me",
+  protect,
+  allowRoles("teacher"),
+  getMyTeacherProfile
+)
+
+router.get(
+  "/me/students",
+  protect,
+  allowRoles("teacher"),
+  getMyTeacherStudents
 )
 
 router.get(
