@@ -58,7 +58,8 @@ const createTeacher = async (req, res) => {
       commission === undefined
     ) {
       return res.status(400).json({
-        message: "Name, date of birth, gender, email, password and commission are required"
+        message:
+          "Name, date of birth, gender, email, password and commission are required"
       })
     }
 
@@ -146,6 +147,31 @@ const createTeacher = async (req, res) => {
   }
 }
 
+const getMyTeacherProfile = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({
+      userId: req.user.userId
+    })
+      .populate("subjects", "name")
+      .populate("userId", "email")
+
+    if (!teacher) {
+      return res.status(404).json({
+        message: "Teacher profile not found"
+      })
+    }
+
+    res.json({
+      teacher
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get teacher profile",
+      error: error.message
+    })
+  }
+}
+
 const getTeacherById = async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id)
@@ -217,7 +243,8 @@ const updateTeacher = async (req, res) => {
       !status
     ) {
       return res.status(400).json({
-        message: "Name, date of birth, gender, email, commission and status are required"
+        message:
+          "Name, date of birth, gender, email, commission and status are required"
       })
     }
 
@@ -302,7 +329,8 @@ const updateTeacher = async (req, res) => {
 
       if (studentsUsingRemovedSubjects) {
         return res.status(400).json({
-          message: "Cannot remove a subject because students are currently enrolled with this teacher for that subject"
+          message:
+            "Cannot remove a subject because students are currently enrolled with this teacher for that subject"
         })
       }
     }
@@ -343,9 +371,62 @@ const updateTeacher = async (req, res) => {
   }
 }
 
+const getMyTeacherStudents = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({
+      userId: req.user.userId
+    })
+
+    if (!teacher) {
+      return res.status(404).json({
+        message: "Teacher profile not found"
+      })
+    }
+
+    const students = await Student.find({
+      "subjects.teacherId": teacher._id
+    })
+      .select("studentId name className school status subjects")
+      .populate("subjects.subjectId", "name")
+      .populate("subjects.teacherId", "name")
+      .sort({ studentId: 1 })
+
+    const teacherStudents = students.map((student) => {
+      const teacherSubjects = student.subjects.filter(
+        (subject) =>
+          subject.teacherId._id.toString() === teacher._id.toString()
+      )
+
+      return {
+        _id: student._id,
+        studentId: student.studentId,
+        name: student.name,
+        className: student.className,
+        school: student.school,
+        status: student.status,
+        subjects: teacherSubjects.map((subject) => ({
+          subjectId: subject.subjectId,
+          teacherId: subject.teacherId
+        }))
+      }
+    })
+
+    res.json({
+      students: teacherStudents
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get students",
+      error: error.message
+    })
+  }
+}
+
 export {
   getTeachers,
   createTeacher,
+  getMyTeacherProfile,
+  getMyTeacherStudents,
   getTeacherById,
   updateTeacher
 }
