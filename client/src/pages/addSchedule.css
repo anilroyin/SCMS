@@ -1,0 +1,183 @@
+.add-schedule-page {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.add-schedule-header h1 {
+  margin: 0;
+  color: #26313f;
+  font-size: 26px;
+}
+
+.add-schedule-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.add-schedule-back-button {
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-schedule-back-button:hover {
+  border-color: #80919f;
+  background: #f5f7f9;
+}
+
+.add-schedule-message {
+  margin-bottom: 18px;
+  padding: 11px 16px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+}
+
+.add-schedule-card {
+  max-width: 900px;
+  padding: 24px;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.add-schedule-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.add-schedule-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-schedule-field label {
+  margin-bottom: 7px;
+  color: #26313f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.add-schedule-field input,
+.add-schedule-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26313f;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.add-schedule-field input:focus,
+.add-schedule-field select:focus {
+  border-color: #80919f;
+}
+
+.add-schedule-field input::placeholder {
+  color: #9ca3af;
+}
+
+.add-schedule-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.add-schedule-cancel-button,
+.add-schedule-save-button {
+  border-radius: 7px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-schedule-cancel-button {
+  border: 1px solid #d9dee3;
+  background: #ffffff;
+  color: #26313f;
+}
+
+.add-schedule-cancel-button:hover {
+  background: #f5f7f9;
+  border-color: #80919f;
+}
+
+.add-schedule-save-button {
+  border: none;
+  background: #80919f;
+  color: #ffffff;
+}
+
+.add-schedule-save-button:hover {
+  background: #4b6276;
+}
+
+.add-schedule-save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Tablet */
+
+@media (max-width: 800px) {
+  .add-schedule-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-schedule-card {
+    max-width: 100%;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .add-schedule-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .add-schedule-back-button {
+    width: 100%;
+  }
+
+  .add-schedule-card {
+    padding: 18px;
+  }
+
+  .add-schedule-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .add-schedule-cancel-button,
+  .add-schedule-save-button {
+    width: 100%;
+  }
+}
