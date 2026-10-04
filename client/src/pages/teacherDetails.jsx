@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useLocation } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./teacherDetails.css"
 
@@ -9,7 +9,10 @@ function TeacherDetails() {
   const [message, setMessage] = useState("")
 
   const { id } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
+
+  const isTeacherProfile = location.pathname === "/teacher/profile"
 
   useEffect(() => {
     const getTeacher = async () => {
@@ -21,14 +24,15 @@ function TeacherDetails() {
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/teachers/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const url = isTeacherProfile
+          ? "http://localhost:3000/api/teachers/me"
+          : `http://localhost:3000/api/teachers/${id}`
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        )
+        })
 
         const data = await response.json()
 
@@ -38,14 +42,14 @@ function TeacherDetails() {
         }
 
         setTeacher(data.teacher)
-        setStudents(data.students)
+        setStudents(data.students || [])
       } catch (error) {
         setMessage("Unable to connect to server")
       }
     }
 
     getTeacher()
-  }, [id, navigate])
+  }, [id, isTeacherProfile, navigate])
 
   if (message) {
     return (
@@ -83,20 +87,33 @@ function TeacherDetails() {
           </div>
 
           <div className="teacher-header-actions">
-            <button
-            className="back-button"
-            onClick={() => navigate(`/teachers/${id}/edit`)}
-            >
-            Edit Teacher
-           </button>
+            {!isTeacherProfile && (
+              <button
+                className="back-button"
+                onClick={() =>
+                  navigate(`/teachers/${id}/edit`)
+                }
+              >
+                Edit Teacher
+              </button>
+            )}
 
-           <button
-            className="back-button"
-            onClick={() => navigate("/teachers")}
-            >
-            Back to Teachers
-            </button>
-            </div>
+            {isTeacherProfile ? (
+              <button
+                className="back-button"
+                onClick={() => navigate("/")}
+              >
+                Back
+              </button>
+            ) : (
+              <button
+                className="back-button"
+                onClick={() => navigate("/teachers")}
+              >
+                Back
+              </button>
+            )}
+          </div>
         </div>
 
         <section className="teacher-details-card">
@@ -171,7 +188,7 @@ function TeacherDetails() {
           <div className="teacher-details-header">
             <div>
               <h2>Teaching Information</h2>
-              <p>Subjects currently taught by this teacher</p>
+              <p>Subjects assigned to this teacher</p>
             </div>
           </div>
 
@@ -198,7 +215,7 @@ function TeacherDetails() {
             <div>
               <h2>Current Students</h2>
               <p>
-                Students currently learning from this teacher
+                Students assigned to this teacher
               </p>
             </div>
           </div>
