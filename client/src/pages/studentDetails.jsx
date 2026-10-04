@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import {
+  useLocation,
+  useNavigate,
+  useParams
+} from "react-router-dom"
+
 import Sidebar from "../components/sidebar"
 import "./studentDetails.css"
 
@@ -23,7 +28,11 @@ function StudentDetails() {
   })
 
   const { id } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
+
+  const isStudentProfile =
+    location.pathname === "/student/profile"
 
   const getStudent = async () => {
     const token = localStorage.getItem("token")
@@ -34,14 +43,15 @@ function StudentDetails() {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/students/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const url = isStudentProfile
+        ? "http://localhost:3000/api/students/me"
+        : `http://localhost:3000/api/students/${id}`
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      )
+      })
 
       const data = await response.json()
 
@@ -66,22 +76,37 @@ function StudentDetails() {
         return
       }
 
-      try {
-        const [subjectsResponse, teachersResponse] = await Promise.all([
-          fetch("http://localhost:3000/api/subjects", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }),
-          fetch("http://localhost:3000/api/teachers", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
-        ])
+      if (isStudentProfile) {
+        getStudent()
+        return
+      }
 
-        const subjectsData = await subjectsResponse.json()
-        const teachersData = await teachersResponse.json()
+      try {
+        const [subjectsResponse, teachersResponse] =
+          await Promise.all([
+            fetch(
+              "http://localhost:3000/api/subjects",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            ),
+            fetch(
+              "http://localhost:3000/api/teachers",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            )
+          ])
+
+        const subjectsData =
+          await subjectsResponse.json()
+
+        const teachersData =
+          await teachersResponse.json()
 
         if (!subjectsResponse.ok) {
           setMessage(subjectsData.message)
@@ -95,14 +120,15 @@ function StudentDetails() {
 
         setSubjects(subjectsData.subjects)
         setTeachers(teachersData.teachers)
+
+        getStudent()
       } catch (error) {
         setMessage("Unable to connect to server")
       }
     }
 
-    getStudent()
     getData()
-  }, [id, navigate])
+  }, [id, navigate, isStudentProfile])
 
   const getTeachersForSubject = (subjectId) => {
     if (!subjectId) {
@@ -150,7 +176,9 @@ function StudentDetails() {
 
       setStudent(data.student)
       setStatus(data.student.status)
-      setStatusMessage("Student status updated successfully")
+      setStatusMessage(
+        "Student status updated successfully"
+      )
     } catch (error) {
       setStatusMessage("Unable to connect to server")
       setStatus(student.status)
@@ -199,7 +227,9 @@ function StudentDetails() {
       })
 
       setShowAddSubject(false)
-      setSubjectMessage("Subject added successfully")
+      setSubjectMessage(
+        "Subject added successfully"
+      )
     } catch (error) {
       setSubjectMessage("Unable to connect to server")
     } finally {
@@ -240,7 +270,9 @@ function StudentDetails() {
       }
 
       await getStudent()
-      setSubjectMessage("Subject removed successfully")
+      setSubjectMessage(
+        "Subject removed successfully"
+      )
     } catch (error) {
       setSubjectMessage("Unable to connect to server")
     } finally {
@@ -274,13 +306,15 @@ function StudentDetails() {
     (subject) =>
       !student.subjects.some(
         (studentSubject) =>
-          studentSubject.subjectId._id === subject._id
+          studentSubject.subjectId._id ===
+          subject._id
       )
   )
 
-  const teachersForNewSubject = getTeachersForSubject(
-    newSubject.subjectId
-  )
+  const teachersForNewSubject =
+    getTeachersForSubject(
+      newSubject.subjectId
+    )
 
   return (
     <div className="dashboard-layout">
@@ -295,9 +329,17 @@ function StudentDetails() {
 
           <button
             className="back-button"
-            onClick={() => navigate("/students")}
+            onClick={() =>
+              navigate(
+                isStudentProfile
+                  ? "/"
+                  : "/students"
+              )
+            }
           >
-            Back to Students
+            {isStudentProfile
+              ? "Back"
+              : "Back"}
           </button>
         </div>
 
@@ -305,10 +347,14 @@ function StudentDetails() {
           <div className="student-details-header">
             <div>
               <h2>Student Information</h2>
-              <p>Personal and academic information</p>
+              <p>
+                Personal and academic information
+              </p>
             </div>
 
-            <span className={`status-badge ${student.status}`}>
+            <span
+              className={`status-badge ${student.status}`}
+            >
               {student.status}
             </span>
           </div>
@@ -331,205 +377,278 @@ function StudentDetails() {
 
             <div className="detail-item">
               <span>Board</span>
-              <strong>{student.board || "-"}</strong>
+              <strong>
+                {student.board || "-"}
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>School</span>
-              <strong>{student.school || "-"}</strong>
+              <strong>
+                {student.school || "-"}
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>Gender</span>
-              <strong>{student.gender || "-"}</strong>
+              <strong>
+                {student.gender || "-"}
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>Date of Birth</span>
               <strong>
                 {student.dateOfBirth
-                  ? new Date(student.dateOfBirth).toLocaleDateString()
+                  ? new Date(
+                      student.dateOfBirth
+                    ).toLocaleDateString()
                   : "-"}
               </strong>
             </div>
 
             <div className="detail-item">
               <span>Phone</span>
-              <strong>{student.phone || "-"}</strong>
+              <strong>
+                {student.phone || "-"}
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>Guardian</span>
-              <strong>{student.guardianName || "-"}</strong>
+              <strong>
+                {student.guardianName || "-"}
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>Admission Date</span>
               <strong>
-                {new Date(student.admissionDate).toLocaleDateString()}
+                {new Date(
+                  student.admissionDate
+                ).toLocaleDateString()}
               </strong>
             </div>
 
             <div className="detail-item">
               <span>Discount</span>
-              <strong>{student.discount}%</strong>
+              <strong>
+                {student.discount}%
+              </strong>
             </div>
 
             <div className="detail-item">
               <span>Address</span>
-              <strong>{student.address || "-"}</strong>
+              <strong>
+                {student.address || "-"}
+              </strong>
             </div>
           </div>
         </section>
 
-        <section className="student-details-card">
-          <div className="student-details-header">
-            <div>
-              <h2>Student Status</h2>
-              <p>Manage the student's current enrollment status</p>
+        {!isStudentProfile && (
+          <section className="student-details-card">
+            <div className="student-details-header">
+              <div>
+                <h2>Student Status</h2>
+                <p>
+                  Manage the student's current
+                  enrollment status
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="status-management">
-            <div className="status-control">
-              <label htmlFor="studentStatus">Current Status</label>
+            <div className="status-management">
+              <div className="status-control">
+                <label htmlFor="studentStatus">
+                  Current Status
+                </label>
 
-              <select
-                id="studentStatus"
-                value={status}
-                onChange={(event) => {
-                  setStatus(event.target.value)
-                  setStatusMessage("")
-                }}
+                <select
+                  id="studentStatus"
+                  value={status}
+                  onChange={(event) => {
+                    setStatus(event.target.value)
+                    setStatusMessage("")
+                  }}
+                >
+                  <option value="active">
+                    Active
+                  </option>
+                  <option value="paused">
+                    Paused
+                  </option>
+                  <option value="left">
+                    Left
+                  </option>
+                </select>
+              </div>
+
+              <button
+                className="primary-button"
+                onClick={handleStatusUpdate}
+                disabled={updatingStatus}
               >
-                <option value="active">Active</option>
-                <option value="paused">Paused</option>
-                <option value="left">Left</option>
-              </select>
+                {updatingStatus
+                  ? "Updating..."
+                  : "Update Status"}
+              </button>
             </div>
 
-            <button
-              className="primary-button"
-              onClick={handleStatusUpdate}
-              disabled={updatingStatus}
-            >
-              {updatingStatus ? "Updating..." : "Update Status"}
-            </button>
-          </div>
-
-          {statusMessage && (
-            <p className="status-message">{statusMessage}</p>
-          )}
-        </section>
+            {statusMessage && (
+              <p className="status-message">
+                {statusMessage}
+              </p>
+            )}
+          </section>
+        )}
 
         <section className="student-details-card">
           <div className="student-details-header">
             <div>
               <h2>Enrolled Subjects</h2>
-              <p>Current subjects, teachers and monthly fees</p>
+              <p>
+                Current subjects, teachers and
+                monthly fees
+              </p>
             </div>
 
-            <button
-              className="secondary-button"
-              onClick={() => {
-                setShowAddSubject(!showAddSubject)
-                setSubjectMessage("")
-              }}
-            >
-              {showAddSubject ? "Cancel" : "Add Subject"}
-            </button>
+            {!isStudentProfile && (
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  setShowAddSubject(
+                    !showAddSubject
+                  )
+                  setSubjectMessage("")
+                }}
+              >
+                {showAddSubject
+                  ? "Cancel"
+                  : "Add Subject"}
+              </button>
+            )}
           </div>
 
-          {showAddSubject && (
-            <form
-              className="add-subject-form"
-              onSubmit={handleAddSubject}
-            >
-              <div className="add-subject-grid">
-                <div className="form-group">
-                  <label htmlFor="newSubject">Subject</label>
+          {!isStudentProfile &&
+            showAddSubject && (
+              <form
+                className="add-subject-form"
+                onSubmit={handleAddSubject}
+              >
+                <div className="add-subject-grid">
+                  <div className="form-group">
+                    <label htmlFor="newSubject">
+                      Subject
+                    </label>
 
-                  <select
-                    id="newSubject"
-                    value={newSubject.subjectId}
-                    onChange={(event) => {
-                      setNewSubject({
-                        ...newSubject,
-                        subjectId: event.target.value,
-                        teacherId: ""
-                      })
-                      setSubjectMessage("")
-                    }}
-                    required
-                  >
-                    <option value="">Select Subject</option>
-
-                    {availableSubjects.map((subject) => (
-                      <option key={subject._id} value={subject._id}>
-                        {subject.name}
+                    <select
+                      id="newSubject"
+                      value={newSubject.subjectId}
+                      onChange={(event) => {
+                        setNewSubject({
+                          ...newSubject,
+                          subjectId:
+                            event.target.value,
+                          teacherId: ""
+                        })
+                        setSubjectMessage("")
+                      }}
+                      required
+                    >
+                      <option value="">
+                        Select Subject
                       </option>
-                    ))}
-                  </select>
-                </div>
 
-                <div className="form-group">
-                  <label htmlFor="newTeacher">Teacher</label>
+                      {availableSubjects.map(
+                        (subject) => (
+                          <option
+                            key={subject._id}
+                            value={subject._id}
+                          >
+                            {subject.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
 
-                  <select
-                    id="newTeacher"
-                    value={newSubject.teacherId}
-                    onChange={(event) =>
-                      setNewSubject({
-                        ...newSubject,
-                        teacherId: event.target.value
-                      })
-                    }
-                    disabled={!newSubject.subjectId}
-                    required
-                  >
-                    <option value="">Select Teacher</option>
+                  <div className="form-group">
+                    <label htmlFor="newTeacher">
+                      Teacher
+                    </label>
 
-                    {teachersForNewSubject.map((teacher) => (
-                      <option key={teacher._id} value={teacher._id}>
-                        {teacher.name}
+                    <select
+                      id="newTeacher"
+                      value={newSubject.teacherId}
+                      onChange={(event) =>
+                        setNewSubject({
+                          ...newSubject,
+                          teacherId:
+                            event.target.value
+                        })
+                      }
+                      disabled={
+                        !newSubject.subjectId
+                      }
+                      required
+                    >
+                      <option value="">
+                        Select Teacher
                       </option>
-                    ))}
-                  </select>
+
+                      {teachersForNewSubject.map(
+                        (teacher) => (
+                          <option
+                            key={teacher._id}
+                            value={teacher._id}
+                          >
+                            {teacher.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="newFee">
+                      Monthly Fee
+                    </label>
+
+                    <input
+                      id="newFee"
+                      type="number"
+                      min="0"
+                      value={newSubject.fee}
+                      onChange={(event) =>
+                        setNewSubject({
+                          ...newSubject,
+                          fee: event.target.value
+                        })
+                      }
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="newFee">Monthly Fee</label>
-
-                  <input
-                    id="newFee"
-                    type="number"
-                    min="0"
-                    value={newSubject.fee}
-                    onChange={(event) =>
-                      setNewSubject({
-                        ...newSubject,
-                        fee: event.target.value
-                      })
-                    }
-                    required
-                  />
+                <div className="add-subject-actions">
+                  <button
+                    type="submit"
+                    className="primary-button"
+                    disabled={addingSubject}
+                  >
+                    {addingSubject
+                      ? "Adding..."
+                      : "Add Subject"}
+                  </button>
                 </div>
-              </div>
-
-              <div className="add-subject-actions">
-                <button
-                  type="submit"
-                  className="primary-button"
-                  disabled={addingSubject}
-                >
-                  {addingSubject ? "Adding..." : "Add Subject"}
-                </button>
-              </div>
-            </form>
-          )}
+              </form>
+            )}
 
           {subjectMessage && (
-            <p className="status-message">{subjectMessage}</p>
+            <p className="status-message">
+              {subjectMessage}
+            </p>
           )}
 
           {student.subjects.length === 0 ? (
@@ -545,38 +664,61 @@ function StudentDetails() {
                     <th>Teacher</th>
                     <th>Monthly Fee</th>
                     <th>Started</th>
-                    <th>Actions</th>
+                    {!isStudentProfile && (
+                      <th>Actions</th>
+                    )}
                   </tr>
                 </thead>
 
                 <tbody>
-                  {student.subjects.map((subject) => (
-                    <tr key={subject._id}>
-                      <td>{subject.subjectId.name}</td>
-                      <td>{subject.teacherId.name}</td>
-                      <td>₹{subject.fee}</td>
-                      <td>
-                        {new Date(
-                          subject.startedAt
-                        ).toLocaleDateString()}
-                      </td>
-                      <td>
-                        <button
-                          className="remove-button"
-                          onClick={() =>
-                            handleRemoveSubject(subject.subjectId._id)
-                          }
-                          disabled={
-                            removingSubject === subject.subjectId._id
-                          }
-                        >
-                          {removingSubject === subject.subjectId._id
-                            ? "Removing..."
-                            : "Remove"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {student.subjects.map(
+                    (subject) => (
+                      <tr key={subject._id}>
+                        <td>
+                          {subject.subjectId.name}
+                        </td>
+
+                        <td>
+                          {subject.teacherId.name}
+                        </td>
+
+                        <td>
+                          ₹{subject.fee}
+                        </td>
+
+                        <td>
+                          {new Date(
+                            subject.startedAt
+                          ).toLocaleDateString()}
+                        </td>
+
+                        {!isStudentProfile && (
+                          <td>
+                            <button
+                              className="remove-button"
+                              onClick={() =>
+                                handleRemoveSubject(
+                                  subject
+                                    .subjectId
+                                    ._id
+                                )
+                              }
+                              disabled={
+                                removingSubject ===
+                                subject.subjectId
+                                  ._id
+                              }
+                            >
+                              {removingSubject ===
+                              subject.subjectId._id
+                                ? "Removing..."
+                                : "Remove"}
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
