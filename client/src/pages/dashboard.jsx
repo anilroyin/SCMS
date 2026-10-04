@@ -75,22 +75,72 @@ function Dashboard() {
           </div>
         </header>
 
-        <section className="dashboard-overview">
-          <div className="overview-card">
-            <h3>Students</h3>
-            <p>Manage students</p>
-          </div>
+        {user.role === "admin" && (
+          <section className="dashboard-overview">
+            <div className="overview-card">
+              <h3>Students</h3>
+              <p>Manage students</p>
+            </div>
 
-          <div className="overview-card">
-            <h3>Teachers</h3>
-            <p>Manage teachers</p>
-          </div>
+            <div className="overview-card">
+              <h3>Teachers</h3>
+              <p>Manage teachers</p>
+            </div>
 
-          <div className="overview-card">
-            <h3>Subjects</h3>
-            <p>Manage subjects</p>
-          </div>
-        </section>
+            <div className="overview-card">
+              <h3>Subjects</h3>
+              <p>Manage subjects</p>
+            </div>
+          </section>
+        )}
+
+        {user.role === "teacher" && (
+          <section className="dashboard-overview">
+            <div className="overview-card">
+              <h3>My Students</h3>
+              <p>View students assigned to you</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Subjects</h3>
+              <p>View the subjects you teach</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Schedule</h3>
+              <p>View your class schedule</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Earnings</h3>
+              <p>View your earnings</p>
+            </div>
+          </section>
+        )}
+
+        {user.role === "student" && (
+          <section className="dashboard-overview">
+            <div className="overview-card">
+              <h3>My Subjects</h3>
+              <p>View your enrolled subjects</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Teachers</h3>
+              <p>View your teachers</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Schedule</h3>
+              <p>View your class schedule</p>
+            </div>
+
+            <div className="overview-card">
+              <h3>My Fees</h3>
+              <p>View your fee details</p>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )
