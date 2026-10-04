@@ -98,7 +98,7 @@ function SubjectDetails() {
               className="back-button"
               onClick={() => navigate("/subjects")}
             >
-              Back to Subjects
+              Back
             </button>
           </div>
         </div>
