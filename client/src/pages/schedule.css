@@ -1,0 +1,263 @@
+.schedule-page {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.schedule-page-header h1 {
+  margin: 0;
+  color: #26313f;
+  font-size: 26px;
+}
+
+.schedule-page-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.schedule-add-button {
+  border: none;
+  border-radius: 7px;
+  padding: 11px 18px;
+  background: #80919f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-add-button:hover {
+  background: #4b6276;
+}
+
+/* Message */
+
+.schedule-message {
+  padding: 11px 16px;
+  margin-bottom: 18px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+}
+
+/* Day Selector */
+
+.schedule-day-selector {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.schedule-day-button {
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  padding: 11px 8px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-day-button:hover {
+  border-color: #80919f;
+  background: #f8fafc;
+}
+
+.schedule-day-button.active {
+  border-color: #80919f;
+  background: #80919f;
+  color: #ffffff;
+}
+
+/* Schedule Card */
+
+.schedule-card {
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.schedule-card-header {
+  margin-bottom: 18px;
+}
+
+.schedule-card-header h2 {
+  margin: 0;
+  color: #26313f;
+  font-size: 19px;
+}
+
+.schedule-card-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Table */
+
+.schedule-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schedule-table th,
+.schedule-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.schedule-table th {
+  background: #f5f7f9;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.schedule-table td {
+  color: #26313f;
+}
+
+.schedule-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.schedule-table td strong {
+  display: block;
+  color: #26313f;
+  font-weight: 600;
+}
+
+.schedule-secondary {
+  display: block;
+  margin-top: 3px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* Status */
+
+.schedule-status {
+  display: inline-block;
+  min-width: 62px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.schedule-status.active {
+  background: #edf3f6;
+  color: #4b6276;
+}
+
+.schedule-status.suspend {
+  background: #f3f3f3;
+  color: #6b7280;
+}
+
+.schedule-status.delay {
+  background: #f5f1e8;
+  color: #7a6847;
+}
+
+/* Actions */
+
+.schedule-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.schedule-edit-button,
+.schedule-delete-button {
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-edit-button {
+  border: 1px solid #d9dee3;
+  background: #ffffff;
+  color: #26313f;
+}
+
+.schedule-edit-button:hover {
+  background: #f5f7f9;
+  border-color: #80919f;
+}
+
+.schedule-delete-button {
+  border: 1px solid #d9dee3;
+  background: #ffffff;
+  color: #6b7280;
+}
+
+.schedule-delete-button:hover {
+  background: #f5f7f9;
+  border-color: #6b7280;
+}
+
+/* Empty State */
+
+.schedule-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+  .schedule-day-selector {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .schedule-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .schedule-add-button {
+    width: 100%;
+  }
+
+  .schedule-day-selector {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .schedule-card {
+    padding: 16px;
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    padding: 10px;
+  }
+}
