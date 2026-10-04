@@ -185,7 +185,7 @@ function Teachers() {
                             )
                           }
                         >
-                          View
+                          View profile
                         </button>
                       </td>
                     </tr>
