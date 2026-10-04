@@ -5,6 +5,7 @@ import "./students.css"
 
 function Students() {
   const [students, setStudents] = useState([])
+  const [user, setUser] = useState(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [classFilter, setClassFilter] = useState("all")
@@ -25,7 +26,32 @@ function Students() {
       }
 
       try {
-        const response = await fetch("http://localhost:3000/api/students", {
+        const userResponse = await fetch(
+          "http://localhost:3000/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        const userData = await userResponse.json()
+
+        if (!userResponse.ok) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          navigate("/login")
+          return
+        }
+
+        setUser(userData.user)
+
+        const studentsUrl =
+          userData.user.role === "teacher"
+            ? "http://localhost:3000/api/teachers/me/students"
+            : "http://localhost:3000/api/students"
+
+        const response = await fetch(studentsUrl, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -133,6 +159,8 @@ function Students() {
     (student) => student.status === "left"
   ).length
 
+  const isTeacher = user?.role === "teacher"
+
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -140,23 +168,30 @@ function Students() {
       <main className="dashboard-content">
         <div className="page-header">
           <div>
-            <h1>Students</h1>
-            <p>Manage admitted students</p>
+            <h1>{isTeacher ? "My Students" : "Students"}</h1>
+
+            <p>
+              {isTeacher
+                ? "Students assigned to you"
+                : "Manage admitted students"}
+            </p>
           </div>
 
-          <button
-            className="primary-button"
-            onClick={() => navigate("/students/admit")}
-          >
-            Admit a Student
-          </button>
+          {!isTeacher && (
+            <button
+              className="primary-button"
+              onClick={() => navigate("/students/admit")}
+            >
+              Admit a Student
+            </button>
+          )}
         </div>
 
         {message && <p className="page-message">{message}</p>}
 
         <section className="student-summary">
           <div className="summary-card">
-            <span>Total Students</span>
+            <span>{isTeacher ? "My Students" : "Total Students"}</span>
             <strong>{totalStudents}</strong>
           </div>
 
@@ -178,7 +213,7 @@ function Students() {
 
         <div className="students-card">
           <div className="students-card-header">
-            <h2>All Students</h2>
+            <h2>{isTeacher ? "My Students" : "All Students"}</h2>
 
             <input
               type="search"
@@ -239,18 +274,22 @@ function Students() {
               ))}
             </select>
 
-            <select
-              value={teacherFilter}
-              onChange={(event) => setTeacherFilter(event.target.value)}
-            >
-              <option value="all">All Teachers</option>
+            {!isTeacher && (
+              <select
+                value={teacherFilter}
+                onChange={(event) =>
+                  setTeacherFilter(event.target.value)
+                }
+              >
+                <option value="all">All Teachers</option>
 
-              {teachers.map(([id, name]) => (
-                <option key={id} value={id}>
-                  {name}
-                </option>
-              ))}
-            </select>
+                {teachers.map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {filteredStudents.length === 0 ? (
@@ -269,7 +308,7 @@ function Students() {
                     <th>Subjects</th>
                     <th>Teachers</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    {!isTeacher && <th>Actions</th>}
                   </tr>
                 </thead>
 
@@ -290,18 +329,27 @@ function Students() {
                         <td>{student.subjects.length}</td>
                         <td>{teacherCount}</td>
                         <td>
-                          <span className={`status-badge ${student.status}`}>
+                          <span
+                            className={`status-badge ${student.status}`}
+                          >
                             {student.status}
                           </span>
                         </td>
-                        <td>
-                           <button
-                            className="view-button"
-                            onClick={() => navigate(`/students/${student._id}`)}
+
+                        {!isTeacher && (
+                          <td>
+                            <button
+                              className="view-button"
+                              onClick={() =>
+                                navigate(
+                                  `/students/${student._id}`
+                                )
+                              }
                             >
-                            View
-                          </button>
-                        </td>
+                              View profile
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
