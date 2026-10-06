@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/sidebar"
 import "./notifications.css"
 
 function Notifications() {
@@ -9,23 +10,26 @@ function Notifications() {
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState("")
+  const [role, setRole] = useState("")
   const [isAdmin, setIsAdmin] = useState(false)
 
   const token = localStorage.getItem("token")
 
   const getUserFromToken = () => {
     try {
+      if (!token) {
+        return null
+      }
+
       const payload = token.split(".")[1]
 
-      const decodedPayload = JSON.parse(
+      return JSON.parse(
         atob(
           payload
             .replace(/-/g, "+")
-            .replace(/_/g, "/")
+            .replace(/\_/g, "/")
         )
       )
-
-      return decodedPayload
     } catch (error) {
       return null
     }
@@ -39,13 +43,13 @@ function Notifications() {
         throw new Error("Invalid authentication token")
       }
 
-      const admin = user.role === "admin"
+      setRole(user.role)
+      setIsAdmin(user.role === "admin")
 
-      setIsAdmin(admin)
-
-      const endpoint = admin
-        ? "http://localhost:3000/api/notifications/logs"
-        : "http://localhost:3000/api/notifications/me"
+      const endpoint =
+        user.role === "admin"
+          ? "http://localhost:3000/api/notifications/logs"
+          : "http://localhost:3000/api/notifications/me"
 
       const response = await fetch(endpoint, {
         headers: {
@@ -154,7 +158,6 @@ function Notifications() {
           ...notification,
           adminRead: true
         })
-
         return
       }
     }
@@ -166,7 +169,6 @@ function Notifications() {
         ...notification,
         isRead: true
       })
-
       return
     }
 
@@ -183,7 +185,7 @@ function Notifications() {
       all_students: "All Students",
       all_teachers: "All Teachers",
       fee_due: "Fee Due Students",
-      fee_partial: "Partial Fee Students",
+      fee_partial: "Fee Partial Students",
       individual_student: "Individual Student",
       individual_teacher: "Individual Teacher",
       teacher_students: "All Own Students",
@@ -215,9 +217,7 @@ function Notifications() {
                 : "Notification"}
             </h1>
 
-            <p>
-              View notification details
-            </p>
+            <p>View notification details</p>
           </div>
 
           <button
@@ -232,9 +232,7 @@ function Notifications() {
 
         <div className="notification-detail-card">
           <div className="notification-detail-header">
-            <h2>
-              {selectedNotification.title}
-            </h2>
+            <h2>{selectedNotification.title}</h2>
           </div>
 
           <div className="notification-detail-info">
@@ -288,9 +286,7 @@ function Notifications() {
 
           <div className="notification-detail-message">
             <strong>Message</strong>
-            <p>
-              {selectedNotification.message}
-            </p>
+            <p>{selectedNotification.message}</p>
           </div>
 
           {isAdmin && (
@@ -312,13 +308,8 @@ function Notifications() {
                         key={recipient._id}
                       >
                         <div>
-                          <strong>
-                            {recipient.name}
-                          </strong>
-
-                          <span>
-                            {recipient.email}
-                          </span>
+                          <strong>{recipient.name}</strong>
+                          <span>{recipient.email}</span>
                         </div>
 
                         <span className="notification-recipient-role">
@@ -357,12 +348,25 @@ function Notifications() {
           </p>
         </div>
 
-        <button
-          className="notifications-back-button"
-          onClick={() => navigate("/")}
-        >
-          Back
-        </button>
+        <div className="notifications-header-actions">
+          {(isAdmin || role === "teacher") && (
+            <button
+              className="notifications-send-button"
+              onClick={() =>
+                navigate("/notifications/send")
+              }
+            >
+              Send Notification
+            </button>
+          )}
+
+          <button
+            className="notifications-back-button"
+            onClick={() => navigate("/")}
+          >
+            Back
+          </button>
+        </div>
       </div>
 
       {message && (
@@ -444,7 +448,8 @@ function Notifications() {
                   <>
                     <span>
                       Recipients:{" "}
-                      {notification.recipients?.length || 0}
+                      {notification.recipients?.length ||
+                        0}
                     </span>
 
                     <span>
@@ -454,19 +459,19 @@ function Notifications() {
                     </span>
                   </>
                 ) : (
-                  <span>
-                    {notification.isRead
-                      ? "Read"
-                      : "Unread"}
-                  </span>
-                )}
+                  <>
+                    <span>
+                      {notification.isRead
+                        ? "Read"
+                        : "Unread"}
+                    </span>
 
-                {!isAdmin && (
-                  <span>
-                    {formatDate(
-                      notification.createdAt
-                    )}
-                  </span>
+                    <span>
+                      {formatDate(
+                        notification.createdAt
+                      )}
+                    </span>
+                  </>
                 )}
               </div>
             </div>
