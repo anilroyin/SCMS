@@ -12,6 +12,7 @@ function Notifications() {
   const [message, setMessage] = useState("")
   const [role, setRole] = useState("")
   const [isAdmin, setIsAdmin] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState("")
 
   const token = localStorage.getItem("token")
 
@@ -27,7 +28,7 @@ function Notifications() {
         atob(
           payload
             .replace(/-/g, "+")
-            .replace(/\_/g, "/")
+            .replace(/_/g, "/")
         )
       )
     } catch (error) {
@@ -45,27 +46,104 @@ function Notifications() {
 
       setRole(user.role)
       setIsAdmin(user.role === "admin")
+      setCurrentUserId(user.userId)
 
-      const endpoint =
-        user.role === "admin"
-          ? "http://localhost:3000/api/notifications/logs"
-          : "http://localhost:3000/api/notifications/me"
+      if (user.role === "admin") {
+        const response = await fetch(
+          "http://localhost:3000/api/notifications/logs",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
 
-      const response = await fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${token}`
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Failed to get notifications"
+          )
         }
-      })
 
-      const data = await response.json()
+        setNotifications(data)
+        return
+      }
 
-      if (!response.ok) {
+      const receivedResponse = await fetch(
+        "http://localhost:3000/api/notifications/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const receivedData =
+        await receivedResponse.json()
+
+      if (!receivedResponse.ok) {
         throw new Error(
-          data.message || "Failed to get notifications"
+          receivedData.message ||
+            "Failed to get notifications"
         )
       }
 
-      setNotifications(data)
+      const receivedNotifications =
+        Array.isArray(receivedData)
+          ? receivedData
+          : receivedData.notifications || []
+
+      if (user.role === "teacher") {
+        const sentResponse = await fetch(
+          "http://localhost:3000/api/notifications/sent",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        const sentData = await sentResponse.json()
+
+        if (!sentResponse.ok) {
+          throw new Error(
+            sentData.message ||
+              "Failed to get sent notifications"
+          )
+        }
+
+        const sentNotifications =
+          Array.isArray(sentData)
+            ? sentData
+            : sentData.notifications || []
+
+        const allNotifications = [
+          ...receivedNotifications,
+          ...sentNotifications
+        ]
+
+        const uniqueNotifications = Array.from(
+          new Map(
+            allNotifications.map((notification) => [
+              notification._id,
+              notification
+            ])
+          ).values()
+        )
+
+        uniqueNotifications.sort(
+          (a, b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
+        )
+
+        setNotifications(uniqueNotifications)
+        return
+      }
+
+      setNotifications(receivedNotifications)
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -93,7 +171,8 @@ function Notifications() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to mark notification as read"
+          data.message ||
+            "Failed to mark notification as read"
         )
       }
 
@@ -103,6 +182,10 @@ function Notifications() {
             ? { ...notification, isRead: true }
             : notification
         )
+      )
+
+      window.dispatchEvent(
+        new Event("notificationsUpdated")
       )
 
       return true
@@ -128,7 +211,8 @@ function Notifications() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to mark notification as read"
+          data.message ||
+            "Failed to mark notification as read"
         )
       }
 
@@ -140,6 +224,10 @@ function Notifications() {
         )
       )
 
+      window.dispatchEvent(
+        new Event("notificationsUpdated")
+      )
+
       return true
     } catch (error) {
       setMessage(error.message)
@@ -147,8 +235,71 @@ function Notifications() {
     }
   }
 
+  const deleteNotification = async (notification) => {
+    const canDelete =
+      (
+        role === "admin" &&
+        notification.sender?.role === "admin" &&
+        notification.sender?._id === currentUserId
+      ) ||
+      (
+        role === "teacher" &&
+        notification.sender?._id === currentUserId
+      )
+
+    if (!canDelete) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this notification?"
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/notifications/${notification._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Failed to delete notification"
+        )
+      }
+
+      setNotifications((currentNotifications) =>
+        currentNotifications.filter(
+          (item) => item._id !== notification._id
+        )
+      )
+
+      setSelectedNotification(null)
+
+      window.dispatchEvent(
+        new Event("notificationsUpdated")
+      )
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
   const handleNotificationClick = async (notification) => {
-    if (isAdmin && !notification.adminRead) {
+    if (
+      isAdmin &&
+      !notification.adminRead
+    ) {
       const markedAsRead = await markAdminAsRead(
         notification._id
       )
@@ -158,17 +309,23 @@ function Notifications() {
           ...notification,
           adminRead: true
         })
+
         return
       }
     }
 
-    if (!isAdmin && !notification.isRead) {
+    if (
+      !isAdmin &&
+      !notification.isSent &&
+      !notification.isRead
+    ) {
       await markAsRead(notification._id)
 
       setSelectedNotification({
         ...notification,
         isRead: true
       })
+
       return
     }
 
@@ -190,294 +347,363 @@ function Notifications() {
       individual_teacher: "Individual Teacher",
       teacher_students: "All Own Students",
       teacher_class: "Class-wise Students",
-      teacher_individual_student: "Individual Student"
+      teacher_individual_student:
+        "Individual Student"
     }
 
     return targetNames[targetType] || targetType
   }
 
+  const canDeleteSelectedNotification =
+    selectedNotification &&
+    (
+      (
+        role === "admin" &&
+        selectedNotification.sender?.role ===
+          "admin" &&
+        selectedNotification.sender?._id ===
+          currentUserId
+      ) ||
+      (
+        role === "teacher" &&
+        selectedNotification.sender?._id ===
+          currentUserId
+      )
+    )
+
   if (loading) {
     return (
-      <div className="notifications-page">
-        <div className="notifications-loading">
-          Loading notifications...
-        </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+
+        <main className="dashboard-content">
+          <div className="notifications-page">
+            <div className="notifications-loading">
+              Loading notifications...
+            </div>
+          </div>
+        </main>
       </div>
     )
   }
 
   if (selectedNotification) {
     return (
-      <div className="notifications-page">
-        <div className="notifications-header">
-          <div>
-            <h1>
-              {isAdmin
-                ? "Notification Details"
-                : "Notification"}
-            </h1>
+      <div className="dashboard-layout">
+        <Sidebar />
 
-            <p>View notification details</p>
-          </div>
-
-          <button
-            className="notifications-back-button"
-            onClick={() =>
-              setSelectedNotification(null)
-            }
-          >
-            Back
-          </button>
-        </div>
-
-        <div className="notification-detail-card">
-          <div className="notification-detail-header">
-            <h2>{selectedNotification.title}</h2>
-          </div>
-
-          <div className="notification-detail-info">
-            <div>
-              <strong>From:</strong>
-              <span>
-                {selectedNotification.sender?.name ||
-                  "Unknown"}
-              </span>
-            </div>
-
-            <div>
-              <strong>Role:</strong>
-              <span>
-                {selectedNotification.sender?.role ||
-                  selectedNotification.senderRole ||
-                  "-"}
-              </span>
-            </div>
-
-            <div>
-              <strong>Date:</strong>
-              <span>
-                {formatDate(
-                  selectedNotification.createdAt
-                )}
-              </span>
-            </div>
-
-            {isAdmin && (
+        <main className="dashboard-content">
+          <div className="notifications-page">
+            <div className="notifications-header">
               <div>
-                <strong>Target:</strong>
-                <span>
-                  {getTargetName(
-                    selectedNotification.targetType
-                  )}
-                </span>
-              </div>
-            )}
+                <h1>
+                  {isAdmin
+                    ? "Notification Details"
+                    : "Notification"}
+                </h1>
 
-            {isAdmin &&
-              selectedNotification.className && (
+                <p>View notification details</p>
+              </div>
+
+              <div className="notifications-header-actions">
+                {canDeleteSelectedNotification && (
+                  <button
+                    className="notifications-delete-button"
+                    onClick={() =>
+                      deleteNotification(
+                        selectedNotification
+                      )
+                    }
+                  >
+                    Delete
+                  </button>
+                )}
+
+                <button
+                  className="notifications-back-button"
+                  onClick={() =>
+                    setSelectedNotification(null)
+                  }
+                >
+                  Back
+                </button>
+              </div>
+            </div>
+
+            <div className="notification-detail-card">
+              <div className="notification-detail-header">
+                <h2>
+                  {selectedNotification.title}
+                </h2>
+              </div>
+
+              <div className="notification-detail-info">
                 <div>
-                  <strong>Class:</strong>
+                  <strong>From:</strong>
                   <span>
-                    {selectedNotification.className}
+                    {selectedNotification.sender?.name ||
+                      "Unknown"}
                   </span>
                 </div>
-              )}
-          </div>
 
-          <div className="notification-detail-message">
-            <strong>Message</strong>
-            <p>{selectedNotification.message}</p>
-          </div>
+                <div>
+                  <strong>Role:</strong>
+                  <span>
+                    {selectedNotification.sender?.role ||
+                      selectedNotification.senderRole ||
+                      "-"}
+                  </span>
+                </div>
 
-          {isAdmin && (
-            <div className="notification-recipients">
-              <div className="notification-recipients-header">
-                <strong>Recipients</strong>
-                <span>
-                  {selectedNotification.recipients?.length ||
-                    0}
-                </span>
+                <div>
+                  <strong>Date:</strong>
+                  <span>
+                    {formatDate(
+                      selectedNotification.createdAt
+                    )}
+                  </span>
+                </div>
+
+                {(isAdmin ||
+                  selectedNotification.isSent) && (
+                  <div>
+                    <strong>Target:</strong>
+                    <span>
+                      {getTargetName(
+                        selectedNotification.targetType
+                      )}
+                    </span>
+                  </div>
+                )}
+
+                {selectedNotification.className && (
+                  <div>
+                    <strong>Class:</strong>
+                    <span>
+                      {selectedNotification.className}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {selectedNotification.recipients?.length > 0 ? (
-                <div className="notification-recipient-list">
-                  {selectedNotification.recipients.map(
-                    (recipient) => (
-                      <div
-                        className="notification-recipient"
-                        key={recipient._id}
-                      >
-                        <div>
-                          <strong>{recipient.name}</strong>
-                          <span>{recipient.email}</span>
-                        </div>
+              <div className="notification-detail-message">
+                <strong>Message</strong>
+                <p>
+                  {selectedNotification.message}
+                </p>
+              </div>
 
-                        <span className="notification-recipient-role">
-                          {recipient.role}
-                        </span>
-                      </div>
-                    )
+              {(isAdmin ||
+                selectedNotification.isSent) && (
+                <div className="notification-recipients">
+                  <div className="notification-recipients-header">
+                    <strong>Recipients</strong>
+                    <span>
+                      {selectedNotification.recipients?.length ||
+                        0}
+                    </span>
+                  </div>
+
+                  {selectedNotification.recipients?.length >
+                  0 ? (
+                    <div className="notification-recipient-list">
+                      {selectedNotification.recipients.map(
+                        (recipient) => (
+                          <div
+                            className="notification-recipient"
+                            key={recipient._id}
+                          >
+                            <div>
+                              <strong>
+                                {recipient.name}
+                              </strong>
+
+                              <span>
+                                {recipient.email}
+                              </span>
+                            </div>
+
+                            <span className="notification-recipient-role">
+                              {recipient.role}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ) : (
+                    <p className="notification-no-recipients">
+                      No recipients found.
+                    </p>
                   )}
                 </div>
-              ) : (
-                <p className="notification-no-recipients">
-                  No recipients found.
-                </p>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        </main>
       </div>
     )
   }
 
   return (
-    <div className="notifications-page">
-      <div className="notifications-header">
-        <div>
-          <h1>
-            {isAdmin
-              ? "Notification Log"
-              : "Notifications"}
-          </h1>
+    <div className="dashboard-layout">
+      <Sidebar />
 
-          <p>
-            {isAdmin
-              ? "Complete record of notifications sent by the admin and teachers"
-              : "View your latest notifications"}
-          </p>
-        </div>
+      <main className="dashboard-content">
+        <div className="notifications-page">
+          <div className="notifications-header">
+            <div>
+              <h1>
+                {isAdmin
+                  ? "Notification Log"
+                  : "Notifications"}
+              </h1>
 
-        <div className="notifications-header-actions">
-          {(isAdmin || role === "teacher") && (
-            <button
-              className="notifications-send-button"
-              onClick={() =>
-                navigate("/notifications/send")
-              }
-            >
-              Send Notification
-            </button>
+              <p>
+                {isAdmin
+                  ? "Complete record of notifications sent by the admin and teachers"
+                  : "View your latest notifications"}
+              </p>
+            </div>
+
+            <div className="notifications-header-actions">
+              {(isAdmin || role === "teacher") && (
+                <button
+                  className="notifications-send-button"
+                  onClick={() =>
+                    navigate("/notifications/send")
+                  }
+                >
+                  Send Notification
+                </button>
+              )}
+
+              <button
+                className="notifications-back-button"
+                onClick={() => navigate("/")}
+              >
+                Back
+              </button>
+            </div>
+          </div>
+
+          {message && (
+            <div className="notifications-message">
+              {message}
+            </div>
           )}
 
-          <button
-            className="notifications-back-button"
-            onClick={() => navigate("/")}
-          >
-            Back
-          </button>
-        </div>
-      </div>
-
-      {message && (
-        <div className="notifications-message">
-          {message}
-        </div>
-      )}
-
-      {notifications.length === 0 ? (
-        <div className="notifications-empty">
-          {isAdmin
-            ? "No notification records found."
-            : "No notifications found."}
-        </div>
-      ) : (
-        <div className="notifications-list">
-          {notifications.map((notification) => (
-            <div
-              key={notification._id}
-              className={`notification-card ${
-                isAdmin
-                  ? `admin-notification ${
-                      !notification.adminRead
-                        ? "admin-new"
-                        : ""
-                    }`
-                  : notification.isRead
-                    ? "read"
-                    : "unread"
-              }`}
-              onClick={() =>
-                handleNotificationClick(notification)
-              }
-            >
-              <div className="notification-card-header">
-                <div>
-                  <h2>
-                    <span className="notification-title-text">
-                      {notification.title}
-                    </span>
-
-                    {isAdmin &&
-                      !notification.adminRead && (
-                        <span className="notification-admin-new-badge">
-                          New
-                        </span>
-                      )}
-                  </h2>
-
-                  <span className="notification-sender">
-                    {`From: ${
-                      notification.sender?.name ||
-                      "Unknown"
-                    }`}
-                  </span>
-                </div>
-
-                {isAdmin ? (
-                  <span className="notification-target">
-                    {getTargetName(
-                      notification.targetType
-                    )}
-                  </span>
-                ) : (
-                  !notification.isRead && (
-                    <span className="notification-unread">
-                      Unread
-                    </span>
-                  )
-                )}
-              </div>
-
-              <p className="notification-message">
-                {notification.message}
-              </p>
-
-              <div className="notification-footer">
-                {isAdmin ? (
-                  <>
-                    <span>
-                      Recipients:{" "}
-                      {notification.recipients?.length ||
-                        0}
-                    </span>
-
-                    <span>
-                      {formatDate(
-                        notification.createdAt
-                      )}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      {notification.isRead
-                        ? "Read"
-                        : "Unread"}
-                    </span>
-
-                    <span>
-                      {formatDate(
-                        notification.createdAt
-                      )}
-                    </span>
-                  </>
-                )}
-              </div>
+          {notifications.length === 0 ? (
+            <div className="notifications-empty">
+              {isAdmin
+                ? "No notification records found."
+                : "No notifications found."}
             </div>
-          ))}
+          ) : (
+            <div className="notifications-list">
+              {notifications.map((notification) => (
+                <div
+                  key={notification._id}
+                  className={`notification-card ${
+                    isAdmin
+                      ? `admin-notification ${
+                          !notification.adminRead
+                            ? "admin-new"
+                            : ""
+                        }`
+                      : notification.isSent
+                        ? "read"
+                        : notification.isRead
+                          ? "read"
+                          : "unread"
+                  }`}
+                  onClick={() =>
+                    handleNotificationClick(
+                      notification
+                    )
+                  }
+                >
+                  <div className="notification-card-header">
+                    <div>
+                      <h2>
+                        <span className="notification-title-text">
+                          {notification.title}
+                        </span>
+
+                        {isAdmin &&
+                          !notification.adminRead && (
+                            <span className="notification-admin-new-badge">
+                              New
+                            </span>
+                          )}
+                      </h2>
+
+                      <span className="notification-sender">
+                        {`From: ${
+                          notification.sender?.name ||
+                          "Unknown"
+                        }`}
+                      </span>
+                    </div>
+
+                    {isAdmin ? (
+                      <span className="notification-target">
+                        {getTargetName(
+                          notification.targetType
+                        )}
+                      </span>
+                    ) : (
+                      !notification.isSent &&
+                      !notification.isRead && (
+                        <span className="notification-unread">
+                          Unread
+                        </span>
+                      )
+                    )}
+                  </div>
+
+                  <p className="notification-message">
+                    {notification.message}
+                  </p>
+
+                  <div className="notification-footer">
+                    {isAdmin ? (
+                      <>
+                        <span>
+                          Recipients:{" "}
+                          {notification.recipients?.length ||
+                            0}
+                        </span>
+
+                        <span>
+                          {formatDate(
+                            notification.createdAt
+                          )}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span>
+                          {notification.isSent
+                            ? "Sent"
+                            : notification.isRead
+                              ? "Read"
+                              : "Unread"}
+                        </span>
+
+                        <span>
+                          {formatDate(
+                            notification.createdAt
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </main>
     </div>
   )
 }
