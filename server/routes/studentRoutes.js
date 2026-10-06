@@ -5,7 +5,8 @@ import {
   updateStudentStatus,
   createStudent,
   addStudentSubject,
-  removeStudentSubject
+  removeStudentSubject,
+  getMyStudentProfile
 } from "../controllers/studentController.js"
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
@@ -18,6 +19,13 @@ router.get(
   allowRoles("admin"),
   getStudents
 )
+
+router.get(
+  "/me",
+  protect,
+  allowRoles("student"),
+  getMyStudentProfile
+) 
 
 router.get(
   "/:id",
