@@ -3,6 +3,7 @@ import express from "express"
 import {
   getSchedules,
   getMySchedules,
+  getMyStudentSchedules,
   getScheduleById,
   createSchedule,
   updateSchedule,
@@ -27,6 +28,13 @@ router.get(
   protect,
   allowRoles("teacher"),
   getMySchedules
+)
+
+router.get(
+  "/student/me",
+  protect,
+  allowRoles("student"),
+  getMyStudentSchedules
 )
 
 router.get(
