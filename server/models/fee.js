@@ -83,7 +83,28 @@ const feeSchema = new mongoose.Schema(
 
     paymentDate: {
       type: Date
-    }
+    },
+
+    payments: [
+      {
+        amount: {
+          type: Number,
+          required: true,
+          min: 0
+        },
+
+        paymentDate: {
+          type: Date,
+          default: Date.now
+        },
+
+        paymentMethod: {
+          type: String,
+          enum: ["cash", "upi", "bank_transfer", "card", "other"],
+          required: true
+        }
+      }
+    ]
   },
   {
     timestamps: true
