@@ -1,7 +1,7 @@
 import Schedule from "../models/schedule.js"
 import Subject from "../models/subject.js"
 import Teacher from "../models/teacher.js"
-
+import Student from "../models/student.js"
 const timeToMinutes = (time) => {
   const [hours, minutes] = time.split(":").map(Number)
 
@@ -47,6 +47,48 @@ const getMySchedules = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to get teacher schedules",
+      error: error.message
+    })
+  }
+}
+
+const getMyStudentSchedules = async (req, res) => {
+  try {
+    const student = await Student.findOne({
+      userId: req.user.userId
+    })
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student profile not found"
+      })
+    }
+
+    const subjects = student.subjects.map((subject) => ({
+      subjectId: subject.subjectId,
+      teacherId: subject.teacherId,
+      className: student.className
+    }))
+
+    if (subjects.length === 0) {
+      return res.json([])
+    }
+
+    const schedules = await Schedule.find({
+      $or: subjects.map((subject) => ({
+        subjectId: subject.subjectId,
+        teacherId: subject.teacherId,
+        className: subject.className
+      }))
+    })
+      .populate("subjectId", "name")
+      .populate("teacherId", "teacherId name")
+      .sort({ day: 1, startTime: 1 })
+
+    res.json(schedules)
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get student schedules",
       error: error.message
     })
   }
@@ -376,6 +418,7 @@ const deleteSchedule = async (req, res) => {
 export {
   getSchedules,
   getMySchedules,
+  getMyStudentSchedules,
   getScheduleById,
   createSchedule,
   updateSchedule,
