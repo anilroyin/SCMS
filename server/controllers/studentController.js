@@ -376,11 +376,47 @@ const removeStudentSubject = async (req, res) => {
   }
 }
 
+const getMyStudentProfile = async (req, res) => {
+  try {
+    const student = await Student.findOne({
+      userId: req.user.userId
+    })
+      .populate(
+        "subjects.subjectId",
+        "name"
+      )
+      .populate(
+        "subjects.teacherId",
+        "teacherId name"
+      )
+      .populate(
+        "userId",
+        "email"
+      )
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student profile not found"
+      })
+    }
+
+    res.json({
+      student
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get student profile",
+      error: error.message
+    })
+  }
+}
+
 export {
   getStudents,
   createStudent,
   getStudentById,
   updateStudentStatus,
   addStudentSubject,
-  removeStudentSubject
+  removeStudentSubject,
+  getMyStudentProfile
 }
