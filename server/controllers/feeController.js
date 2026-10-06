@@ -3,6 +3,14 @@ import Student from "../models/student.js"
 import Teacher from "../models/teacher.js"
 import TeacherEarning from "../models/teacherEarning.js"
 
+const round = (value) => Number(value.toFixed(2))
+
+const getPaymentStatus = (paidAmount, dueAmount) => {
+  if (dueAmount === 0) return "paid"
+  if (paidAmount > 0) return "partial"
+  return "due"
+}
+
 const generateFees = async (req, res) => {
   try {
     const { billingMonth } = req.body
@@ -51,19 +59,16 @@ const generateFees = async (req, res) => {
         const discount = student.discount || 0
         const commission = teacher.commission
 
-        const netFee = Number(
-          (
-            originalFee -
-            (originalFee * discount) / 100
-          ).toFixed(2)
+        const netFee = round(
+          originalFee - (originalFee * discount) / 100
         )
 
-        const centerShare = Number(
-          ((netFee * commission) / 100).toFixed(2)
+        const centerShare = round(
+          (netFee * commission) / 100
         )
 
-        const teacherShare = Number(
-          (netFee - centerShare).toFixed(2)
+        const teacherShare = round(
+          netFee - centerShare
         )
 
         await Fee.create({
@@ -79,7 +84,8 @@ const generateFees = async (req, res) => {
           teacherShare,
           paidAmount: 0,
           dueAmount: netFee,
-          paymentStatus: "due"
+          paymentStatus: "due",
+          payments: []
         })
 
         generatedCount++
@@ -161,29 +167,16 @@ const getFees = async (req, res) => {
 
     const students = Object.values(studentFees).map(
       (student) => {
-        let paymentStatus = "due"
-
-        if (student.dueAmount === 0) {
-          paymentStatus = "paid"
-        } else if (student.paidAmount > 0) {
-          paymentStatus = "partial"
-        }
-
         return {
           ...student,
-          originalFee: Number(
-            student.originalFee.toFixed(2)
-          ),
-          netFee: Number(
-            student.netFee.toFixed(2)
-          ),
-          paidAmount: Number(
-            student.paidAmount.toFixed(2)
-          ),
-          dueAmount: Number(
-            student.dueAmount.toFixed(2)
-          ),
-          paymentStatus
+          originalFee: round(student.originalFee),
+          netFee: round(student.netFee),
+          paidAmount: round(student.paidAmount),
+          dueAmount: round(student.dueAmount),
+          paymentStatus: getPaymentStatus(
+            student.paidAmount,
+            student.dueAmount
+          )
         }
       }
     )
@@ -264,18 +257,10 @@ const getFeeSummary = async (req, res) => {
       paidStudents,
       dueStudents,
       summary: {
-        totalOriginalFee: Number(
-          totalOriginalFee.toFixed(2)
-        ),
-        totalNetFee: Number(
-          totalNetFee.toFixed(2)
-        ),
-        totalCollection: Number(
-          totalCollection.toFixed(2)
-        ),
-        totalDue: Number(
-          totalDue.toFixed(2)
-        )
+        totalOriginalFee: round(totalOriginalFee),
+        totalNetFee: round(totalNetFee),
+        totalCollection: round(totalCollection),
+        totalDue: round(totalDue)
       }
     })
   } catch (error) {
@@ -283,6 +268,87 @@ const getFeeSummary = async (req, res) => {
       message: "Failed to get fee summary",
       error: error.message
     })
+  }
+}
+
+const buildStudentFeeData = async (
+  studentId,
+  billingMonth
+) => {
+  const fees = await Fee.find({
+    studentId,
+    billingMonth
+  })
+    .populate(
+      "studentId",
+      "studentId name className school"
+    )
+    .populate("subjectId", "name")
+    .populate("teacherId", "teacherId name")
+    .sort({ createdAt: 1 })
+
+  if (fees.length === 0) {
+    return null
+  }
+
+  const student = fees[0].studentId
+
+  if (!student) {
+    return null
+  }
+
+  let totalOriginalFee = 0
+  let totalNetFee = 0
+  let totalPaid = 0
+  let totalDue = 0
+
+  const subjects = fees.map((fee) => {
+    const paidAmount = fee.paidAmount || 0
+    const dueAmount = fee.dueAmount ?? fee.netFee
+
+    totalOriginalFee += fee.originalFee
+    totalNetFee += fee.netFee
+    totalPaid += paidAmount
+    totalDue += dueAmount
+
+    return {
+      id: fee._id,
+      subject: fee.subjectId?.name,
+      teacher: fee.teacherId?.name,
+      originalFee: fee.originalFee,
+      discount: fee.discount,
+      netFee: fee.netFee,
+      paidAmount,
+      dueAmount,
+      paymentStatus: fee.paymentStatus,
+      paymentDate: fee.paymentDate,
+      payments: fee.payments || []
+    }
+  })
+
+  const paymentStatus = getPaymentStatus(
+    totalPaid,
+    totalDue
+  )
+
+  return {
+    billingMonth,
+    student: {
+      id: student._id,
+      studentId: student.studentId,
+      name: student.name,
+      className: student.className,
+      school: student.school
+    },
+    discount: fees[0].discount,
+    subjects,
+    totals: {
+      totalOriginalFee: round(totalOriginalFee),
+      totalNetFee: round(totalNetFee),
+      totalPaid: round(totalPaid),
+      totalDue: round(totalDue),
+      paymentStatus
+    }
   }
 }
 
@@ -297,99 +363,18 @@ const getStudentFees = async (req, res) => {
       })
     }
 
-    const fees = await Fee.find({
+    const data = await buildStudentFeeData(
       studentId,
       billingMonth
-    })
-      .populate(
-        "studentId",
-        "studentId name className school"
-      )
-      .populate("subjectId", "name")
-      .populate("teacherId", "teacherId name")
-      .sort({ createdAt: 1 })
+    )
 
-    if (fees.length === 0) {
+    if (!data) {
       return res.status(404).json({
         message: "No fee records found"
       })
     }
 
-    const student = fees[0].studentId
-
-    if (!student) {
-      return res.status(404).json({
-        message: "Student not found"
-      })
-    }
-
-    let totalOriginalFee = 0
-    let totalNetFee = 0
-    let totalPaid = 0
-    let totalDue = 0
-
-    const subjects = fees.map((fee) => {
-      const paidAmount = fee.paidAmount || 0
-      const dueAmount = fee.dueAmount ?? fee.netFee
-
-      totalOriginalFee += fee.originalFee
-      totalNetFee += fee.netFee
-      totalPaid += paidAmount
-      totalDue += dueAmount
-
-      return {
-        id: fee._id,
-        subject: fee.subjectId?.name,
-        teacher: fee.teacherId?.name,
-        originalFee: fee.originalFee,
-        discount: fee.discount,
-        netFee: fee.netFee,
-        paidAmount,
-        dueAmount,
-        paymentStatus: fee.paymentStatus,
-        paymentDate: fee.paymentDate
-      }
-    })
-
-    let paymentStatus = "due"
-
-    if (totalDue === 0) {
-      paymentStatus = "paid"
-    } else if (totalPaid > 0) {
-      paymentStatus = "partial"
-    }
-
-    res.json({
-      billingMonth,
-
-      student: {
-        id: student._id,
-        studentId: student.studentId,
-        name: student.name,
-        className: student.className,
-        school: student.school
-      },
-
-      discount: fees[0].discount,
-
-      subjects,
-
-      totals: {
-        totalOriginalFee: Number(
-          totalOriginalFee.toFixed(2)
-        ),
-        totalNetFee: Number(
-          totalNetFee.toFixed(2)
-        ),
-        totalPaid: Number(
-          totalPaid.toFixed(2)
-        ),
-        totalDue: Number(
-          totalDue.toFixed(2)
-        ),
-        paymentStatus
-      }
-    })
+    res.json(data)
   } catch (error) {
     res.status(500).json({
       message: "Failed to get student fees",
@@ -398,21 +383,66 @@ const getStudentFees = async (req, res) => {
   }
 }
 
+const getMyStudentFees = async (req, res) => {
+  try {
+    const { billingMonth } = req.query
+
+    if (!billingMonth) {
+      return res.status(400).json({
+        message: "Billing month is required"
+      })
+    }
+
+    const student = await Student.findOne({
+      userId: req.user.userId
+    })
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student profile not found"
+      })
+    }
+
+    const data = await buildStudentFeeData(
+      student._id,
+      billingMonth
+    )
+
+    if (!data) {
+      return res.status(404).json({
+        message: "No fee records found"
+      })
+    }
+
+    res.json(data)
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get my fees",
+      error: error.message
+    })
+  }
+}
+
 const recordPayment = async (req, res) => {
   try {
     const { studentId } = req.params
-    const { billingMonth, amount } = req.body
+    const {
+      billingMonth,
+      amount,
+      paymentMethod
+    } = req.body
 
     const paymentAmount = Number(amount)
 
     if (
       !billingMonth ||
       !paymentAmount ||
-      paymentAmount <= 0
+      paymentAmount <= 0 ||
+      !paymentMethod
     ) {
       return res.status(400).json({
         message:
-          "Valid billing month and payment amount are required"
+          "Valid billing month, payment amount and payment method are required"
       })
     }
 
@@ -457,39 +487,29 @@ const recordPayment = async (req, res) => {
         currentDue
       )
 
-      fee.paidAmount = Number(
-        (
-          (fee.paidAmount || 0) +
-          amountForThisFee
-        ).toFixed(2)
+      fee.paidAmount = round(
+        (fee.paidAmount || 0) + amountForThisFee
       )
 
-      fee.dueAmount = Number(
-        (
-          currentDue -
-          amountForThisFee
-        ).toFixed(2)
+      fee.dueAmount = round(
+        currentDue - amountForThisFee
       )
 
       fee.paymentDate = new Date()
 
-      if (fee.dueAmount === 0) {
-        fee.paymentStatus = "paid"
-      } else if (fee.paidAmount > 0) {
-        fee.paymentStatus = "partial"
-      } else {
-        fee.paymentStatus = "due"
-      }
+      fee.payments.push({
+        amount: amountForThisFee,
+        paymentDate: fee.paymentDate,
+        paymentMethod
+      })
+
+      fee.paymentStatus = getPaymentStatus(
+        fee.paidAmount,
+        fee.dueAmount
+      )
 
       await fee.save()
 
-      /*
-       * Teacher earning is calculated from the amount
-       * actually collected from this subject fee.
-       *
-       * commission is the percentage kept by the center.
-       * The remaining percentage belongs to the teacher.
-       */
       const teacher = await Teacher.findById(
         fee.teacherId
       )
@@ -498,11 +518,8 @@ const recordPayment = async (req, res) => {
         const teacherPercentage =
           100 - teacher.commission
 
-        const teacherEarned = Number(
-          (
-            (amountForThisFee * teacherPercentage) /
-            100
-          ).toFixed(2)
+        const teacherEarned = round(
+          (amountForThisFee * teacherPercentage) / 100
         )
 
         if (teacherEarned > 0) {
@@ -519,11 +536,8 @@ const recordPayment = async (req, res) => {
         }
       }
 
-      remainingPayment = Number(
-        (
-          remainingPayment -
-          amountForThisFee
-        ).toFixed(2)
+      remainingPayment = round(
+        remainingPayment - amountForThisFee
       )
     }
 
@@ -543,5 +557,6 @@ export {
   getFees,
   getFeeSummary,
   getStudentFees,
+  getMyStudentFees,
   recordPayment
 }
