@@ -7,6 +7,11 @@ import adminRoutes from "./routes/adminRoutes.js"
 import studentRoutes from "./routes/studentRoutes.js"
 import subjectRoutes from "./routes/subjectRoutes.js"
 import teacherRoutes from "./routes/teacherRoutes.js"
+import feeRoutes from "./routes/feeRoutes.js"
+import teacherEarningRoutes from "./routes/teacherEarningRoutes.js"
+import teacherPaymentRoutes from "./routes/teacherPaymentRoutes.js"
+import scheduleRoutes from "./routes/scheduleRoutes.js"
+import notificationRoutes from "./routes/notificationRoutes.js"
 
 dotenv.config({ quiet: true })
 
@@ -22,6 +27,27 @@ app.use("/api/admin", adminRoutes)
 app.use("/api/students", studentRoutes)
 app.use("/api/subjects", subjectRoutes)
 app.use("/api/teachers", teacherRoutes)
+app.use("/api/fees", feeRoutes)
+
+app.use(
+  "/api/teacher-earnings",
+  teacherEarningRoutes
+)
+
+app.use(
+  "/api/teacher-payments",
+  teacherPaymentRoutes
+)
+
+app.use(
+  "/api/schedules",
+  scheduleRoutes
+)
+
+app.use(
+  "/api/notifications",
+  notificationRoutes
+)
 
 connectDb()
 
