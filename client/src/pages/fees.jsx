@@ -244,7 +244,7 @@ function Fees() {
 
         <button
           className="back-button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate(-1)}
         >
           Back
         </button>
