@@ -228,7 +228,7 @@ function EditSchedule() {
               className="edit-schedule-back-button"
               onClick={() => navigate("/schedule")}
             >
-              Back to Schedule
+              Back
             </button>
           </div>
 
