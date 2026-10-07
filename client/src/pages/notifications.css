@@ -1,61 +1,73 @@
 .notifications-page {
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 30px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  color: #1f2937;
+  color: #26313f;
 }
 
 .notifications-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 28px;
 }
 
 .notifications-header h1 {
   margin: 0;
-  font-size: 26px;
-  font-weight: 600;
+  color: #26313f;
+  font-size: 28px;
 }
 
 .notifications-header p {
   margin: 6px 0 0;
   color: #6b7280;
-  font-size: 16px;
+}
+
+.notifications-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notifications-back-button,
+.notifications-send-button {
+  border-radius: 7px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .notifications-back-button {
-  padding: 9px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid #d9dee3;
   background: #ffffff;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  color: #26313f;
 }
 
 .notifications-back-button:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: #f5f7f9;
+}
+
+.notifications-send-button {
+  border: none;
+  background: #80919f;
+  color: #ffffff;
+}
+
+.notifications-send-button:hover {
+  background: #4b6276;
 }
 
 .notifications-message {
-  margin-bottom: 18px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  background: #fef2f2;
-  color: #b91c1c;
-  font-size: 14px;
+  margin-bottom: 20px;
+  color: #dc2626;
 }
 
 .notifications-loading,
 .notifications-empty {
-  padding: 40px 20px;
+  padding: 20px 0;
   text-align: center;
   color: #6b7280;
   font-size: 14px;
@@ -85,8 +97,6 @@
   background: #f8fafc;
 }
 
-/* Student and Teacher rows */
-
 .notification-card-header {
   flex: 0 0 360px;
   min-width: 0;
@@ -107,10 +117,10 @@
   align-items: center;
   min-width: 0;
   margin: 0;
-  color: #1f2937;
+  color: #26313f;
   font-size: 14px;
   line-height: 18px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -158,15 +168,14 @@
 }
 
 .notification-card:not(.admin-notification)
-  .notification-footer
-  > span:first-child {
+  .notification-footer > span:first-child {
   display: none;
 }
 
 .notification-unread {
   flex-shrink: 0;
-  padding: 3px 8px;
-  border-radius: 10px;
+  padding: 5px 9px;
+  border-radius: 5px;
   background: #eef2f5;
   color: #52606d;
   font-size: 11px;
@@ -209,11 +218,11 @@
   color: #6b7280;
 }
 
-/* Admin Log */
+/* Admin log */
 
 .notification-card.admin-notification {
   display: grid;
-  grid-template-columns: 260px 220px 220px minmax(0, 1fr) 260px;
+  grid-template-columns: 220px 220px 220px minmax(0, 1fr) 260px;
   align-items: center;
   gap: 0;
   overflow: hidden;
@@ -247,9 +256,7 @@
 .notification-card.admin-notification .notification-target {
   min-width: 0;
   justify-self: start;
-  padding-left: 0;
   padding-right: 12px;
-  transform: translateX(-25px);
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 14px;
@@ -293,8 +300,8 @@
 }
 
 .notification-card.admin-new .notification-card-header h2 {
-  color: #1f2937;
-  font-weight: 700;
+  color: #26313f;
+  font-weight: 600;
 }
 
 .notification-card.admin-new .notification-message {
@@ -303,9 +310,9 @@
 
 .notification-admin-new-badge {
   flex-shrink: 0;
-  margin-left: 10px;
-  padding: 3px 8px;
-  border-radius: 10px;
+  margin-left: 14px;
+  padding: 5px 9px;
+  border-radius: 5px;
   background: #eef2f5;
   color: #52606d;
   font-size: 11px;
@@ -317,9 +324,9 @@
 /* Notification details */
 
 .notification-detail-card {
-  padding: 25px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
   background: #ffffff;
 }
 
@@ -330,7 +337,7 @@
 
 .notification-detail-header h2 {
   margin: 0;
-  color: #1f2937;
+  color: #26313f;
   font-size: 20px;
   font-weight: 600;
 }
@@ -356,7 +363,7 @@
 }
 
 .notification-detail-info span {
-  color: #1f2937;
+  color: #26313f;
   font-size: 14px;
 }
 
@@ -448,18 +455,20 @@
 
 /* Mobile */
 
-@media (max-width: 800px) {
-  .notifications-page {
-    padding: 20px;
+@media (max-width: 1100px) {
+  .notification-card.admin-notification {
+    grid-template-columns: 180px 190px 190px minmax(0, 1fr) 220px;
   }
+}
 
+@media (max-width: 800px) {
   .notifications-header {
     align-items: flex-start;
     gap: 15px;
   }
 
   .notifications-header h1 {
-    font-size: 23px;
+    font-size: 26px;
   }
 
   .notification-card-header {
@@ -477,4 +486,128 @@
   .notification-card.admin-notification {
     grid-template-columns: 120px 180px 140px minmax(0, 1fr) 230px;
   }
+}
+
+@media (max-width: 700px) {
+  .notifications-header {
+    flex-direction: column;
+  }
+
+  .notifications-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+.notifications-delete-button {
+  border: none;
+  border-radius: 7px;
+  padding: 11px 18px;
+  background: #80919f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.notifications-delete-button:hover {
+  background: #4b6276;
+}
+
+.notifications-delete-button {
+  border: none;
+  border-radius: 7px;
+  padding: 11px 18px;
+  background: #80919f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.notifications-delete-button:hover {
+  background: #4b6276;
+}
+
+/* Delete confirmation modal */
+
+.notification-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.notification-delete-modal {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+}
+
+.notification-delete-modal h2 {
+  margin: 0 0 10px;
+  color: #26313f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.notification-delete-modal p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.notification-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.notification-modal-cancel,
+.notification-modal-delete {
+  border: none;
+  border-radius: 7px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.notification-modal-cancel {
+  border: 1px solid #d9dee3;
+  background: #ffffff;
+  color: #26313f;
+}
+
+.notification-modal-cancel:hover {
+  background: #f5f7f9;
+}
+
+.notification-modal-delete {
+  background: #80919f;
+  color: #ffffff;
+}
+
+.notification-modal-delete:hover {
+  background: #4b6276;
+}
+
+.notification-modal-cancel:disabled,
+.notification-modal-delete:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }

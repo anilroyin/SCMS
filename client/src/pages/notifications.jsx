@@ -13,6 +13,8 @@ function Notifications() {
   const [role, setRole] = useState("")
   const [isAdmin, setIsAdmin] = useState(false)
   const [currentUserId, setCurrentUserId] = useState("")
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const token = localStorage.getItem("token")
 
@@ -235,33 +237,16 @@ function Notifications() {
     }
   }
 
-  const deleteNotification = async (notification) => {
-    const canDelete =
-      (
-        role === "admin" &&
-        notification.sender?.role === "admin" &&
-        notification.sender?._id === currentUserId
-      ) ||
-      (
-        role === "teacher" &&
-        notification.sender?._id === currentUserId
-      )
-
-    if (!canDelete) {
+  const deleteNotification = async () => {
+    if (!selectedNotification) {
       return
     }
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this notification?"
-    )
-
-    if (!confirmed) {
-      return
-    }
+    setDeleteLoading(true)
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/notifications/${notification._id}`,
+        `http://localhost:3000/api/notifications/${selectedNotification._id}`,
         {
           method: "DELETE",
           headers: {
@@ -281,10 +266,12 @@ function Notifications() {
 
       setNotifications((currentNotifications) =>
         currentNotifications.filter(
-          (item) => item._id !== notification._id
+          (item) =>
+            item._id !== selectedNotification._id
         )
       )
 
+      setShowDeleteModal(false)
       setSelectedNotification(null)
 
       window.dispatchEvent(
@@ -292,6 +279,9 @@ function Notifications() {
       )
     } catch (error) {
       setMessage(error.message)
+      setShowDeleteModal(false)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -410,9 +400,7 @@ function Notifications() {
                   <button
                     className="notifications-delete-button"
                     onClick={() =>
-                      deleteNotification(
-                        selectedNotification
-                      )
+                      setShowDeleteModal(true)
                     }
                   >
                     Delete
@@ -429,6 +417,12 @@ function Notifications() {
                 </button>
               </div>
             </div>
+
+            {message && (
+              <div className="notifications-message">
+                {message}
+              </div>
+            )}
 
             <div className="notification-detail-card">
               <div className="notification-detail-header">
@@ -540,6 +534,52 @@ function Notifications() {
             </div>
           </div>
         </main>
+
+        {showDeleteModal && (
+          <div
+            className="notification-modal-overlay"
+            onClick={() =>
+              !deleteLoading &&
+              setShowDeleteModal(false)
+            }
+          >
+            <div
+              className="notification-delete-modal"
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+            >
+              <h2>Delete Notification</h2>
+
+              <p>
+                Are you sure you want to delete this
+                notification?
+              </p>
+
+              <div className="notification-modal-actions">
+                <button
+                  className="notification-modal-cancel"
+                  onClick={() =>
+                    setShowDeleteModal(false)
+                  }
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="notification-modal-delete"
+                  onClick={deleteNotification}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading
+                    ? "Deleting..."
+                    : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -579,7 +619,7 @@ function Notifications() {
 
               <button
                 className="notifications-back-button"
-                onClick={() => navigate("/")}
+                onClick={() => navigate(-1)}
               >
                 Back
               </button>
@@ -631,10 +671,10 @@ function Notifications() {
 
                         {isAdmin &&
                           !notification.adminRead && (
-                            <span className="notification-admin-new-badge">
-                              New
-                            </span>
-                          )}
+                          <span className="notification-admin-new-badge">
+                            New
+                          </span>
+                        )}
                       </h2>
 
                       <span className="notification-sender">
