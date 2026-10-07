@@ -346,7 +346,7 @@ function StudentDetails() {
         <section className="student-details-card">
           <div className="student-details-header">
             <div>
-              <h2>Student Information</h2>
+              <h2>{isStudentProfile? "My Information" : "Student Information"}</h2>
               <p>
                 Personal and academic information
               </p>
