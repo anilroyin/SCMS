@@ -181,7 +181,7 @@ function Subjects() {
                             )
                           }
                         >
-                          View more
+                          View 👁️
                         </button>
                       </td>
                     </tr>
