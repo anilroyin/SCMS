@@ -346,7 +346,7 @@ function Students() {
                                 )
                               }
                             >
-                              View profile
+                              View 👁️
                             </button>
                           </td>
                         )}
