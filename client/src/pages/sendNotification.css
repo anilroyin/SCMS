@@ -1,11 +1,8 @@
 .send-notification-page {
-  min-height: 100vh;
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 28px 32px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  background: #f5f7f9;
   color: #26313f;
 }
 
@@ -13,20 +10,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .send-notification-header h1 {
   margin: 0;
   color: #26313f;
   font-size: 28px;
-  font-weight: 600;
 }
 
 .send-notification-header p {
   margin: 6px 0 0;
   color: #6b7280;
-  font-size: 14px;
 }
 
 .send-notification-back-button {
@@ -47,12 +42,11 @@
 
 .send-notification-card {
   width: 100%;
-  max-width: 850px;
-  padding: 24px;
   box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
+  padding: 24px;
 }
 
 .send-notification-field {
@@ -80,7 +74,6 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s;
 }
 
 .send-notification-field input:focus,
@@ -92,25 +85,24 @@
 .send-notification-field textarea {
   min-height: 140px;
   resize: vertical;
-  line-height: 1.5;
 }
 
-.send-notification-error,
+.send-notification-error {
+  margin-bottom: 20px;
+  padding: 11px 14px;
+  border-radius: 7px;
+  background: #f2e8e8;
+  color: #7a4a4a;
+  font-size: 14px;
+}
+
 .send-notification-success {
   margin-bottom: 20px;
   padding: 11px 14px;
   border-radius: 7px;
+  background: #e8f0eb;
+  color: #3f6b4d;
   font-size: 14px;
-}
-
-.send-notification-error {
-  background: #fef2f2;
-  color: #b91c1c;
-}
-
-.send-notification-success {
-  background: #f0fdf4;
-  color: #166534;
 }
 
 .send-notification-actions {
@@ -118,14 +110,15 @@
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  margin-top: 26px;
+  margin-top: 24px;
 }
 
 .send-notification-cancel-button,
 .send-notification-submit-button {
   border-radius: 7px;
-  padding: 9px 16px;
+  padding: 11px 18px;
   font-size: 14px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
 }
@@ -156,37 +149,29 @@
 }
 
 .send-notification-loading {
-  padding: 40px 20px;
+  padding: 20px 0;
   text-align: center;
   color: #6b7280;
   font-size: 14px;
 }
 
-@media (max-width: 900px) {
-  .send-notification-page {
-    padding: 24px;
-  }
-
-  .send-notification-card {
-    max-width: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .send-notification-page {
-    padding: 20px;
-  }
-
+@media (max-width: 700px) {
   .send-notification-header {
     align-items: flex-start;
-    gap: 15px;
+    flex-direction: column;
+    gap: 16px;
   }
 
-  .send-notification-header h1 {
-    font-size: 24px;
+  .send-notification-back-button {
+    width: 100%;
   }
 
   .send-notification-actions {
-    justify-content: flex-start;
+    flex-direction: column-reverse;
+  }
+
+  .send-notification-cancel-button,
+  .send-notification-submit-button {
+    width: 100%;
   }
 }

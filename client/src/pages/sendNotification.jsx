@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/sidebar"
 import "./sendNotification.css"
 
 function SendNotification() {
@@ -246,8 +247,7 @@ function SendNotification() {
 
       if (
         targetType === "individual_student" ||
-        targetType ===
-          "teacher_individual_student"
+        targetType === "teacher_individual_student"
       ) {
         requestBody.studentId = studentId
       }
@@ -304,10 +304,16 @@ function SendNotification() {
 
   if (loading) {
     return (
-      <div className="send-notification-page">
-        <div className="send-notification-loading">
-          Loading...
-        </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+
+        <main className="dashboard-content">
+          <div className="send-notification-page">
+            <div className="send-notification-loading">
+              Loading...
+            </div>
+          </div>
+        </main>
       </div>
     )
   }
@@ -318,280 +324,286 @@ function SendNotification() {
       : teacherTargets
 
   return (
-    <div className="send-notification-page">
-      <div className="send-notification-header">
-        <div>
-          <h1>Send Notification</h1>
+    <div className="dashboard-layout">
+      <Sidebar />
 
-          <p>
-            Send a notification to students or
-            teachers
-          </p>
-        </div>
+      <main className="dashboard-content">
+        <div className="send-notification-page">
+          <div className="send-notification-header">
+            <div>
+              <h1>Send Notification</h1>
 
-        <button
-          className="send-notification-back-button"
-          onClick={() =>
-            navigate("/notifications")
-          }
-        >
-          Back
-        </button>
-      </div>
-
-      <div className="send-notification-card">
-        {error && (
-          <div className="send-notification-error">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="send-notification-success">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="send-notification-field">
-            <label htmlFor="target">
-              Target
-            </label>
-
-            <select
-              id="target"
-              value={targetType}
-              onChange={handleTargetChange}
-              required
-            >
-              <option value="">
-                Select target
-              </option>
-
-              {targets.map((target) => (
-                <option
-                  key={target.value}
-                  value={target.value}
-                >
-                  {target.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {(targetType === "fee_due" ||
-            targetType === "fee_partial") && (
-            <div className="send-notification-field">
-              <label htmlFor="billingMonth">
-                Billing Month
-              </label>
-
-              <input
-                id="billingMonth"
-                type="month"
-                value={billingMonth}
-                onChange={(event) =>
-                  setBillingMonth(
-                    event.target.value
-                  )
-                }
-                required
-              />
+              <p>
+                Send a notification to students or
+                teachers
+              </p>
             </div>
-          )}
 
-          {targetType === "teacher_class" && (
-            <div className="send-notification-field">
-              <label htmlFor="className">
-                Class
-              </label>
-
-              <select
-                id="className"
-                value={className}
-                onChange={(event) =>
-                  setClassName(
-                    event.target.value
-                  )
-                }
-                required
-              >
-                <option value="">
-                  Select class
-                </option>
-
-                {classes.map((classValue) => (
-                  <option
-                    key={classValue}
-                    value={classValue}
-                  >
-                    {classValue}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {targetType === "individual_student" && (
-            <div className="send-notification-field">
-              <label htmlFor="studentId">
-                Student
-              </label>
-
-              <select
-                id="studentId"
-                value={studentId}
-                onChange={(event) =>
-                  setStudentId(
-                    event.target.value
-                  )
-                }
-                required
-              >
-                <option value="">
-                  Select student
-                </option>
-
-                {students.map((student) => (
-                  <option
-                    key={student._id}
-                    value={student._id}
-                  >
-                    {student.studentId
-                      ? `${student.studentId} - ${student.name}`
-                      : student.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {targetType ===
-            "teacher_individual_student" && (
-            <div className="send-notification-field">
-              <label htmlFor="teacherStudentId">
-                Student
-              </label>
-
-              <select
-                id="teacherStudentId"
-                value={studentId}
-                onChange={(event) =>
-                  setStudentId(
-                    event.target.value
-                  )
-                }
-                required
-              >
-                <option value="">
-                  Select student
-                </option>
-
-                {students.map((student) => (
-                  <option
-                    key={student._id}
-                    value={student._id}
-                  >
-                    {student.studentId
-                      ? `${student.studentId} - ${student.name}`
-                      : student.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {targetType === "individual_teacher" && (
-            <div className="send-notification-field">
-              <label htmlFor="teacherId">
-                Teacher
-              </label>
-
-              <select
-                id="teacherId"
-                value={teacherId}
-                onChange={(event) =>
-                  setTeacherId(
-                    event.target.value
-                  )
-                }
-                required
-              >
-                <option value="">
-                  Select teacher
-                </option>
-
-                {teachers.map((teacher) => (
-                  <option
-                    key={teacher._id}
-                    value={teacher._id}
-                  >
-                    {teacher.teacherId
-                      ? `${teacher.teacherId} - ${teacher.name}`
-                      : teacher.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="send-notification-field">
-            <label htmlFor="title">
-              Title
-            </label>
-
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(event) =>
-                setTitle(event.target.value)
-              }
-              placeholder="Enter notification title"
-              required
-            />
-          </div>
-
-          <div className="send-notification-field">
-            <label htmlFor="message">
-              Message
-            </label>
-
-            <textarea
-              id="message"
-              value={message}
-              onChange={(event) =>
-                setMessage(event.target.value)
-              }
-              placeholder="Write your notification message"
-              rows="6"
-              required
-            />
-          </div>
-
-          <div className="send-notification-actions">
             <button
-              type="button"
-              className="send-notification-cancel-button"
+              className="send-notification-back-button"
               onClick={() =>
                 navigate("/notifications")
               }
             >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              className="send-notification-submit-button"
-              disabled={sending}
-            >
-              {sending
-                ? "Sending..."
-                : "Send Notification"}
+              Back
             </button>
           </div>
-        </form>
-      </div>
+
+          <div className="send-notification-card">
+            {error && (
+              <div className="send-notification-error">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="send-notification-success">
+                {success}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="send-notification-field">
+                <label htmlFor="target">
+                  Target
+                </label>
+
+                <select
+                  id="target"
+                  value={targetType}
+                  onChange={handleTargetChange}
+                  required
+                >
+                  <option value="">
+                    Select target
+                  </option>
+
+                  {targets.map((target) => (
+                    <option
+                      key={target.value}
+                      value={target.value}
+                    >
+                      {target.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {(targetType === "fee_due" ||
+                targetType === "fee_partial") && (
+                <div className="send-notification-field">
+                  <label htmlFor="billingMonth">
+                    Billing Month
+                  </label>
+
+                  <input
+                    id="billingMonth"
+                    type="month"
+                    value={billingMonth}
+                    onChange={(event) =>
+                      setBillingMonth(
+                        event.target.value
+                      )
+                    }
+                    required
+                  />
+                </div>
+              )}
+
+              {targetType === "teacher_class" && (
+                <div className="send-notification-field">
+                  <label htmlFor="className">
+                    Class
+                  </label>
+
+                  <select
+                    id="className"
+                    value={className}
+                    onChange={(event) =>
+                      setClassName(
+                        event.target.value
+                      )
+                    }
+                    required
+                  >
+                    <option value="">
+                      Select class
+                    </option>
+
+                    {classes.map((classValue) => (
+                      <option
+                        key={classValue}
+                        value={classValue}
+                      >
+                        {classValue}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {targetType === "individual_student" && (
+                <div className="send-notification-field">
+                  <label htmlFor="studentId">
+                    Student
+                  </label>
+
+                  <select
+                    id="studentId"
+                    value={studentId}
+                    onChange={(event) =>
+                      setStudentId(
+                        event.target.value
+                      )
+                    }
+                    required
+                  >
+                    <option value="">
+                      Select student
+                    </option>
+
+                    {students.map((student) => (
+                      <option
+                        key={student._id}
+                        value={student._id}
+                      >
+                        {student.studentId
+                          ? `${student.studentId} - ${student.name}`
+                          : student.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {targetType ===
+                "teacher_individual_student" && (
+                <div className="send-notification-field">
+                  <label htmlFor="teacherStudentId">
+                    Student
+                  </label>
+
+                  <select
+                    id="teacherStudentId"
+                    value={studentId}
+                    onChange={(event) =>
+                      setStudentId(
+                        event.target.value
+                      )
+                    }
+                    required
+                  >
+                    <option value="">
+                      Select student
+                    </option>
+
+                    {students.map((student) => (
+                      <option
+                        key={student._id}
+                        value={student._id}
+                      >
+                        {student.studentId
+                          ? `${student.studentId} - ${student.name}`
+                          : student.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {targetType === "individual_teacher" && (
+                <div className="send-notification-field">
+                  <label htmlFor="teacherId">
+                    Teacher
+                  </label>
+
+                  <select
+                    id="teacherId"
+                    value={teacherId}
+                    onChange={(event) =>
+                      setTeacherId(
+                        event.target.value
+                      )
+                    }
+                    required
+                  >
+                    <option value="">
+                      Select teacher
+                    </option>
+
+                    {teachers.map((teacher) => (
+                      <option
+                        key={teacher._id}
+                        value={teacher._id}
+                      >
+                        {teacher.teacherId
+                          ? `${teacher.teacherId} - ${teacher.name}`
+                          : teacher.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="send-notification-field">
+                <label htmlFor="title">
+                  Title
+                </label>
+
+                <input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(event) =>
+                    setTitle(event.target.value)
+                  }
+                  placeholder="Enter notification title"
+                  required
+                />
+              </div>
+
+              <div className="send-notification-field">
+                <label htmlFor="message">
+                  Message
+                </label>
+
+                <textarea
+                  id="message"
+                  value={message}
+                  onChange={(event) =>
+                    setMessage(event.target.value)
+                  }
+                  placeholder="Write your notification message"
+                  rows="6"
+                  required
+                />
+              </div>
+
+              <div className="send-notification-actions">
+                <button
+                  type="button"
+                  className="send-notification-cancel-button"
+                  onClick={() =>
+                    navigate("/notifications")
+                  }
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="send-notification-submit-button"
+                  disabled={sending}
+                >
+                  {sending
+                    ? "Sending..."
+                    : "Send Notification"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
