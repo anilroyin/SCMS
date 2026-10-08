@@ -29,6 +29,39 @@ const getAdminDashboard = async (req, res) => {
       timeZone: "Asia/Kolkata"
     }).format(now)
 
+    const birthdayFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric"
+    })
+
+    const todayParts = birthdayFormatter.formatToParts(now)
+
+    const currentYear = Number(
+      todayParts.find(
+        part => part.type === "year"
+      ).value
+    )
+
+    const currentMonth = Number(
+      todayParts.find(
+        part => part.type === "month"
+      ).value
+    )
+
+    const currentDay = Number(
+      todayParts.find(
+        part => part.type === "day"
+      ).value
+    )
+
+    const todayNumber = Date.UTC(
+      currentYear,
+      currentMonth - 1,
+      currentDay
+    )
+
     const [
       students,
       teachers,
@@ -37,8 +70,12 @@ const getAdminDashboard = async (req, res) => {
       notifications,
       schedules
     ] = await Promise.all([
-      Student.find().select("name status"),
-      Teacher.find().select("name teacherId commission"),
+      Student.find().select(
+        "name status dateOfBirth"
+      ),
+      Teacher.find().select(
+        "name teacherId commission dateOfBirth"
+      ),
       Fee.find({ billingMonth }).populate(
         "studentId",
         "studentId name"
@@ -62,14 +99,70 @@ const getAdminDashboard = async (req, res) => {
         status: "active"
       })
         .populate("subjectId", "name")
-        .populate("teacherId", "teacherId name")
+        .populate(
+          "teacherId",
+          "teacherId name"
+        )
         .sort({ startTime: 1 })
     ])
 
+    const upcomingBirthdays = []
+
+    const addBirthday = (person, type) => {
+      if (!person.dateOfBirth) {
+        return
+      }
+
+      const dob = new Date(person.dateOfBirth)
+
+      let birthday = Date.UTC(
+        currentYear,
+        dob.getUTCMonth(),
+        dob.getUTCDate()
+      )
+
+      if (birthday < todayNumber) {
+        birthday = Date.UTC(
+          currentYear + 1,
+          dob.getUTCMonth(),
+          dob.getUTCDate()
+        )
+      }
+
+      const daysUntil = Math.round(
+        (birthday - todayNumber) / 86400000
+      )
+
+      if (daysUntil <= 7) {
+        upcomingBirthdays.push({
+          id: person._id.toString(),
+          name: person.name,
+          type,
+          dateOfBirth: person.dateOfBirth,
+          daysUntil,
+          isToday: daysUntil === 0
+        })
+      }
+    }
+
+    students.forEach(student =>
+      addBirthday(student, "student")
+    )
+
+    teachers.forEach(teacher =>
+      addBirthday(teacher, "teacher")
+    )
+
+    upcomingBirthdays.sort(
+      (a, b) => a.daysUntil - b.daysUntil
+    )
+
     const totalStudents = students.length
+
     const activeStudents = students.filter(
       student => student.status === "active"
     ).length
+
     const studentChurn = students.filter(
       student =>
         student.status === "paused" ||
@@ -96,12 +189,14 @@ const getAdminDashboard = async (req, res) => {
 
     for (const fee of monthlyFees) {
       const paidAmount = fee.paidAmount || 0
-      const dueAmount = fee.dueAmount ?? fee.netFee
+      const dueAmount =
+        fee.dueAmount ?? fee.netFee
 
       thisMonthCollection += paidAmount
       outstandingFees += dueAmount
 
-      const studentId = fee.studentId?._id?.toString()
+      const studentId =
+        fee.studentId?._id?.toString()
 
       if (studentId) {
         if (!studentFeeStatus[studentId]) {
@@ -111,19 +206,25 @@ const getAdminDashboard = async (req, res) => {
           }
         }
 
-        studentFeeStatus[studentId].paid += paidAmount
-        studentFeeStatus[studentId].due += dueAmount
+        studentFeeStatus[studentId].paid +=
+          paidAmount
+
+        studentFeeStatus[studentId].due +=
+          dueAmount
       }
 
       for (const payment of fee.payments || []) {
-        const paymentDate = new Date(payment.paymentDate)
+        const paymentDate = new Date(
+          payment.paymentDate
+        )
 
         if (
           paymentDate >= startOfMonth &&
           paymentDate < startOfNextMonth
         ) {
           const day = paymentDate.getDate()
-          const amount = Number(payment.amount) || 0
+          const amount =
+            Number(payment.amount) || 0
 
           if (day <= 7) {
             weeklyCollection.week1 += amount
@@ -138,7 +239,9 @@ const getAdminDashboard = async (req, res) => {
       }
     }
 
-    for (const student of Object.values(studentFeeStatus)) {
+    for (const student of Object.values(
+      studentFeeStatus
+    )) {
       if (student.due === 0) {
         feeStatus.paid++
       } else if (student.paid > 0) {
@@ -155,11 +258,15 @@ const getAdminDashboard = async (req, res) => {
         payments.push({
           id: payment._id,
           amount: payment.amount,
-          paymentMethod: payment.paymentMethod,
+          paymentMethod:
+            payment.paymentMethod,
           paymentDate: payment.paymentDate,
-          studentName: fee.studentId?.name || "Unknown",
-          studentId: fee.studentId?.studentId || "",
-          subject: fee.subjectId?.name || ""
+          studentName:
+            fee.studentId?.name || "Unknown",
+          studentId:
+            fee.studentId?.studentId || "",
+          subject:
+            fee.subjectId?.name || ""
         })
       }
     }
@@ -170,19 +277,22 @@ const getAdminDashboard = async (req, res) => {
         new Date(a.paymentDate)
     )
 
-    const recentPaymentList = payments.slice(0, 10)
+    const recentPaymentList =
+      payments.slice(0, 10)
 
     const teacherPaymentData = {}
 
     for (const fee of monthlyFees) {
-      const teacherId = fee.teacherId?.toString()
+      const teacherId =
+        fee.teacherId?.toString()
 
       if (!teacherId) {
         continue
       }
 
       const teacher = teachers.find(
-        item => item._id.toString() === teacherId
+        item =>
+          item._id.toString() === teacherId
       )
 
       if (!teacher) {
@@ -200,14 +310,24 @@ const getAdminDashboard = async (req, res) => {
         }
       }
 
-      const paidAmount = fee.paidAmount || 0
+      const paidAmount =
+        fee.paidAmount || 0
+
       const centerCommission =
         (paidAmount * teacher.commission) / 100
 
-      teacherPaymentData[teacherId].collectedAmount += paidAmount
-      teacherPaymentData[teacherId].centerCommission +=
+      teacherPaymentData[
+        teacherId
+      ].collectedAmount += paidAmount
+
+      teacherPaymentData[
+        teacherId
+      ].centerCommission +=
         centerCommission
-      teacherPaymentData[teacherId].teacherPayment +=
+
+      teacherPaymentData[
+        teacherId
+      ].teacherPayment +=
         paidAmount - centerCommission
     }
 
@@ -215,13 +335,22 @@ const getAdminDashboard = async (req, res) => {
       teacherPaymentData
     ).map(teacher => ({
       ...teacher,
-      collectedAmount: round(teacher.collectedAmount),
-      centerCommission: round(teacher.centerCommission),
-      teacherPayment: round(teacher.teacherPayment)
+      collectedAmount: round(
+        teacher.collectedAmount
+      ),
+      centerCommission: round(
+        teacher.centerCommission
+      ),
+      teacherPayment: round(
+        teacher.teacherPayment
+      )
     }))
 
     const upcomingClasses = schedules
-      .filter(schedule => schedule.startTime >= currentTime)
+      .filter(
+        schedule =>
+          schedule.startTime >= currentTime
+      )
       .slice(0, 5)
 
     res.json({
@@ -231,8 +360,10 @@ const getAdminDashboard = async (req, res) => {
         activeStudents,
         studentChurn,
         totalTeachers: teachers.length,
-        thisMonthCollection: round(thisMonthCollection),
-        outstandingFees: round(outstandingFees)
+        thisMonthCollection:
+          round(thisMonthCollection),
+        outstandingFees:
+          round(outstandingFees)
       },
       feeCollection: Object.entries(
         weeklyCollection
@@ -244,11 +375,13 @@ const getAdminDashboard = async (req, res) => {
       recentPayments: recentPaymentList,
       teacherPayments,
       upcomingClasses,
+      upcomingBirthdays,
       recentNotifications: notifications
     })
   } catch (error) {
     res.status(500).json({
-      message: "Failed to load admin dashboard",
+      message:
+        "Failed to load admin dashboard",
       error: error.message
     })
   }
