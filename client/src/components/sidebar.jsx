@@ -2,7 +2,93 @@ import { useEffect, useState } from "react"
 import { NavLink } from "react-router-dom"
 
 function Sidebar() {
-  const [role, setRole] = useState("")
+  const [role, setRole] = useState(() => {
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      return ""
+    }
+
+    try {
+      const payload = token.split(".")[1]
+
+      const user = JSON.parse(
+        atob(
+          payload
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
+        )
+      )
+
+      return user.role || ""
+    } catch (error) {
+      return ""
+    }
+  })
+
+  const [unreadNotifications, setUnreadNotifications] = useState(() => {
+    const count = localStorage.getItem("unreadNotifications")
+    return count ? Number(count) : 0
+  })
+
+  const getUnreadNotificationCount = async () => {
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      return
+    }
+
+    try {
+      const payload = token.split(".")[1]
+
+      const user = JSON.parse(
+        atob(
+          payload
+            .replace(/-/g, "+")
+            .replace(/_/g, "/")
+        )
+      )
+
+      const endpoint =
+        user.role === "admin"
+          ? "http://localhost:3000/api/notifications/logs"
+          : "http://localhost:3000/api/notifications/me"
+
+      const response = await fetch(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return
+      }
+
+      const notifications = Array.isArray(data)
+        ? data
+        : data.notifications || []
+
+      const unreadCount =
+        user.role === "admin"
+          ? notifications.filter(
+              (notification) => !notification.adminRead
+            ).length
+          : notifications.filter(
+              (notification) => !notification.isRead
+            ).length
+
+      setUnreadNotifications(unreadCount)
+
+      localStorage.setItem(
+        "unreadNotifications",
+        unreadCount.toString()
+      )
+    } catch (error) {
+      return
+    }
+  }
 
   useEffect(() => {
     const getUser = async () => {
@@ -33,6 +119,30 @@ function Sidebar() {
     }
 
     getUser()
+    getUnreadNotificationCount()
+
+    const updateNotifications = () => {
+      getUnreadNotificationCount()
+    }
+
+    window.addEventListener(
+      "notificationsUpdated",
+      updateNotifications
+    )
+
+    const interval = setInterval(
+      getUnreadNotificationCount,
+      15000
+    )
+
+    return () => {
+      window.removeEventListener(
+        "notificationsUpdated",
+        updateNotifications
+      )
+
+      clearInterval(interval)
+    }
   }, [])
 
   const adminLinks = [
@@ -99,7 +209,19 @@ function Sidebar() {
             key={link.path}
             to={link.path}
           >
-            {link.label}
+            {link.label === "Notifications" ? (
+              <span className="sidebar-notification-item">
+                <span>Notifications</span>
+
+                {unreadNotifications > 0 && (
+                  <span className="sidebar-notification-badge">
+                    {unreadNotifications}
+                  </span>
+                )}
+              </span>
+            ) : (
+              link.label
+            )}
           </NavLink>
         ))}
       </nav>
