@@ -2,9 +2,11 @@ import express from "express"
 import {
   createNotification,
   getMyNotifications,
+  getMySentNotifications,
   markNotificationAsRead,
   markAdminNotificationAsRead,
-  getNotificationLogs
+  getNotificationLogs,
+  deleteNotification
 } from "../controllers/notificationController.js"
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
@@ -23,6 +25,13 @@ router.get(
   protect,
   allowRoles("admin", "teacher", "student"),
   getMyNotifications
+)
+
+router.get(
+  "/sent",
+  protect,
+  allowRoles("teacher"),
+  getMySentNotifications
 )
 
 router.put(
@@ -44,6 +53,13 @@ router.get(
   protect,
   allowRoles("admin"),
   getNotificationLogs
+)
+
+router.delete(
+  "/:id",
+  protect,
+  allowRoles("admin", "teacher"),
+  deleteNotification
 )
 
 export default router
