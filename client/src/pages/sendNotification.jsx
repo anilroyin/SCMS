@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./sendNotification.css"
 
 function SendNotification() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [role, setRole] = useState("")
-  const [targetType, setTargetType] = useState("")
+  const [targetType, setTargetType] = useState(location.state?.targetType || "")
   const [className, setClassName] = useState("")
-  const [studentId, setStudentId] = useState("")
-  const [teacherId, setTeacherId] = useState("")
+  const [studentId, setStudentId] = useState(location.state?.studentId || "")
+  const [teacherId, setTeacherId] = useState(location.state?.teacherId || "")
   const [billingMonth, setBillingMonth] = useState("")
   const [title, setTitle] = useState("")
   const [message, setMessage] = useState("")
