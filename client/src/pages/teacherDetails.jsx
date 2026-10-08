@@ -210,58 +210,6 @@ function TeacherDetails() {
           )}
         </section>
 
-        <section className="teacher-details-card">
-          <div className="teacher-details-header">
-            <div>
-              <h2>Current Students</h2>
-              <p>
-                Students assigned to this teacher
-              </p>
-            </div>
-          </div>
-
-          {students.length === 0 ? (
-            <p className="empty-message">
-              No students currently assigned.
-            </p>
-          ) : (
-            <div className="table-container">
-              <table className="teachers-table">
-                <thead>
-                  <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Class</th>
-                    <th>Subjects</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student._id}>
-                      <td>{student.studentId}</td>
-                      <td>{student.name}</td>
-                      <td>{student.className}</td>
-                      <td>
-                        {student.subjects
-                          .map((subject) => subject.name)
-                          .join(", ")}
-                      </td>
-                      <td>
-                        <span
-                          className={`status-badge ${student.status}`}
-                        >
-                          {student.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
       </main>
     </div>
   )
