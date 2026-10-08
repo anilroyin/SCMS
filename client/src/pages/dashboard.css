@@ -70,7 +70,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .dashboard-header h1 {
@@ -146,7 +146,7 @@
 
 .dashboard-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -155,7 +155,7 @@
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 20px;
+  padding: 12px;
 }
 
 .dashboard-summary-card span {
@@ -168,7 +168,7 @@
   display: block;
   margin-top: 8px;
   color: #26313f;
-  font-size: 25px;
+  font-size: 18px;
   font-weight: 700;
 }
 
