@@ -265,6 +265,37 @@ const getMyNotifications = async (req, res) => {
   }
 }
 
+const getMySentNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({
+      sender: req.user.userId
+    })
+      .populate("sender", "name email role")
+      .populate("recipients", "name email role")
+      .sort({ createdAt: -1 })
+
+    const result = notifications.map((notification) => ({
+      _id: notification._id,
+      title: notification.title,
+      message: notification.message,
+      targetType: notification.targetType,
+      className: notification.className,
+      sender: notification.sender,
+      recipients: notification.recipients,
+      createdAt: notification.createdAt,
+      isSent: true,
+      isRead: true
+    }))
+
+    res.json(result)
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to get sent notifications",
+      error: error.message
+    })
+  }
+}
+
 const markNotificationAsRead = async (req, res) => {
   try {
     const notification = await Notification.findOne({
@@ -340,10 +371,55 @@ const getNotificationLogs = async (req, res) => {
   }
 }
 
+const deleteNotification = async (req, res) => {
+  try {
+    const notification = await Notification.findById(
+      req.params.id
+    )
+
+    if (!notification) {
+      return res.status(404).json({
+        message: "Notification not found"
+      })
+    }
+
+    if (
+      req.user.role !== "admin" &&
+      req.user.role !== "teacher"
+    ) {
+      return res.status(403).json({
+        message: "You are not allowed to delete notifications"
+      })
+    }
+
+    if (
+      notification.sender.toString() !==
+      req.user.userId
+    ) {
+      return res.status(403).json({
+        message: "You can delete only notifications sent by you"
+      })
+    }
+
+    await notification.deleteOne()
+
+    res.json({
+      message: "Notification deleted successfully"
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete notification",
+      error: error.message
+    })
+  }
+}
+
 export {
   createNotification,
   getMyNotifications,
+  getMySentNotifications,
   markNotificationAsRead,
   markAdminNotificationAsRead,
-  getNotificationLogs
+  getNotificationLogs,
+  deleteNotification
 }
