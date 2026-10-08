@@ -172,6 +172,7 @@ function Dashboard() {
 
           <div className="dashboard-user">
             <span>{user.name}</span>
+
             <button onClick={handleLogout}>
               Logout
             </button>
@@ -257,9 +258,7 @@ function Dashboard() {
                         strokeDasharray="3 3"
                       />
 
-                      <XAxis
-                        dataKey="week"
-                      />
+                      <XAxis dataKey="week" />
 
                       <YAxis />
 
@@ -361,82 +360,194 @@ function Dashboard() {
             </section>
 
             <section className="dashboard-two-column">
-             <div className="dashboard-panel">
-               <div className="dashboard-panel-header">
-             <div>
-               <h2>Upcoming Classes</h2>
-            <p>Today's remaining classes</p>
-           </div>
-        </div>
-
-            {dashboard.upcomingClasses.length === 0 ? (
-            <div className="dashboard-empty">
-      No upcoming classes today
-    </div>
-  ) : (
-    <div className="dashboard-class-list">
-      {dashboard.upcomingClasses.map((schedule) => (
-        <div className="dashboard-class-item" key={schedule._id}>
-          <div className="dashboard-class-teacher">
-            <strong>{schedule.teacherId?.teacherId || "Teacher"}</strong>
-            <span>{schedule.teacherId?.name || "Unknown"}</span>
-          </div>
-          <div className="dashboard-class-subject">
-            <strong>{schedule.subjectId?.name || "Subject"}</strong>
-            <span>Class {schedule.className}</span>
-          </div>
-          <div className="dashboard-class-time">
-            <strong>{formatTime(schedule.startTime)}</strong>
-            <span>{formatTime(schedule.endTime)}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Recent Notifications</h2>
-                    <p>Latest system notifications</p>
+                    <h2>Upcoming Classes</h2>
+                    <p>Today's remaining classes</p>
                   </div>
                 </div>
-
-                {dashboard.recentNotifications.length === 0 ? (
+              
+                {dashboard.upcomingClasses.length === 0 ? (
                   <div className="dashboard-empty">
-                    No recent notifications
+                    No upcoming classes today
                   </div>
                 ) : (
-                  <div className="dashboard-notification-list">
-                    {dashboard.recentNotifications.map(
-                      (notification) => (
+                  <div className="dashboard-class-list">
+                    {dashboard.upcomingClasses.map(
+                      (schedule) => (
                         <div
-                          className="dashboard-notification-item"
-                          key={notification._id}
+                          className="dashboard-class-item"
+                          key={schedule._id}
                         >
-                          <strong>
-                            {notification.title}
-                          </strong>
+                          <div className="dashboard-class-teacher">
+                            <strong>
+                              {schedule.teacherId?.teacherId ||
+                                "Teacher"}
+                            </strong>
 
-                          <p>
-                            {notification.message}
-                          </p>
+                            <span>
+                              {schedule.teacherId?.name ||
+                                "Unknown"}
+                            </span>
+                          </div>
 
-                          <small>
-                            {notification.sender?.name ||
-                              "System"}{" "}
-                            ·{" "}
-                            {formatDate(
-                              notification.createdAt
-                            )}
-                          </small>
+                          <div className="dashboard-class-subject">
+                            <strong>
+                              {schedule.subjectId?.name ||
+                                "Subject"}
+                            </strong>
+
+                            <span>
+                              Class {schedule.className}
+                            </span>
+                          </div>
+
+                          <div className="dashboard-class-time">
+                            <strong>
+                              {formatTime(
+                                schedule.startTime
+                              )}
+                            </strong>
+
+                            <span>
+                              {formatTime(
+                                schedule.endTime
+                              )}
+                            </span>
+                          </div>
                         </div>
                       )
                     )}
                   </div>
                 )}
               </div>
+
+              <div className="dashboard-panel">
+                <div className="dashboard-panel-header">
+                  <div>
+                    <h2>Upcoming Birthdays</h2>
+                    <p>Today and the next 7 days</p>
+                  </div>
+                </div>
+                
+                {!dashboard.upcomingBirthdays ||
+                dashboard.upcomingBirthdays.length === 0 ? (
+                  <div className="dashboard-empty">
+                    No upcoming birthdays
+                  </div>
+                ) : (
+                  <div className="dashboard-class-list">
+                    {dashboard.upcomingBirthdays.map(
+                      (birthday) => (
+                        <div
+                          className="dashboard-class-item"
+                          key={`${birthday.type}-${birthday.id}`}
+                        >
+                          <div className="dashboard-class-teacher">
+                            <strong>
+                            {birthday.name} 🎉
+                            </strong>
+
+                            <span>
+                              {birthday.type === "student"
+                                ? "Student"
+                                : "Teacher"}
+                            </span>
+                          </div>
+
+                          <div className="dashboard-class-subject">
+                            <span>
+                              {birthday.isToday
+                                ? "Birthday Today"
+                                : birthday.daysUntil === 1
+                                  ? "Tomorrow"
+                                  : `In ${birthday.daysUntil} days`}
+                            </span>
+                          </div>
+
+                          <div className="dashboard-class-time">
+                            <button
+                              type="button"
+                              className="dashboard-birthday-wish"
+                              disabled={!birthday.isToday}
+                              onClick={() =>
+                                navigate(
+                                  "/notifications/send",
+                                  {
+                                    state: {
+                                      targetType:
+                                        birthday.type ===
+                                        "student"
+                                          ? "individual_student"
+                                          : "individual_teacher",
+                                      studentId:
+                                        birthday.type ===
+                                        "student"
+                                          ? birthday.id
+                                          : "",
+                                      teacherId:
+                                        birthday.type ===
+                                        "teacher"
+                                          ? birthday.id
+                                          : ""
+                                    }
+                                  }
+                                )
+                              }
+                            >
+                              Wish
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
+                  <h2>Recent Notifications</h2>
+                  <p>Latest system notifications</p>
+                </div>
+              </div>
+
+              {dashboard.recentNotifications.length === 0 ? (
+                <div className="dashboard-empty">
+                  No recent notifications
+                </div>
+              ) : (
+                <div className="dashboard-notification-list">
+                  {dashboard.recentNotifications.map(
+                    (notification) => (
+                      <div
+                        className="dashboard-notification-item"
+                        key={notification._id}
+                      >
+                        <strong>
+                          {notification.title}
+                        </strong>
+
+                        <p>
+                          {notification.message}
+                        </p>
+
+                        <small>
+                          {notification.sender?.name ||
+                            "System"}{" "}
+                          ·{" "}
+                          {formatDate(
+                            notification.createdAt
+                          )}
+                        </small>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
             </section>
 
             <section className="dashboard-panel">
@@ -450,43 +561,41 @@ function Dashboard() {
               </div>
 
               <div className="dashboard-teacher-chart">
-                <ResponsiveContainer
+               <ResponsiveContainer
                   width="100%"
                   height={300}
                 >
-                  <BarChart
-                    data={dashboard.teacherPayments}
-                    margin={{
-                      top: 10,
-                      right: 20,
-                      left: 10,
-                      bottom: 10
-                    }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                    />
+                <BarChart
+                 data={dashboard.teacherPayments}
+                 margin={{
+                 top: 10,
+                 right: 20,
+                 left: 10,
+                 bottom: 10
+                 }}
+                >
+                <CartesianGrid strokeDasharray="3 3" />
 
-                    <XAxis
-                      dataKey="teacherId"
-                    />
+                   <XAxis dataKey="teacherId" />
 
                     <YAxis />
 
-                    <Tooltip
-                      formatter={(value) =>
-                        formatMoney(value)
-                      }
-                    />
+                 <Tooltip
+                   formatter={(value) =>[
+                   formatMoney(value),  "Teacher Payment"
+                   ]}
+                  labelFormatter={(label, payload) =>
+                  payload?.[0]?.payload?.teacherName || label
+                 }
+                />
 
-                    <Bar
-                      dataKey="teacherPayment"
-                      fill="#80919f"
-                      barSize={45}
-                      radius={[5, 5, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Bar
+                    dataKey="teacherPayment"
+                    fill="#80919f"
+                    barSize={45}
+                 />
+                </BarChart>
+              </ResponsiveContainer>
               </div>
             </section>
 

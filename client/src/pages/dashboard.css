@@ -309,6 +309,15 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
+}
+
+.dashboard-class-subject {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
 }
 
 .dashboard-class-item strong {
@@ -538,4 +547,24 @@
   .dashboard-panel {
     padding: 18px;
   }
+}
+
+.dashboard-birthday-wish {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 13px;
+  background: #80919f;
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dashboard-birthday-wish:hover:not(:disabled) {
+  background: #4b6276;
+}
+
+.dashboard-birthday-wish:disabled {
+  background: #d9dee3;
+  color: #8a94a3;
+  cursor: not-allowed;
 }
