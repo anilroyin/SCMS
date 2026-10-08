@@ -75,7 +75,10 @@ function Dashboard() {
           setDashboard(dashboardData)
         }
       } catch (error) {
-        setMessage(error.message || "Unable to connect to server")
+        setMessage(
+          error.message ||
+          "Unable to connect to server"
+        )
       }
     }
 
@@ -85,7 +88,6 @@ function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
-
     navigate("/login")
   }
 
@@ -170,7 +172,9 @@ function Dashboard() {
 
           <div className="dashboard-user">
             <span>{user.name}</span>
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         </header>
 
@@ -185,30 +189,30 @@ function Dashboard() {
             <section className="dashboard-summary">
               <div className="dashboard-summary-card">
                 <span>Total Students</span>
-                <strong>{dashboard.summary.totalStudents}</strong>
-                <small>
-                  {dashboard.summary.activeStudents} active
-                </small>
+                <strong>
+                  {dashboard.summary.totalStudents}
+                </strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Active Students</span>
-                <strong>{dashboard.summary.activeStudents}</strong>
-                <small>
-                  {dashboard.summary.studentChurn} churned
-                </small>
+                <strong>
+                  {dashboard.summary.activeStudents}
+                </strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Student Churn</span>
-                <strong>{dashboard.summary.studentChurn}</strong>
-                <small>Paused or left</small>
+                <strong>
+                  {dashboard.summary.studentChurn}
+                </strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Total Teachers</span>
-                <strong>{dashboard.summary.totalTeachers}</strong>
-                <small>Teaching staff</small>
+                <strong>
+                  {dashboard.summary.totalTeachers}
+                </strong>
               </div>
 
               <div className="dashboard-summary-card">
@@ -218,9 +222,6 @@ function Dashboard() {
                     dashboard.summary.thisMonthCollection
                   )}
                 </strong>
-                <small>
-                  {dashboard.billingMonth}
-                </small>
               </div>
 
               <div className="dashboard-summary-card">
@@ -230,7 +231,6 @@ function Dashboard() {
                     dashboard.summary.outstandingFees
                   )}
                 </strong>
-                <small>Pending collection</small>
               </div>
             </section>
 
@@ -239,7 +239,9 @@ function Dashboard() {
                 <div className="dashboard-panel-header">
                   <div>
                     <h2>Fee Collection</h2>
-                    <p>Weekly collection for the current month</p>
+                    <p>
+                      Weekly collection for the current month
+                    </p>
                   </div>
                 </div>
 
@@ -254,15 +256,19 @@ function Dashboard() {
                       <CartesianGrid
                         strokeDasharray="3 3"
                       />
+
                       <XAxis
                         dataKey="week"
                       />
+
                       <YAxis />
+
                       <Tooltip
                         formatter={(value) =>
                           formatMoney(value)
                         }
                       />
+
                       <Line
                         type="monotone"
                         dataKey="amount"
@@ -279,7 +285,9 @@ function Dashboard() {
                 <div className="dashboard-panel-header">
                   <div>
                     <h2>Fee Status</h2>
-                    <p>Current month student fee status</p>
+                    <p>
+                      Current month student fee status
+                    </p>
                   </div>
                 </div>
 
@@ -293,15 +301,18 @@ function Dashboard() {
                         data={[
                           {
                             name: "Paid",
-                            value: dashboard.feeStatus.paid
+                            value:
+                              dashboard.feeStatus.paid
                           },
                           {
                             name: "Partial",
-                            value: dashboard.feeStatus.partial
+                            value:
+                              dashboard.feeStatus.partial
                           },
                           {
                             name: "Due",
-                            value: dashboard.feeStatus.due
+                            value:
+                              dashboard.feeStatus.due
                           }
                         ]}
                         dataKey="value"
@@ -349,108 +360,40 @@ function Dashboard() {
               </div>
             </section>
 
-            <section className="dashboard-panel">
-              <div className="dashboard-panel-header">
-                <div>
-                  <h2>Teacher Payments</h2>
-                  <p>
-                    Teacher payment based on collected fees
-                  </p>
-                </div>
-              </div>
-
-              <div className="dashboard-teacher-chart">
-                <ResponsiveContainer
-                  width="100%"
-                  height={300}
-                >
-                  <BarChart
-                    data={dashboard.teacherPayments}
-                    margin={{
-                      top: 10,
-                      right: 20,
-                      left: 10,
-                      bottom: 10
-                    }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                    />
-                    <XAxis
-                      dataKey="teacherName"
-                    />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) =>
-                        formatMoney(value)
-                      }
-                    />
-                    <Bar
-                      dataKey="teacherPayment"
-                      fill="#80919f"
-                      radius={[5, 5, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </section>
-
             <section className="dashboard-two-column">
-              <div className="dashboard-panel">
-                <div className="dashboard-panel-header">
-                  <div>
-                    <h2>Upcoming Classes</h2>
-                    <p>Today's remaining classes</p>
-                  </div>
-                </div>
+             <div className="dashboard-panel">
+               <div className="dashboard-panel-header">
+             <div>
+               <h2>Upcoming Classes</h2>
+            <p>Today's remaining classes</p>
+           </div>
+        </div>
 
-                {dashboard.upcomingClasses.length === 0 ? (
-                  <div className="dashboard-empty">
-                    No upcoming classes today
-                  </div>
-                ) : (
-                  <div className="dashboard-class-list">
-                    {dashboard.upcomingClasses.map(
-                      (schedule) => (
-                        <div
-                          className="dashboard-class-item"
-                          key={schedule._id}
-                        >
-                          <div>
-                            <strong>
-                              {schedule.subjectId?.name ||
-                                "Subject"}
-                            </strong>
-
-                            <span>
-                              Class {schedule.className}
-                            </span>
-
-                            <small>
-                              {schedule.teacherId?.name ||
-                                "Teacher"}
-                            </small>
-                          </div>
-
-                          <div className="dashboard-class-time">
-                            <strong>
-                              {formatTime(
-                                schedule.startTime
-                              )}
-                            </strong>
-
-                            <span>
-                              {formatTime(
-                                schedule.endTime
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
+            {dashboard.upcomingClasses.length === 0 ? (
+            <div className="dashboard-empty">
+      No upcoming classes today
+    </div>
+  ) : (
+    <div className="dashboard-class-list">
+      {dashboard.upcomingClasses.map((schedule) => (
+        <div className="dashboard-class-item" key={schedule._id}>
+          <div className="dashboard-class-teacher">
+            <strong>{schedule.teacherId?.teacherId || "Teacher"}</strong>
+            <span>{schedule.teacherId?.name || "Unknown"}</span>
+          </div>
+          <div className="dashboard-class-subject">
+            <strong>{schedule.subjectId?.name || "Subject"}</strong>
+            <span>Class {schedule.className}</span>
+          </div>
+          <div className="dashboard-class-time">
+            <strong>{formatTime(schedule.startTime)}</strong>
+            <span>{formatTime(schedule.endTime)}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
@@ -499,6 +442,57 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
+                  <h2>Teacher Payments</h2>
+                  <p>
+                    Teacher payment based on collected fees
+                  </p>
+                </div>
+              </div>
+
+              <div className="dashboard-teacher-chart">
+                <ResponsiveContainer
+                  width="100%"
+                  height={300}
+                >
+                  <BarChart
+                    data={dashboard.teacherPayments}
+                    margin={{
+                      top: 10,
+                      right: 20,
+                      left: 10,
+                      bottom: 10
+                    }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                    />
+
+                    <XAxis
+                      dataKey="teacherId"
+                    />
+
+                    <YAxis />
+
+                    <Tooltip
+                      formatter={(value) =>
+                        formatMoney(value)
+                      }
+                    />
+
+                    <Bar
+                      dataKey="teacherPayment"
+                      fill="#80919f"
+                      barSize={45}
+                      radius={[5, 5, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
                   <h2>Recent Payments</h2>
                   <p>Latest fee payments received</p>
                 </div>
@@ -537,12 +531,18 @@ function Dashboard() {
                               </strong>
                             </td>
 
-                            <td>{payment.studentId}</td>
-
-                            <td>{payment.subject}</td>
+                            <td>
+                              {payment.studentId}
+                            </td>
 
                             <td>
-                              {formatMoney(payment.amount)}
+                              {payment.subject}
+                            </td>
+
+                            <td>
+                              {formatMoney(
+                                payment.amount
+                              )}
                             </td>
 
                             <td>
