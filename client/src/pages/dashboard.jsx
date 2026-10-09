@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -23,7 +24,6 @@ function Dashboard() {
   const [user, setUser] = useState(null)
   const [dashboard, setDashboard] = useState(null)
   const [message, setMessage] = useState("")
-
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -53,32 +53,32 @@ function Dashboard() {
 
         setUser(data.user)
 
-        if (data.user.role === "admin") {
-          const dashboardResponse = await fetch(
-            `${API}/dashboard/admin`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
+        if (["admin", "teacher", "student"].includes(data.user.role)) {
+          const endpoint =
+            data.user.role === "admin"
+              ? "/dashboard/admin"
+              : data.user.role === "teacher"
+                ? "/dashboard/teacher"
+                : "/dashboard/student"
+
+          const dashboardResponse = await fetch(`${API}${endpoint}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
             }
-          )
+          })
 
           const dashboardData = await dashboardResponse.json()
 
           if (!dashboardResponse.ok) {
             throw new Error(
-              dashboardData.message ||
-              "Failed to load dashboard"
+              dashboardData.message || "Failed to load dashboard"
             )
           }
 
           setDashboard(dashboardData)
         }
       } catch (error) {
-        setMessage(
-          error.message ||
-          "Unable to connect to server"
-        )
+        setMessage(error.message || "Unable to connect to server")
       }
     }
 
@@ -92,33 +92,23 @@ function Dashboard() {
   }
 
   const formatMoney = (value) => {
-    return `₹${Number(value || 0).toLocaleString(
-      "en-IN",
-      {
-        maximumFractionDigits: 2
-      }
-    )}`
+    return `₹${Number(value || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: 2
+    })}`
   }
 
   const formatDate = (value) => {
-    if (!value) {
-      return ""
-    }
+    if (!value) return ""
 
-    return new Date(value).toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      }
-    )
+    return new Date(value).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    })
   }
 
   const formatTime = (value) => {
-    if (!value) {
-      return ""
-    }
+    if (!value) return ""
 
     const [hour, minute] = value.split(":")
     const date = new Date()
@@ -126,20 +116,21 @@ function Dashboard() {
     date.setHours(Number(hour))
     date.setMinutes(Number(minute))
 
-    return date.toLocaleTimeString(
-      "en-IN",
-      {
-        hour: "numeric",
-        minute: "2-digit"
-      }
-    )
+    return date.toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit"
+    })
+  }
+
+  const getStatus = (status) => {
+    if (!status) return "Due"
+    return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
   if (message) {
     return (
       <div className="dashboard-layout">
         <Sidebar />
-
         <main className="dashboard-content">
           <p>{message}</p>
         </main>
@@ -151,7 +142,6 @@ function Dashboard() {
     return (
       <div className="dashboard-layout">
         <Sidebar />
-
         <main className="dashboard-content">
           <p>Loading...</p>
         </main>
@@ -172,10 +162,7 @@ function Dashboard() {
 
           <div className="dashboard-user">
             <span>{user.name}</span>
-
-            <button onClick={handleLogout}>
-              Logout
-            </button>
+            <button onClick={handleLogout}>Logout</button>
           </div>
         </header>
 
@@ -190,47 +177,35 @@ function Dashboard() {
             <section className="dashboard-summary">
               <div className="dashboard-summary-card">
                 <span>Total Students</span>
-                <strong>
-                  {dashboard.summary.totalStudents}
-                </strong>
+                <strong>{dashboard.summary.totalStudents}</strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Active Students</span>
-                <strong>
-                  {dashboard.summary.activeStudents}
-                </strong>
+                <strong>{dashboard.summary.activeStudents}</strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Student Churn</span>
-                <strong>
-                  {dashboard.summary.studentChurn}
-                </strong>
+                <strong>{dashboard.summary.studentChurn}</strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Total Teachers</span>
-                <strong>
-                  {dashboard.summary.totalTeachers}
-                </strong>
+                <strong>{dashboard.summary.totalTeachers}</strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>This Month Collection</span>
                 <strong>
-                  {formatMoney(
-                    dashboard.summary.thisMonthCollection
-                  )}
+                  {formatMoney(dashboard.summary.thisMonthCollection)}
                 </strong>
               </div>
 
               <div className="dashboard-summary-card">
                 <span>Outstanding Fees</span>
                 <strong>
-                  {formatMoney(
-                    dashboard.summary.outstandingFees
-                  )}
+                  {formatMoney(dashboard.summary.outstandingFees)}
                 </strong>
               </div>
             </section>
@@ -240,34 +215,19 @@ function Dashboard() {
                 <div className="dashboard-panel-header">
                   <div>
                     <h2>Fee Collection</h2>
-                    <p>
-                      Weekly collection for the current month
-                    </p>
+                    <p>Weekly collection for the current month</p>
                   </div>
                 </div>
 
                 <div className="dashboard-chart">
-                  <ResponsiveContainer
-                    width="100%"
-                    height={280}
-                  >
-                    <LineChart
-                      data={dashboard.feeCollection}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                      />
-
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={dashboard.feeCollection}>
+                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="week" />
-
                       <YAxis />
-
                       <Tooltip
-                        formatter={(value) =>
-                          formatMoney(value)
-                        }
+                        formatter={(value) => formatMoney(value)}
                       />
-
                       <Line
                         type="monotone"
                         dataKey="amount"
@@ -284,34 +244,26 @@ function Dashboard() {
                 <div className="dashboard-panel-header">
                   <div>
                     <h2>Fee Status</h2>
-                    <p>
-                      Current month student fee status
-                    </p>
+                    <p>Current month student fee status</p>
                   </div>
                 </div>
 
                 <div className="dashboard-pie">
-                  <ResponsiveContainer
-                    width="100%"
-                    height={280}
-                  >
+                  <ResponsiveContainer width="100%" height={280}>
                     <PieChart>
                       <Pie
                         data={[
                           {
                             name: "Paid",
-                            value:
-                              dashboard.feeStatus.paid
+                            value: dashboard.feeStatus.paid
                           },
                           {
                             name: "Partial",
-                            value:
-                              dashboard.feeStatus.partial
+                            value: dashboard.feeStatus.partial
                           },
                           {
                             name: "Due",
-                            value:
-                              dashboard.feeStatus.due
+                            value: dashboard.feeStatus.due
                           }
                         ]}
                         dataKey="value"
@@ -325,7 +277,6 @@ function Dashboard() {
                         <Cell fill="#f59e0b" />
                         <Cell fill="#ef4444" />
                       </Pie>
-
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
@@ -334,25 +285,17 @@ function Dashboard() {
                     <div>
                       <span className="dashboard-legend-dot paid" />
                       <span>Paid</span>
-                      <strong>
-                        {dashboard.feeStatus.paid}
-                      </strong>
+                      <strong>{dashboard.feeStatus.paid}</strong>
                     </div>
-
                     <div>
                       <span className="dashboard-legend-dot partial" />
                       <span>Partial</span>
-                      <strong>
-                        {dashboard.feeStatus.partial}
-                      </strong>
+                      <strong>{dashboard.feeStatus.partial}</strong>
                     </div>
-
                     <div>
                       <span className="dashboard-legend-dot due" />
                       <span>Due</span>
-                      <strong>
-                        {dashboard.feeStatus.due}
-                      </strong>
+                      <strong>{dashboard.feeStatus.due}</strong>
                     </div>
                   </div>
                 </div>
@@ -367,58 +310,40 @@ function Dashboard() {
                     <p>Today's remaining classes</p>
                   </div>
                 </div>
-              
+
                 {dashboard.upcomingClasses.length === 0 ? (
                   <div className="dashboard-empty">
                     No upcoming classes today
                   </div>
                 ) : (
                   <div className="dashboard-class-list">
-                    {dashboard.upcomingClasses.map(
-                      (schedule) => (
-                        <div
-                          className="dashboard-class-item"
-                          key={schedule._id}
-                        >
-                          <div className="dashboard-class-teacher">
-                            <strong>
-                              {schedule.teacherId?.teacherId ||
-                                "Teacher"}
-                            </strong>
-
-                            <span>
-                              {schedule.teacherId?.name ||
-                                "Unknown"}
-                            </span>
-                          </div>
-
-                          <div className="dashboard-class-subject">
-                            <strong>
-                              {schedule.subjectId?.name ||
-                                "Subject"}
-                            </strong>
-
-                            <span>
-                              Class {schedule.className}
-                            </span>
-                          </div>
-
-                          <div className="dashboard-class-time">
-                            <strong>
-                              {formatTime(
-                                schedule.startTime
-                              )}
-                            </strong>
-
-                            <span>
-                              {formatTime(
-                                schedule.endTime
-                              )}
-                            </span>
-                          </div>
+                    {dashboard.upcomingClasses.map((schedule) => (
+                      <div
+                        className="dashboard-class-item"
+                        key={schedule._id}
+                      >
+                        <div className="dashboard-class-teacher">
+                          <strong>
+                            {schedule.teacherId?.teacherId || "Teacher"}
+                          </strong>
+                          <span>
+                            {schedule.teacherId?.name || "Unknown"}
+                          </span>
                         </div>
-                      )
-                    )}
+
+                        <div className="dashboard-class-subject">
+                          <strong>
+                            {schedule.subjectId?.name || "Subject"}
+                          </strong>
+                          <span>Class {schedule.className}</span>
+                        </div>
+
+                        <div className="dashboard-class-time">
+                          <strong>{formatTime(schedule.startTime)}</strong>
+                          <span>{formatTime(schedule.endTime)}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -430,7 +355,7 @@ function Dashboard() {
                     <p>Today and the next 7 days</p>
                   </div>
                 </div>
-                
+
                 {!dashboard.upcomingBirthdays ||
                 dashboard.upcomingBirthdays.length === 0 ? (
                   <div className="dashboard-empty">
@@ -438,70 +363,59 @@ function Dashboard() {
                   </div>
                 ) : (
                   <div className="dashboard-class-list">
-                    {dashboard.upcomingBirthdays.map(
-                      (birthday) => (
-                        <div
-                          className="dashboard-class-item"
-                          key={`${birthday.type}-${birthday.id}`}
-                        >
-                          <div className="dashboard-class-teacher">
-                            <strong>
-                            {birthday.name} 🎉
-                            </strong>
-
-                            <span>
-                              {birthday.type === "student"
-                                ? "Student"
-                                : "Teacher"}
-                            </span>
-                          </div>
-
-                          <div className="dashboard-class-subject">
-                            <span>
-                              {birthday.isToday
-                                ? "Birthday Today"
-                                : birthday.daysUntil === 1
-                                  ? "Tomorrow"
-                                  : `In ${birthday.daysUntil} days`}
-                            </span>
-                          </div>
-
-                          <div className="dashboard-class-time">
-                            <button
-                              type="button"
-                              className="dashboard-birthday-wish"
-                              disabled={!birthday.isToday}
-                              onClick={() =>
-                                navigate(
-                                  "/notifications/send",
-                                  {
-                                    state: {
-                                      targetType:
-                                        birthday.type ===
-                                        "student"
-                                          ? "individual_student"
-                                          : "individual_teacher",
-                                      studentId:
-                                        birthday.type ===
-                                        "student"
-                                          ? birthday.id
-                                          : "",
-                                      teacherId:
-                                        birthday.type ===
-                                        "teacher"
-                                          ? birthday.id
-                                          : ""
-                                    }
-                                  }
-                                )
-                              }
-                            >
-                              Wish
-                            </button>
-                          </div>
+                    {dashboard.upcomingBirthdays.map((birthday) => (
+                      <div
+                        className="dashboard-class-item"
+                        key={`${birthday.type}-${birthday.id}`}
+                      >
+                        <div className="dashboard-class-teacher">
+                          <strong>{birthday.name} 🎉</strong>
+                          <span>
+                            {birthday.type === "student"
+                              ? "Student"
+                              : "Teacher"}
+                          </span>
                         </div>
-                      )
-                    )}
+
+                        <div className="dashboard-class-subject">
+                          <span>
+                            {birthday.isToday
+                              ? "Birthday Today"
+                              : birthday.daysUntil === 1
+                                ? "Tomorrow"
+                                : `In ${birthday.daysUntil} days`}
+                          </span>
+                        </div>
+
+                        <div className="dashboard-class-time">
+                          <button
+                            type="button"
+                            className="dashboard-birthday-wish"
+                            disabled={!birthday.isToday}
+                            onClick={() =>
+                              navigate("/notifications/send", {
+                                state: {
+                                  targetType:
+                                    birthday.type === "student"
+                                      ? "individual_student"
+                                      : "individual_teacher",
+                                  studentId:
+                                    birthday.type === "student"
+                                      ? birthday.id
+                                      : "",
+                                  teacherId:
+                                    birthday.type === "teacher"
+                                      ? birthday.id
+                                      : ""
+                                }
+                              })
+                            }
+                          >
+                            Wish
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -521,31 +435,19 @@ function Dashboard() {
                 </div>
               ) : (
                 <div className="dashboard-notification-list">
-                  {dashboard.recentNotifications.map(
-                    (notification) => (
-                      <div
-                        className="dashboard-notification-item"
-                        key={notification._id}
-                      >
-                        <strong>
-                          {notification.title}
-                        </strong>
-
-                        <p>
-                          {notification.message}
-                        </p>
-
-                        <small>
-                          {notification.sender?.name ||
-                            "System"}{" "}
-                          ·{" "}
-                          {formatDate(
-                            notification.createdAt
-                          )}
-                        </small>
-                      </div>
-                    )
-                  )}
+                  {dashboard.recentNotifications.map((notification) => (
+                    <div
+                      className="dashboard-notification-item"
+                      key={notification._id}
+                    >
+                      <strong>{notification.title}</strong>
+                      <p>{notification.message}</p>
+                      <small>
+                        {notification.sender?.name || "System"} ·{" "}
+                        {formatDate(notification.createdAt)}
+                      </small>
+                    </div>
+                  ))}
                 </div>
               )}
             </section>
@@ -554,48 +456,40 @@ function Dashboard() {
               <div className="dashboard-panel-header">
                 <div>
                   <h2>Teacher Payments</h2>
-                  <p>
-                    Teacher payment based on collected fees
-                  </p>
+                  <p>Teacher payment based on collected fees</p>
                 </div>
               </div>
 
               <div className="dashboard-teacher-chart">
-               <ResponsiveContainer
-                  width="100%"
-                  height={300}
-                >
-                <BarChart
-                 data={dashboard.teacherPayments}
-                 margin={{
-                 top: 10,
-                 right: 20,
-                 left: 10,
-                 bottom: 10
-                 }}
-                >
-                <CartesianGrid strokeDasharray="3 3" />
-
-                   <XAxis dataKey="teacherId" />
-
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={dashboard.teacherPayments}
+                    margin={{
+                      top: 10,
+                      right: 20,
+                      left: 10,
+                      bottom: 10
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="teacherId" />
                     <YAxis />
-
-                 <Tooltip
-                   formatter={(value) =>[
-                   formatMoney(value),  "Teacher Payment"
-                   ]}
-                  labelFormatter={(label, payload) =>
-                  payload?.[0]?.payload?.teacherName || label
-                 }
-                />
-
-                <Bar
-                    dataKey="teacherPayment"
-                    fill="#80919f"
-                    barSize={45}
-                 />
-                </BarChart>
-              </ResponsiveContainer>
+                    <Tooltip
+                      formatter={(value) => [
+                        formatMoney(value),
+                        "Teacher Payment"
+                      ]}
+                      labelFormatter={(label, payload) =>
+                        payload?.[0]?.payload?.teacherName || label
+                      }
+                    />
+                    <Bar
+                      dataKey="teacherPayment"
+                      fill="#80919f"
+                      barSize={45}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </section>
 
@@ -631,43 +525,22 @@ function Dashboard() {
                         </td>
                       </tr>
                     ) : (
-                      dashboard.recentPayments.map(
-                        (payment) => (
-                          <tr key={payment.id}>
-                            <td>
-                              <strong>
-                                {payment.studentName}
-                              </strong>
-                            </td>
-
-                            <td>
-                              {payment.studentId}
-                            </td>
-
-                            <td>
-                              {payment.subject}
-                            </td>
-
-                            <td>
-                              {formatMoney(
-                                payment.amount
-                              )}
-                            </td>
-
-                            <td>
-                              <span className="dashboard-payment-method">
-                                {payment.paymentMethod}
-                              </span>
-                            </td>
-
-                            <td>
-                              {formatDate(
-                                payment.paymentDate
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      )
+                      dashboard.recentPayments.map((payment) => (
+                        <tr key={payment.id}>
+                          <td>
+                            <strong>{payment.studentName}</strong>
+                          </td>
+                          <td>{payment.studentId}</td>
+                          <td>{payment.subject}</td>
+                          <td>{formatMoney(payment.amount)}</td>
+                          <td>
+                            <span className="dashboard-payment-method">
+                              {payment.paymentMethod}
+                            </span>
+                          </td>
+                          <td>{formatDate(payment.paymentDate)}</td>
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
@@ -676,52 +549,400 @@ function Dashboard() {
           </>
         )}
 
-        {user.role === "teacher" && (
-          <section className="dashboard-overview">
-            <div className="overview-card">
-              <h3>My Students</h3>
-              <p>View students assigned to you</p>
-            </div>
-
-            <div className="overview-card">
-              <h3>My Subjects</h3>
-              <p>View the subjects you teach</p>
-            </div>
-
-            <div className="overview-card">
-              <h3>My Schedule</h3>
-              <p>View your class schedule</p>
-            </div>
-
-            <div className="overview-card">
-              <h3>My Earnings</h3>
-              <p>View your earnings</p>
-            </div>
-          </section>
+        {user.role === "teacher" && !dashboard && (
+          <div className="dashboard-loading">
+            Loading teacher dashboard...
+          </div>
         )}
 
-        {user.role === "student" && (
-          <section className="dashboard-overview">
-            <div className="overview-card">
-              <h3>My Subjects</h3>
-              <p>View your enrolled subjects</p>
-            </div>
+        {user.role === "teacher" && dashboard && (
+          <>
+            <section className="dashboard-summary teacher-summary">
+              <div className="dashboard-summary-card">
+                <span>My Students</span>
+                <strong>{dashboard.summary.myStudents}</strong>
+              </div>
 
-            <div className="overview-card">
-              <h3>My Teachers</h3>
-              <p>View your teachers</p>
-            </div>
+              <div className="dashboard-summary-card">
+                <span>My Subjects</span>
+                <strong>{dashboard.summary.mySubjects}</strong>
+              </div>
 
-            <div className="overview-card">
-              <h3>My Schedule</h3>
-              <p>View your class schedule</p>
-            </div>
+              <div className="dashboard-summary-card">
+                <span>Today's Classes</span>
+                <strong>{dashboard.summary.todaysClasses}</strong>
+              </div>
 
-            <div className="overview-card">
-              <h3>My Fees</h3>
-              <p>View your fee details</p>
-            </div>
-          </section>
+              <div className="dashboard-summary-card">
+                <span>My Earnings</span>
+                <strong>
+                  {formatMoney(dashboard.summary.myEarnings)}
+                </strong>
+              </div>
+            </section>
+
+            <section className="dashboard-chart-grid teacher-chart-grid">
+              <div className="dashboard-panel">
+                <div className="dashboard-panel-header">
+                  <div>
+                    <h2>Today's Schedule</h2>
+                    <p>Your classes for today</p>
+                  </div>
+                </div>
+
+                {dashboard.todaysSchedule.length === 0 ? (
+                  <div className="dashboard-empty">
+                    No classes scheduled for today
+                  </div>
+                ) : (
+                  <div className="dashboard-class-list">
+                    {dashboard.todaysSchedule.map((schedule) => (
+                      <div
+                        className="dashboard-class-item"
+                        key={schedule._id}
+                      >
+                        <div className="dashboard-class-subject">
+                          <strong>
+                            {schedule.subjectId?.name || "Subject"}
+                          </strong>
+                          <span>Class {schedule.className}</span>
+                        </div>
+
+                        <div className="dashboard-class-subject">
+                          <strong>Room:</strong>
+                          <span>{schedule.room || "Not assigned"}</span>
+                        </div>
+
+                        <div className="dashboard-class-time">
+                          <strong>{formatTime(schedule.startTime)}</strong>
+                          <span>{formatTime(schedule.endTime)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="dashboard-panel">
+                <div className="dashboard-panel-header">
+                  <div>
+                    <h2>Students' Fee Status</h2>
+                    <p>Current month fee status</p>
+                  </div>
+                </div>
+
+                <div className="dashboard-pie">
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie
+                        data={[
+                          {
+                            name: "Paid",
+                            value: dashboard.feeStatus.paid
+                          },
+                          {
+                            name: "Partial",
+                            value: dashboard.feeStatus.partial
+                          },
+                          {
+                            name: "Due",
+                            value: dashboard.feeStatus.due
+                          }
+                        ]}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label
+                      >
+                        <Cell fill="#22c55e" />
+                        <Cell fill="#f59e0b" />
+                        <Cell fill="#ef4444" />
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="dashboard-pie-legend">
+                    <div>
+                      <span className="dashboard-legend-dot paid" />
+                      <span>Paid</span>
+                      <strong>{dashboard.feeStatus.paid}</strong>
+                    </div>
+                    <div>
+                      <span className="dashboard-legend-dot partial" />
+                      <span>Partial</span>
+                      <strong>{dashboard.feeStatus.partial}</strong>
+                    </div>
+                    <div>
+                      <span className="dashboard-legend-dot due" />
+                      <span>Due</span>
+                      <strong>{dashboard.feeStatus.due}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
+                  <h2>Your Monthly Earnings</h2>
+                  <p>Your earnings over the last six months</p>
+                </div>
+              </div>
+
+              <div className="dashboard-teacher-chart">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={dashboard.monthlyEarnings}
+                    margin={{
+                      top: 10,
+                      right: 20,
+                      left: 10,
+                      bottom: 10
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="billingMonth"
+                      tickFormatter={(value) => {
+                        const [year, month] = value.split("-")
+                        return new Date(
+                          Number(year),
+                          Number(month) - 1
+                        ).toLocaleDateString("en-IN", {
+                          month: "short",
+                          year: "2-digit"
+                        })
+                      }}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [
+                        formatMoney(value),
+                        "Teacher Earnings"
+                      ]}
+                    />
+                    <Bar
+                      dataKey="amount"
+                      fill="#80919f"
+                      barSize={40}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
+                  <h2>Recent Notifications</h2>
+                  <p>Announcements and notifications for you</p>
+                </div>
+              </div>
+
+              {dashboard.recentNotifications.length === 0 ? (
+                <div className="dashboard-empty">
+                  No recent notifications
+                </div>
+              ) : (
+                <div className="dashboard-notification-list">
+                  {dashboard.recentNotifications.map((notification) => (
+                    <div
+                      className="dashboard-notification-item"
+                      key={notification._id}
+                    >
+                      <strong>{notification.title}</strong>
+                      <p>{notification.message}</p>
+                      <small>
+                        {notification.sender?.name || "System"} ·{" "}
+                        {formatDate(notification.createdAt)}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {user.role === "student" && !dashboard && (
+          <div className="dashboard-loading">
+            Loading student dashboard...
+          </div>
+        )}
+
+        {user.role === "student" && dashboard && (
+          <>
+            <section className="dashboard-summary">
+              <div className="dashboard-summary-card">
+                <span>My Subjects</span>
+                <strong>{dashboard.summary.mySubjects}</strong>
+              </div>
+
+              <div className="dashboard-summary-card">
+                <span>My Teachers</span>
+                <strong>{dashboard.summary.myTeachers}</strong>
+              </div>
+
+              <div className="dashboard-summary-card">
+                <span>This Month's Fees</span>
+                <strong>{formatMoney(dashboard.summary.totalFee)}</strong>
+              </div>
+
+              <div className="dashboard-summary-card">
+                <span>Outstanding Due</span>
+                <strong>{formatMoney(dashboard.summary.totalDue)}</strong>
+              </div>
+            </section>
+
+            <section className="dashboard-chart-grid">
+              <div className="dashboard-panel">
+                <div className="dashboard-panel-header">
+                  <div>
+                    <h2>Today's Schedule</h2>
+                    <p>Your classes scheduled for today</p>
+                  </div>
+                </div>
+
+                {!dashboard.todaysSchedule ||
+                dashboard.todaysSchedule.length === 0 ? (
+                  <div className="dashboard-empty">
+                    No classes scheduled for today
+                  </div>
+                ) : (
+                  <div className="dashboard-class-list">
+                    {dashboard.todaysSchedule.map((schedule) => (
+                      <div
+                        className="dashboard-class-item"
+                        key={schedule._id}
+                      >
+                        <div className="dashboard-class-subject">
+                          <strong>
+                            {schedule.subjectId?.name || "Subject"}
+                          </strong>
+                          <span>
+                            Teacher: {schedule.teacherId?.name || "Not assigned"}
+                          </span>
+                          <span>
+                            Room: {schedule.room || "Not assigned"}
+                          </span>
+                        </div>
+
+                        <div className="dashboard-class-time">
+                          <strong>{formatTime(schedule.startTime)}</strong>
+                          <span>{formatTime(schedule.endTime)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
+                  <h2>My Fee Details</h2>
+                  <p>Fee status for the current billing month</p>
+                </div>
+              </div>
+
+              <div className="dashboard-table-wrapper">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Teacher</th>
+                      <th>Net Fee</th>
+                      <th>Paid</th>
+                      <th>Due</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {!dashboard.fees || dashboard.fees.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="6"
+                          className="dashboard-table-empty"
+                        >
+                          No fee records found for this month
+                        </td>
+                      </tr>
+                    ) : (
+                      dashboard.fees.map((fee) => (
+                        <tr key={fee._id}>
+                          <td>{fee.subjectId?.name || "Subject"}</td>
+                          <td>{fee.teacherId?.name || "Not assigned"}</td>
+                          <td>{formatMoney(fee.netFee)}</td>
+                          <td>{formatMoney(fee.paidAmount)}</td>
+                          <td>{formatMoney(fee.dueAmount)}</td>
+                          <td>
+                            <span className="dashboard-payment-method">
+                              {getStatus(fee.paymentStatus)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <section className="dashboard-summary">
+                <div className="dashboard-summary-card">
+                  <span>Total Fees</span>
+                  <strong>{formatMoney(dashboard.summary.totalFee)}</strong>
+                </div>
+
+                <div className="dashboard-summary-card">
+                  <span>Total Paid</span>
+                  <strong>{formatMoney(dashboard.summary.totalPaid)}</strong>
+                </div>
+
+                <div className="dashboard-summary-card">
+                  <span>Total Due</span>
+                  <strong>{formatMoney(dashboard.summary.totalDue)}</strong>
+                </div>
+              </section>
+            </section>
+
+            <section className="dashboard-panel">
+              <div className="dashboard-panel-header">
+                <div>
+                  <h2>Recent Notifications</h2>
+                  <p>Latest announcements and messages</p>
+                </div>
+              </div>
+
+              {!dashboard.recentNotifications ||
+              dashboard.recentNotifications.length === 0 ? (
+                <div className="dashboard-empty">
+                  No recent notifications
+                </div>
+              ) : (
+                <div className="dashboard-notification-list">
+                  {dashboard.recentNotifications.map((notification) => (
+                    <div
+                      className="dashboard-notification-item"
+                      key={notification._id}
+                    >
+                      <strong>{notification.title}</strong>
+                      <p>{notification.message}</p>
+                      <small>
+                        {notification.sender?.name || "System"} ·{" "}
+                        {formatDate(notification.createdAt)}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
         )}
       </main>
     </div>
