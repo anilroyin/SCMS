@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 
 function Sidebar() {
+  const location = useLocation()
+
   const [role, setRole] = useState(() => {
     const token = localStorage.getItem("token")
 
@@ -208,6 +210,26 @@ function Sidebar() {
           <NavLink
             key={link.path}
             to={link.path}
+            state={
+              ["/fees", "/teacher-payments"].includes(link.path)
+                ? { from: location.pathname }
+                : undefined
+            }
+            onClick={() => {
+              if (link.path === "/fees") {
+                sessionStorage.setItem(
+                  "feesReturnPath",
+                  location.pathname
+                )
+              }
+
+              if (link.path === "/teacher-payments") {
+                sessionStorage.setItem(
+                  "teacherPaymentsReturnPath",
+                  location.pathname
+                )
+              }
+            }}
           >
             {link.label === "Notifications" ? (
               <span className="sidebar-notification-item">
