@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import "./fees.css"
 
 function Fees() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { studentId } = useParams()
+  const [searchParams] = useSearchParams()
 
   const [billingMonth, setBillingMonth] = useState(() => {
     return new Date().toISOString().slice(0, 7)
@@ -242,12 +245,17 @@ function Fees() {
           </p>
         </div>
 
-        <button
-          className="back-button"
-          onClick={() => navigate(-1)}
-        >
-          Back
-        </button>
+              <button
+  className="back-button"
+  onClick={() =>
+    navigate(
+      sessionStorage.getItem("feesReturnPath") || "/",
+      { replace: true }
+    )
+  }
+>
+  Back
+</button>
       </div>
 
       <div className="fee-controls">
