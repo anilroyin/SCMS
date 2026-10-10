@@ -121,12 +121,17 @@ function TeacherPayments() {
           </p>
         </div>
 
-        <button
-          className="back-button"
-          onClick={() => navigate(-1)}
-        >
-          Back
-        </button>
+         <button
+  className="back-button"
+  onClick={() =>
+    navigate(
+      sessionStorage.getItem("teacherPaymentsReturnPath") || "/teachers",
+      { replace: true }
+    )
+  }
+>
+  Back
+</button>
       </div>
 
       <div className="payment-controls">
@@ -297,7 +302,7 @@ function TeacherPayments() {
                             )
                           }
                         >
-                        Pay | View 👁️
+                          Pay | View 👁️
                         </button>
                       </td>
                     </tr>
