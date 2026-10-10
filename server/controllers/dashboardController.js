@@ -1,10 +1,31 @@
+
 import Fee from "../models/fee.js"
 import Student from "../models/student.js"
 import Teacher from "../models/teacher.js"
+import TeacherEarning from "../models/teacherEarning.js"
+import TeacherPayment from "../models/teacherPayment.js"
 import Notification from "../models/notification.js"
 import Schedule from "../models/schedule.js"
 
 const round = (value) => Number(value.toFixed(2))
+
+const getBillingMonth = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit"
+  }).formatToParts(date)
+
+  const year = parts.find(
+    part => part.type === "year"
+  ).value
+
+  const month = parts.find(
+    part => part.type === "month"
+  ).value
+
+  return `${year}-${month}`
+}
 
 const getAdminDashboard = async (req, res) => {
   try {
@@ -387,6 +408,313 @@ const getAdminDashboard = async (req, res) => {
   }
 }
 
+const getTeacherDashboard = async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({
+      userId: req.user.userId
+    }).populate("subjects", "name")
+
+    if (!teacher) {
+      return res.status(404).json({
+        message: "Teacher profile not found"
+      })
+    }
+
+    const now = new Date()
+    const billingMonth = getBillingMonth(now)
+
+    const today = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      timeZone: "Asia/Kolkata"
+    }).format(now)
+
+    const currentMonthDate = new Date(
+      `${billingMonth}-01T00:00:00+05:30`
+    )
+
+    const previousMonths = []
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentMonthDate)
+      date.setMonth(date.getMonth() - i)
+
+      previousMonths.push(
+        getBillingMonth(date)
+      )
+    }
+
+    const [
+      assignedStudents,
+      schedules,
+      fees,
+      earnings,
+      payments,
+      notifications
+    ] = await Promise.all([
+      Student.find({
+        status: "active",
+        "subjects.teacherId": teacher._id
+      })
+        .select(
+          "studentId name className subjects"
+        )
+        .populate("subjects.subjectId", "name"),
+      Schedule.find({
+        teacherId: teacher._id,
+        day: today
+      })
+        .populate("subjectId", "name")
+        .sort({ startTime: 1 }),
+      Fee.find({
+        teacherId: teacher._id,
+        billingMonth
+      }).select(
+        "studentId paidAmount dueAmount netFee paymentStatus"
+      ),
+      TeacherEarning.find({
+        teacherId: teacher._id,
+        billingMonth: {
+          $in: previousMonths
+        }
+      }).select(
+        "billingMonth teacherEarned collectedAmount"
+      ),
+      TeacherPayment.find({
+        teacherId: teacher._id,
+        billingMonth
+      }).select("amount"),
+      Notification.find({
+        $or: [
+          {
+            targetType: {
+              $in: ["everyone", "all_teachers"]
+            }
+          },
+          {
+            recipients: req.user.userId
+          }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("sender", "name role")
+    ])
+
+    const feeStatus = {
+      paid: 0,
+      partial: 0,
+      due: 0
+    }
+
+    const studentFeeTotals = {}
+
+    for (const fee of fees) {
+      const studentId = fee.studentId.toString()
+
+      if (!studentFeeTotals[studentId]) {
+        studentFeeTotals[studentId] = {
+          paid: 0,
+          due: 0
+        }
+      }
+
+      studentFeeTotals[studentId].paid +=
+        fee.paidAmount || 0
+
+      studentFeeTotals[studentId].due +=
+        fee.dueAmount ?? fee.netFee
+      }
+
+    for (const totals of Object.values(
+      studentFeeTotals
+    )) {
+      if (totals.due === 0) {
+        feeStatus.paid++
+      } else if (totals.paid > 0) {
+        feeStatus.partial++
+      } else {
+        feeStatus.due++
+      }
+    }
+
+    const earningsByMonth = {}
+
+    for (const month of previousMonths) {
+      earningsByMonth[month] = 0
+    }
+
+    let totalCollected = 0
+    let totalEarned = 0
+
+    for (const earning of earnings) {
+      earningsByMonth[earning.billingMonth] +=
+        earning.teacherEarned
+
+      if (earning.billingMonth === billingMonth) {
+        totalCollected += earning.collectedAmount
+        totalEarned += earning.teacherEarned
+      }
+    }
+
+    const totalPaid = payments.reduce(
+      (total, payment) =>
+        total + payment.amount,
+      0
+    )
+
+    const monthlyEarnings = previousMonths.map(
+      month => ({
+        billingMonth: month,
+        amount: round(earningsByMonth[month])
+      })
+    )
+
+    res.json({
+      billingMonth,
+      summary: {
+        myStudents: assignedStudents.length,
+        mySubjects: teacher.subjects.length,
+        todaysClasses: schedules.length,
+        myEarnings: round(totalEarned),
+        totalCollected: round(totalCollected),
+        paymentsReceived: round(totalPaid),
+        payable: round(totalEarned - totalPaid)
+      },
+      subjects: teacher.subjects,
+      todaysSchedule: schedules,
+      feeStatus,
+      monthlyEarnings,
+      recentNotifications: notifications
+    })
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Failed to load teacher dashboard",
+      error: error.message
+    })
+  }
+}
+
+
+const getStudentDashboard = async (req, res) => {
+  try {
+    const student = await Student.findOne({
+      userId: req.user.userId
+    })
+      .populate("subjects.subjectId", "name")
+      .populate("subjects.teacherId", "name teacherId")
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student profile not found"
+      })
+    }
+
+    const now = new Date()
+    const billingMonth = getBillingMonth(now)
+
+    const today = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      timeZone: "Asia/Kolkata"
+    }).format(now)
+
+    const [fees, schedules, notifications] =
+      await Promise.all([
+        Fee.find({
+          studentId: student._id,
+          billingMonth
+        }).populate("subjectId", "name")
+          .populate("teacherId", "name teacherId"),
+
+        Schedule.find({
+          day: today,
+          status: "active"
+        })
+          .populate("subjectId", "name")
+          .populate("teacherId", "name teacherId")
+          .sort({ startTime: 1 }),
+
+        Notification.find({
+          $or: [
+            {
+              targetType: {
+                $in: ["everyone", "all_students"]
+              }
+            },
+            {
+              recipients: req.user.userId
+            }
+          ]
+        })
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .populate("sender", "name role")
+      ])
+
+    const enrolledSubjects = student.subjects || []
+
+    const todaysSchedule = schedules.filter(schedule =>
+      enrolledSubjects.some(subject =>
+        subject.subjectId?._id?.toString() ===
+          schedule.subjectId?._id?.toString() &&
+        subject.teacherId?._id?.toString() ===
+          schedule.teacherId?._id?.toString()
+      )
+    )
+
+    const totalFee = fees.reduce(
+      (total, fee) => total + (fee.netFee || 0),
+      0
+    )
+
+    const totalPaid = fees.reduce(
+      (total, fee) => total + (fee.paidAmount || 0),
+      0
+    )
+
+    const totalDue = fees.reduce(
+      (total, fee) =>
+        total + (fee.dueAmount ?? fee.netFee ?? 0),
+      0
+    )
+
+    res.json({
+      billingMonth,
+
+      student: {
+        studentId: student.studentId,
+        name: student.name,
+        className: student.className,
+        status: student.status
+      },
+
+      summary: {
+        mySubjects: enrolledSubjects.length,
+        myTeachers: new Set(
+          enrolledSubjects
+            .map(subject => subject.teacherId?._id?.toString())
+            .filter(Boolean)
+        ).size,
+        totalFee: round(totalFee),
+        totalPaid: round(totalPaid),
+        totalDue: round(totalDue)
+      },
+
+      subjects: enrolledSubjects,
+      todaysSchedule,
+      fees,
+      recentNotifications: notifications
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to load student dashboard",
+      error: error.message
+    })
+  }
+}
+
 export {
-  getAdminDashboard
+  getAdminDashboard,
+  getTeacherDashboard,
+  getStudentDashboard
 }
