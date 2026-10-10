@@ -327,20 +327,12 @@ function StudentDetails() {
             <p>{student.studentId}</p>
           </div>
 
-          <button
-            className="back-button"
-            onClick={() =>
-              navigate(
-                isStudentProfile
-                  ? "/"
-                  : "/students"
-              )
-            }
+         <button
+           className="back-button"
+           onClick={() => navigate(-1)}
           >
-            {isStudentProfile
-              ? "Back"
-              : "Back"}
-          </button>
+           Back
+         </button>
         </div>
 
         <section className="student-details-card">

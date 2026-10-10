@@ -230,10 +230,10 @@ function StudentFeeDetails() {
 
         <button
           className="back-button"
-          onClick={() => navigate("/fees", { replace: true })}
-         >
-           Back
-        </button>
+          onClick={() => navigate(-1)}
+          >
+          Back
+       </button>
       </div>
       <div className="student-fee-card">
         <div className="student-info-row">
