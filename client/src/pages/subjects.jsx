@@ -142,7 +142,7 @@ function Subjects() {
 
           {filteredSubjects.length === 0 ? (
             <p className="empty-message">
-              No subjects found.
+              Loading all subjects...
             </p>
           ) : (
             <div className="table-container">
