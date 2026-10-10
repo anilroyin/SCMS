@@ -189,14 +189,16 @@ function TeacherPaymentDetails() {
           {error}
         </div>
 
-        <button
-          className="details-back-button"
-          onClick={() =>
-            navigate("/teacher-payments")
-          }
-        >
-          Back to Teacher Payments
-        </button>
+            <button
+  className="details-back-button"
+  onClick={() =>
+    navigate("/teacher-payments", {
+      replace: true
+    })
+  }
+>
+  Back to Teacher Payments
+</button>
       </div>
     )
   }
@@ -215,14 +217,16 @@ function TeacherPaymentDetails() {
           )}
         </div>
 
-        <button
-          className="details-back-button"
-          onClick={() =>
-            navigate("/teacher-payments")
-          }
-        >
-          Back
-        </button>
+            <button
+  className="details-back-button"
+  onClick={() =>
+    navigate("/teacher-payments", {
+      replace: true
+    })
+  }
+>
+  Back
+</button>
       </div>
 
       <div className="details-controls">
