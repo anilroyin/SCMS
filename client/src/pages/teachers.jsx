@@ -138,7 +138,7 @@ function Teachers() {
 
           {filteredTeachers.length === 0 ? (
             <p className="empty-message">
-              No teachers found.
+              Loading all teachers...
             </p>
           ) : (
             <div className="table-container">
