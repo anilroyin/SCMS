@@ -230,11 +230,9 @@ function StudentFeeDetails() {
 
         <button
           className="back-button"
-          onClick={() =>
-            navigate(isAdmin ? "/fees" : "/")
-          }
-        >
-          Back
+          onClick={() => navigate("/fees", { replace: true })}
+         >
+           Back
         </button>
       </div>
       <div className="student-fee-card">
