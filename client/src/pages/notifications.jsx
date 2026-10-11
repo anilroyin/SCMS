@@ -618,11 +618,17 @@ function Notifications() {
               )}
 
               <button
-                className="notifications-back-button"
-                onClick={() => navigate(-1)}
+                 className="notifications-back-button"
+                 onClick={() => {
+                 const returnPath = sessionStorage.getItem(
+                 "notificationsReturnPath"
+                  )
+
+                 navigate(returnPath || "/", { replace: true })
+              }}
               >
-                Back
-              </button>
+              Back
+            </button>
             </div>
           </div>
 
