@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -226,6 +227,13 @@ function Sidebar() {
               if (link.path === "/teacher-payments") {
                 sessionStorage.setItem(
                   "teacherPaymentsReturnPath",
+                  location.pathname
+                )
+              }
+
+              if (link.path === "/notifications") {
+                sessionStorage.setItem(
+                  "notificationsReturnPath",
                   location.pathname
                 )
               }
