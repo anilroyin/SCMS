@@ -215,7 +215,7 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-user">
-            <span>{user.name}</span>
+            <span>{user.role.charAt(0).toUpperCase() + user.role.slice(1)}: {user.name}</span>
             <button onClick={handleLogout}>Logout</button>
           </div>
         </header>
@@ -296,7 +296,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Upcoming Classes</h2>
+                    <h2>Today's Schedule</h2>
                     <p>Today's remaining classes</p>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Upcoming Birthdays</h2>
+                    <h2>Birthdays This Week</h2>
                     <p>Today and the next 7 days</p>
                   </div>
                 </div>
@@ -432,8 +432,8 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Recent Payments</h2>
-                  <p>Latest fee payments received</p>
+                  <h2>Recent Collections</h2>
+                  <p>Track recent student fee entries</p>
                 </div>
               </div>
               <div className="dashboard-table-wrapper">
@@ -551,7 +551,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Your Monthly Earnings</h2>
+                  <h2>Monthly Earnings</h2>
                   <p>Your earnings over the last six months</p>
                 </div>
               </div>
@@ -655,7 +655,7 @@ function Dashboard() {
                         key={schedule._id}
                       >
                         <div className="student-schedule-column">
-                          <span>Subject</span>
+                        
                           <strong>
                             {schedule.subjectId?.name || "Subject"}
                           </strong>
@@ -663,22 +663,22 @@ function Dashboard() {
                         </div>
 
                         <div className="student-schedule-column">
-                          <span>Teacher</span>
-                          <strong>
+                          <strong>Teacher</strong>
+                          <span>
                             {schedule.teacherId?.name || "Not assigned"}
-                          </strong>
+                          </span>
                         </div>
 
                         <div className="student-schedule-column">
-                          <span>Room</span>
-                          <strong>{schedule.room || "Not assigned"}</strong>
+                          <strong>Room</strong>
+                          <span>{schedule.room || "Not assigned"}</span>
                         </div>
 
                         <div className="student-schedule-column">
-                          <span>Start Time</span>
+                          
                           <strong>{formatTime(schedule.startTime)}</strong>
                           <small>
-                            Ends {formatTime(schedule.endTime)}
+                          to {formatTime(schedule.endTime)}
                           </small>
                         </div>
                       </div>
