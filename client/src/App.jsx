@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Dashboard from "./pages/dashboard"
 import Login from "./pages/login"
+import ForgotPassword from "./pages/forgotPassword"
+import ResetPassword from "./pages/resetPassword"
 import Students from "./pages/students"
 import AdmitStudent from "./pages/admitStudent"
 import StudentDetails from "./pages/studentDetails"
@@ -33,6 +35,15 @@ function App() {
           path="/login"
           element={<Login />}
         />
+        <Route
+           path="/forgot-password"
+           element={<ForgotPassword />}
+        />
+
+        <Route
+           path="/reset-password/:token"
+           element={<ResetPassword />}
+          />
 
         <Route
           path="/"
