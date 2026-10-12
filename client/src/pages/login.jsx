@@ -94,6 +94,15 @@ function Login() {
 
           {message && <p className="login-message">{message}</p>}
 
+          <div className="forgot-password">
+            <button
+             type="button"
+             onClick={() => navigate("/forgot-password")}
+             >
+            Forgot Password?
+          </button>
+         </div>
+
           <button type="submit" className="login-button">
             Login
           </button>
