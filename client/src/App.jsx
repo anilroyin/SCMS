@@ -24,6 +24,7 @@ import EditSchedule from "./pages/editSchedule"
 import TeacherEarnings from "./pages/teacherEarnings"
 import Notifications from "./pages/Notifications"
 import SendNotification from "./pages/sendNotification"
+import HelpSupport from "./pages/helpSupport"
 import ProtectedRoute from "./components/protectedRoute"
 import Reports from "./pages/reports"
 
@@ -295,6 +296,11 @@ function App() {
               <SendNotification />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/student/help-support"
+          element={<HelpSupport />}
         />
         <Route
           path="/reports"
