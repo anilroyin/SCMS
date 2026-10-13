@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 import "./login.css"
@@ -10,6 +10,13 @@ function Login() {
   const [message, setMessage] = useState("")
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (localStorage.getItem("sessionExpired") === "true") {
+      setMessage("Your session has expired! Please log in again.")
+      localStorage.removeItem("sessionExpired")
+    }
+  }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -96,12 +103,12 @@ function Login() {
 
           <div className="forgot-password">
             <button
-             type="button"
-             onClick={() => navigate("/forgot-password")}
-             >
-            Forgot Password?
-          </button>
-         </div>
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+            >
+              Forgot Password?
+            </button>
+          </div>
 
           <button type="submit" className="login-button">
             Login
