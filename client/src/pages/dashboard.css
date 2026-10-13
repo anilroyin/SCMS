@@ -496,21 +496,24 @@
   gap: 10px;
 }
 
+
+
 .sidebar-notification-badge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
+  display: inline-flex;
   align-items: center;
-  border-radius: 10px;
-  background: #f2e8e8;
-  color: #dd0a0a;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
   font-size: 11px;
   font-weight: 600;
-  line-height: 20px;
+  line-height: 1;
+  box-sizing: border-box;
 }
+
 
 /* Student Dashboard */
 .student-summary {
@@ -761,4 +764,19 @@
   .student-fee-summary {
     grid-template-columns: 1fr;
   }
+}
+
+
+.sidebar-support-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 10px;
+}
+
+.sidebar-support-icon {
+  display: block;
+  flex-shrink: 0;
+  position: relative;
 }

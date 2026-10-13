@@ -404,8 +404,8 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Teacher Payments</h2>
-                  <p>Teacher payment based on collected fees</p>
+                  <h2>Teacher Earnings</h2>
+                  <p>Teacher earnings based on collected fees</p>
                 </div>
               </div>
               <div className="dashboard-teacher-chart">
