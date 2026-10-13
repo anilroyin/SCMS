@@ -67,6 +67,20 @@ function StudentFeeDetails() {
     return methods[value] || value
   }
 
+  const escapeHtml = (value) => {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => {
+      const characters = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }
+
+      return characters[character]
+    })
+  }
+
   const getUserRole = async () => {
     try {
       const response = await fetch(
@@ -89,6 +103,7 @@ function StudentFeeDetails() {
       setRole(result.user.role)
     } catch (error) {
       setMessage(error.message)
+      setLoading(false)
     }
   }
 
@@ -193,7 +208,9 @@ function StudentFeeDetails() {
     ?.flatMap((subject) =>
       (subject.payments || []).map((payment) => ({
         ...payment,
-        subject: subject.subject
+        subject: subject.subject,
+        teacher: subject.teacher,
+        currentDue: subject.dueAmount
       }))
     )
     .sort(
@@ -201,6 +218,274 @@ function StudentFeeDetails() {
         new Date(b.paymentDate) -
         new Date(a.paymentDate)
     )
+
+  const getReceiptNumber = (payment) => {
+    const paymentId = payment._id || payment.id
+
+    if (!paymentId) {
+      return "Receipt ID unavailable"
+    }
+
+    return `SCMS-RCP-${paymentId}`
+  }
+
+  const printReceipt = (payment) => {
+    const receiptNumber = getReceiptNumber(payment)
+
+    if (receiptNumber === "Receipt ID unavailable") {
+      setMessage("Cannot generate receipt: payment ID is missing.")
+      return
+    }
+
+    const receiptWindow = window.open(
+      "",
+      "_blank",
+      "width=900,height=750"
+    )
+
+    if (!receiptWindow) {
+      setMessage("Please allow pop-ups to open the receipt.")
+      return
+    }
+
+    const student = data.student
+    const paymentDate = formatDate(payment.paymentDate)
+
+    const receiptHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${escapeHtml(receiptNumber)}</title>
+        <style>
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            margin: 0;
+            padding: 30px;
+            background: #f3f4f6;
+            color: #222;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          .receipt {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 38px;
+            background: #fff;
+            border: 1px solid #d8dee8;
+          }
+
+          .receipt-header {
+            padding-bottom: 22px;
+            border-bottom: 2px solid #253b65;
+            text-align: center;
+          }
+
+          .receipt-header h1 {
+            margin: 0 0 8px;
+            color: #253b65;
+            font-size: 26px;
+          }
+
+          .receipt-header p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 13px;
+          }
+
+          .receipt-title {
+            margin: 25px 0;
+            text-align: center;
+            font-size: 19px;
+            letter-spacing: 2px;
+          }
+
+          .receipt-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+            font-size: 13px;
+          }
+
+          .section-title {
+            margin: 22px 0 10px;
+            color: #253b65;
+            font-size: 14px;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+
+          td {
+            padding: 12px;
+            border: 1px solid #d8dee8;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+          }
+
+          td:first-child {
+            width: 42%;
+            background: #f8fafc;
+            font-weight: 600;
+          }
+
+          .amount-row td {
+            font-size: 16px;
+            font-weight: 700;
+          }
+
+          .receipt-footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+          }
+
+          .print-button {
+            display: block;
+            margin: 22px auto 0;
+            padding: 11px 22px;
+            border: 0;
+            border-radius: 5px;
+            background: #4b6276;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+          }
+
+          @media print {
+            @page {
+              size: A4;
+              margin: 15mm;
+            }
+
+            body {
+              padding: 0;
+              background: #fff;
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+
+            .receipt {
+              max-width: none;
+              padding: 10px;
+              border: none;
+            }
+
+            .print-button {
+              display: none;
+            }
+          }
+
+          @media screen and (max-width: 600px) {
+            body {
+              padding: 10px;
+            }
+
+            .receipt {
+              padding: 18px;
+            }
+
+            .receipt-meta {
+              flex-direction: column;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <main class="receipt">
+          <header class="receipt-header">
+            <h1>Curiosity Classes</h1>
+            <p>Smart Coaching Management System</p>
+            <p>Ukilpara (Near Khelaghar School) Jalpaiguri, West Bengal. Mo- 7479116205</p>
+          </header>
+
+          <h2 class="receipt-title">PAYMENT RECEIPT</h2>
+
+          <div class="receipt-meta">
+            <div>
+              <strong>Receipt No.:</strong>
+              ${escapeHtml(receiptNumber)}
+            </div>
+            <div>
+              <strong>Payment Date:</strong>
+              ${escapeHtml(paymentDate)}
+            </div>
+          </div>
+
+          <h3 class="section-title">Student Details</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td>Student ID</td>
+                <td>${escapeHtml(student.studentId || student.id)}</td>
+              </tr>
+              <tr>
+                <td>Student Name</td>
+                <td>${escapeHtml(student.name)}</td>
+              </tr>
+              <tr>
+                <td>Class</td>
+                <td>${escapeHtml(student.className || "-")}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="section-title">Payment Details</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td>Billing Month</td>
+                <td>${escapeHtml(formatMonth(billingMonth))}</td>
+              </tr>
+              <tr>
+                <td>Subject</td>
+                <td>${escapeHtml(payment.subject)}</td>
+              </tr>
+              <tr>
+                <td>Teacher</td>
+                <td>${escapeHtml(payment.teacher || "-")}</td>
+              </tr>
+              <tr>
+                <td>Payment Method</td>
+                <td>${escapeHtml(formatPaymentMethod(payment.paymentMethod))}</td>
+              </tr>
+              <tr class="amount-row">
+                <td>Amount Received</td>
+                <td>${escapeHtml(formatCurrency(payment.amount))}</td>
+              </tr>
+              <tr>
+                <td>Remaining Due (Current)</td>
+                <td>${escapeHtml(formatCurrency(payment.currentDue))}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <footer class="receipt-footer">
+            <p>This receipt confirms the payment recorded in SCMS.</p>
+            <p>Please keep this receipt for your records.</p>
+          </footer>
+
+          <button class="print-button" onclick="window.print()">
+            Print / Save as PDF
+          </button>
+        </main>
+      </body>
+      </html>
+    `
+
+    receiptWindow.document.open()
+    receiptWindow.document.write(receiptHtml)
+    receiptWindow.document.close()
+  }
 
   if (loading) {
     return (
@@ -224,41 +509,42 @@ function StudentFeeDetails() {
     <div className="page-container">
       <div className="page-header">
         <div className="title-group">
-          <h1>Fee Details : </h1>
+          <h1>Fee Details :</h1>
           <p>{formatMonth(billingMonth)}</p>
         </div>
 
         <button
           className="back-button"
           onClick={() => navigate(-1)}
-          >
+        >
           Back
-       </button>
+        </button>
       </div>
+
       <div className="student-fee-card">
         <div className="student-info-row">
           <div>
-           <strong>Student ID: </strong>
-           <span>{data.student.studentId}</span>
-         </div>
+            <strong>Student ID: </strong>
+            <span>{data.student.studentId}</span>
+          </div>
 
-         <div>
-           <strong>Name: </strong>
-           <span>{data.student.name}</span>
-         </div>
-         <div>
-           <strong>Class: </strong>
-           <span>{data.student.className}</span>
-         </div>
+          <div>
+            <strong>Name: </strong>
+            <span>{data.student.name}</span>
+          </div>
+
+          <div>
+            <strong>Class: </strong>
+            <span>{data.student.className}</span>
+          </div>
         </div>
       </div>
+
       <div className="summary-grid">
         <div className="summary-card">
           <span>Original Fee</span>
           <strong>
-            {formatCurrency(
-              data.totals.totalOriginalFee
-            )}
+            {formatCurrency(data.totals.totalOriginalFee)}
           </strong>
         </div>
 
@@ -297,9 +583,7 @@ function StudentFeeDetails() {
             <p>{formatMonth(billingMonth)}</p>
           </div>
 
-          <span
-            className={`status ${data.totals.paymentStatus}`}
-          >
+          <span className={`status ${data.totals.paymentStatus}`}>
             {data.totals.paymentStatus}
           </span>
         </div>
@@ -323,23 +607,13 @@ function StudentFeeDetails() {
               <tr key={subject.id}>
                 <td>{subject.subject}</td>
                 <td>{subject.teacher}</td>
-                <td>
-                  {formatCurrency(subject.originalFee)}
-                </td>
+                <td>{formatCurrency(subject.originalFee)}</td>
                 <td>{subject.discount}%</td>
+                <td>{formatCurrency(subject.netFee)}</td>
+                <td>{formatCurrency(subject.paidAmount)}</td>
+                <td>{formatCurrency(subject.dueAmount)}</td>
                 <td>
-                  {formatCurrency(subject.netFee)}
-                </td>
-                <td>
-                  {formatCurrency(subject.paidAmount)}
-                </td>
-                <td>
-                  {formatCurrency(subject.dueAmount)}
-                </td>
-                <td>
-                  <span
-                    className={`status ${subject.paymentStatus}`}
-                  >
+                  <span className={`status ${subject.paymentStatus}`}>
                     {subject.paymentStatus}
                   </span>
                 </td>
@@ -365,26 +639,33 @@ function StudentFeeDetails() {
                 <th>Subject</th>
                 <th>Amount</th>
                 <th>Payment Method</th>
+                <th>Receipt</th>
               </tr>
             </thead>
 
             <tbody>
               {paymentHistory.map((payment, index) => (
-                <tr key={`${payment.paymentDate}-${index}`}>
-                  <td>
-                    {formatDate(payment.paymentDate)}
-                  </td>
-
+                <tr
+                  key={
+                    payment._id ||
+                    payment.id ||
+                    `${payment.paymentDate}-${index}`
+                  }
+                >
+                  <td>{formatDate(payment.paymentDate)}</td>
                   <td>{payment.subject}</td>
-
+                  <td>{formatCurrency(payment.amount)}</td>
                   <td>
-                    {formatCurrency(payment.amount)}
+                    {formatPaymentMethod(payment.paymentMethod)}
                   </td>
-
                   <td>
-                    {formatPaymentMethod(
-                      payment.paymentMethod
-                    )}
+                    <button
+                      type="button"
+                      className="receipt-button"
+                      onClick={() => printReceipt(payment)}
+                    >
+                      Get Receipt
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -424,9 +705,7 @@ function StudentFeeDetails() {
               >
                 <option value="cash">Cash</option>
                 <option value="upi">UPI</option>
-                <option value="bank_transfer">
-                  Bank Transfer
-                </option>
+                <option value="bank_transfer">Bank Transfer</option>
                 <option value="card">Card</option>
                 <option value="other">Other</option>
               </select>
@@ -436,9 +715,7 @@ function StudentFeeDetails() {
               type="submit"
               disabled={saving}
             >
-              {saving
-                ? "Recording..."
-                : "Record Payment"}
+              {saving ? "Recording..." : "Record Payment"}
             </button>
           </form>
         </div>

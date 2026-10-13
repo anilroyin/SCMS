@@ -327,3 +327,20 @@
     width: 100%;
   }
 }
+
+
+.receipt-button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background:#80919f;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.receipt-button:hover {
+  background:#4b6276;
+}
+
