@@ -186,6 +186,10 @@ function Sidebar() {
     {
       label: "Notifications",
       path: "/notifications"
+    },
+    {
+      label: "Help & Support",
+      path: "/student/help-support"
     }
   ]
 
@@ -248,6 +252,26 @@ function Sidebar() {
                     {unreadNotifications}
                   </span>
                 )}
+              </span>
+            ) : link.label === "Help & Support" ? (
+              <span className="sidebar-support-item">
+                <span>Help & Support</span>
+
+                <svg
+                  className="sidebar-support-icon"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 11.5a8.5 8.5 0 0 1-12.9 7.3L3 20l1.2-4.1A8.5 8.5 0 1 1 21 11.5Z" />
+                  <path d="M8 10h.01M12 10h.01M16 10h.01" />
+                </svg>
               </span>
             ) : (
               link.label
