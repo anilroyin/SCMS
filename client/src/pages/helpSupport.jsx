@@ -106,6 +106,17 @@ function getBotResponse(message) {
     }
   }
 
+   if (
+    text.includes("discount") ||
+    text.includes("fee concession") ||
+    text.includes("reduce fees")
+  ) {
+    return {
+      answer: "Fee discounts depend on your enrollment and the coaching centre's policies. Please contact the administration to discuss your eligibility.",
+      fallback: true
+    }
+  }
+
   if (
     text.includes("help") ||
     text.includes("support") ||
