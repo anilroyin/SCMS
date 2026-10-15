@@ -19,10 +19,35 @@
   margin-bottom: 20px;
 }
 
+.page-header h1{
+   display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #26313f;
+  font-size: 24px;
+}
+
 .teachers-card-header h2 {
   margin: 0;
   color: #26313f;
   font-size: 18px;
+}
+
+.teachers-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.teachers-search > svg {
+  flex-shrink: 0;
+  color: #80919f;
+}
+
+.teachers-search .search-input {
+  min-width: 0;
 }
 
 .teacher-filters {
@@ -64,6 +89,13 @@
   font-weight: 600;
 }
 
+.teachers-table th svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  color: #80919f;
+}
+
 .teachers-table td {
   color: #26313f;
 }
@@ -73,6 +105,10 @@
 }
 
 .view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   border: none;
   background: transparent;
   color: #4b6276;
@@ -83,6 +119,45 @@
 
 .view-button:hover {
   text-decoration: underline;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.teacher-summary .summary-card .summary-card-label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  width: auto;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.teacher-summary .summary-card .summary-card-label svg {
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  color: #80919f;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0;
+  color: #26313f;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.status-badge.inactive {
+  background: #eef0f2;
+  color: #7a4a4a;
 }
 
 @media (max-width: 900px) {
@@ -105,9 +180,4 @@
   .teacher-filters select {
     width: 100%;
   }
-}
-
-.status-badge.inactive {
-  background: #eef0f2;
-  color: #7a4a4a;
 }

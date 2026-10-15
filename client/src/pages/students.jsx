@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  Users,
+  UserCheck,
+  PauseCircle,
+  UserX,
+  UserPlus,
+  Search,
+  GraduationCap,
+  School,
+  BookOpen,
+  Eye
+} from "lucide-react"
 import Sidebar from "../components/sidebar"
 import "./students.css"
 
@@ -168,7 +180,7 @@ function Students() {
       <main className="dashboard-content">
         <div className="page-header">
           <div>
-            <h1>{isTeacher ? "My Students" : "Students"}</h1>
+            <h1><Users size={22} />{isTeacher ? "My Students" : "Students"}</h1>
 
             <p>
               {isTeacher
@@ -182,6 +194,7 @@ function Students() {
               className="primary-button"
               onClick={() => navigate("/students/admit")}
             >
+              <UserPlus size={17} aria-hidden="true" />
               Admit a Student
             </button>
           )}
@@ -191,22 +204,34 @@ function Students() {
 
         <section className="student-summary">
           <div className="summary-card">
-            <span>{isTeacher ? "My Students" : "Total Students"}</span>
+            <span className="summary-card-label">
+              <Users size={18} aria-hidden="true" />
+              {isTeacher ? "My Students" : "Total Students"}
+            </span>
             <strong>{totalStudents}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Active</span>
+            <span className="summary-card-label">
+              <UserCheck size={18} aria-hidden="true" />
+              Active
+            </span>
             <strong>{activeStudents}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Paused</span>
+            <span className="summary-card-label">
+              <PauseCircle size={18} aria-hidden="true" />
+              Paused
+            </span>
             <strong>{pausedStudents}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Left</span>
+            <span className="summary-card-label">
+              <UserX size={18} aria-hidden="true" />
+              Left
+            </span>
             <strong>{leftStudents}</strong>
           </div>
         </section>
@@ -215,13 +240,17 @@ function Students() {
           <div className="students-card-header">
             <h2>{isTeacher ? "My Students" : "All Students"}</h2>
 
-            <input
-              type="search"
-              placeholder="Search by ID, name or school..."
-              className="search-input"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+            <div className="students-search">
+              <Search size={17} aria-hidden="true" />
+
+              <input
+                type="search"
+                placeholder="Search by ID, name or school..."
+                className="search-input"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
           </div>
 
           <div className="student-filters">
@@ -277,9 +306,7 @@ function Students() {
             {!isTeacher && (
               <select
                 value={teacherFilter}
-                onChange={(event) =>
-                  setTeacherFilter(event.target.value)
-                }
+                onChange={(event) => setTeacherFilter(event.target.value)}
               >
                 <option value="all">All Teachers</option>
 
@@ -305,8 +332,14 @@ function Students() {
                     <th>Name</th>
                     <th>Class</th>
                     <th>School</th>
-                    <th>Subjects</th>
-                    <th>Teachers</th>
+                    <th>
+                      <BookOpen size={15} aria-hidden="true" />
+                      Subjects
+                    </th>
+                    <th>
+                      <GraduationCap size={15} aria-hidden="true" />
+                      Teachers
+                    </th>
                     <th>Status</th>
                     {!isTeacher && <th>Actions</th>}
                   </tr>
@@ -341,12 +374,11 @@ function Students() {
                             <button
                               className="view-button"
                               onClick={() =>
-                                navigate(
-                                  `/students/${student._id}`
-                                )
+                                navigate(`/students/${student._id}`)
                               }
                             >
-                              View 👁️
+                              <Eye size={15} aria-hidden="true" />
+                              View
                             </button>
                           </td>
                         )}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import "./studentFeeDetails.css"
+import { ReceiptText,ChevronLeft } from "lucide-react";
 
 function StudentFeeDetails() {
   const { studentId } = useParams()
@@ -509,14 +510,14 @@ function StudentFeeDetails() {
     <div className="page-container">
       <div className="page-header">
         <div className="title-group">
-          <h1>Fee Details :</h1>
+          <h1><ReceiptText size={22} />Fee Details :</h1>
           <p>{formatMonth(billingMonth)}</p>
         </div>
 
         <button
           className="back-button"
           onClick={() => navigate(-1)}
-        >
+        > <ChevronLeft size={18} />
           Back
         </button>
       </div>

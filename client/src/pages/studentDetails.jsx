@@ -7,6 +7,7 @@ import {
 
 import Sidebar from "../components/sidebar"
 import "./studentDetails.css"
+import { ChevronLeft } from "lucide-react";
 
 function StudentDetails() {
   const [student, setStudent] = useState(null)
@@ -330,7 +331,7 @@ function StudentDetails() {
          <button
            className="back-button"
            onClick={() => navigate(-1)}
-          >
+          > <ChevronLeft size={18} />
            Back
          </button>
         </div>
@@ -517,7 +518,7 @@ function StudentDetails() {
               >
                 {showAddSubject
                   ? "Cancel"
-                  : "Add Subject"}
+                  : "+ Add Subject"}
               </button>
             )}
           </div>

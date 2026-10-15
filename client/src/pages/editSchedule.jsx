@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./editSchedule.css"
+import { ChevronLeft } from "lucide-react";
 
 function EditSchedule() {
   const { id } = useParams()
@@ -227,7 +228,7 @@ function EditSchedule() {
               type="button"
               className="edit-schedule-back-button"
               onClick={() => navigate("/schedule")}
-            >
+            > <ChevronLeft size={18} />
               Back
             </button>
           </div>

@@ -72,7 +72,18 @@
   background: #f8fafc;
 }
 
+.subjects-table th svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  color: #80919f;
+}
+
 .view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: none;
   background: transparent;
   color: #4b6276;
@@ -85,6 +96,60 @@
   text-decoration: underline;
 }
 
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+/* Summary cards */
+.subject-summary .summary-card .summary-card-label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: auto;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.subject-summary .summary-card .summary-card-label svg {
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  color: #80919f;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0px;
+  color: #26313f;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Search */
+.subjects-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.subjects-search > svg {
+  flex-shrink: 0;
+  color: #80919f;
+}
+
+.subjects-search .search-input {
+  min-width: 0;
+}
+
+/* Responsive layout */
 @media (max-width: 900px) {
   .subject-summary {
     grid-template-columns: repeat(2, 1fr);
@@ -102,7 +167,19 @@
     gap: 16px;
   }
 
+  .subjects-search {
+    width: 100%;
+  }
+
+  .subjects-search .search-input {
+    width: 100%;
+  }
+
   .subject-filters select {
     width: 100%;
+  }
+
+  .subjects-card {
+    padding: 16px;
   }
 }

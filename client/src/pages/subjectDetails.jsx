@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./subjectDetails.css"
+import { ChevronLeft } from "lucide-react";
 
 function SubjectDetails() {
   const [subject, setSubject] = useState(null)
@@ -97,7 +98,7 @@ function SubjectDetails() {
             <button
               className="back-button"
               onClick={() => navigate("/subjects")}
-            >
+            ><ChevronLeft size={18} />
               Back
             </button>
           </div>

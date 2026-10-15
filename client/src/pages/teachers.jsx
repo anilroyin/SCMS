@@ -1,5 +1,17 @@
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  Users,
+  UserCheck,
+  UserX,
+  UserPlus,
+  Search,
+  GraduationCap,
+  BookOpen,
+  Percent,
+  Eye
+} from "lucide-react"
 import Sidebar from "../components/sidebar"
 import "./teachers.css"
 
@@ -77,7 +89,7 @@ function Teachers() {
       <main className="dashboard-content">
         <div className="page-header">
           <div>
-            <h1>Teachers</h1>
+            <h1><GraduationCap size={24} />Teachers</h1>
             <p>Manage coaching center teachers</p>
           </div>
 
@@ -85,6 +97,7 @@ function Teachers() {
             className="primary-button"
             onClick={() => navigate("/teachers/add")}
           >
+            <UserPlus size={17} aria-hidden="true" />
             Add Teacher
           </button>
         </div>
@@ -95,17 +108,26 @@ function Teachers() {
 
         <section className="teacher-summary">
           <div className="summary-card">
-            <span>Total Teachers</span>
+            <span className="summary-card-label">
+              <Users size={18} aria-hidden="true" />
+              Total Teachers
+            </span>
             <strong>{totalTeachers}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Active</span>
+            <span className="summary-card-label">
+              <UserCheck size={18} aria-hidden="true" />
+              Active
+            </span>
             <strong>{activeTeachers}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Inactive</span>
+            <span className="summary-card-label">
+              <UserX size={18} aria-hidden="true" />
+              Inactive
+            </span>
             <strong>{inactiveTeachers}</strong>
           </div>
         </section>
@@ -114,13 +136,17 @@ function Teachers() {
           <div className="teachers-card-header">
             <h2>All Teachers</h2>
 
-            <input
-              type="search"
-              placeholder="Search by ID or name..."
-              className="search-input"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
+            <div className="teachers-search">
+              <Search size={17} aria-hidden="true" />
+
+              <input
+                type="search"
+                placeholder="Search by ID or name..."
+                className="search-input"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
           </div>
 
           <div className="teacher-filters">
@@ -147,9 +173,18 @@ function Teachers() {
                   <tr>
                     <th>Teacher ID</th>
                     <th>Name</th>
-                    <th>Students</th>
-                    <th>Subjects</th>
-                    <th>Commission</th>
+                    <th>
+                      <Users size={15} aria-hidden="true" />
+                      Students
+                    </th>
+                    <th>
+                      <BookOpen size={15} aria-hidden="true" />
+                      Subjects
+                    </th>
+                    <th>
+                      <Percent size={15} aria-hidden="true" />
+                      Commission
+                    </th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -159,13 +194,9 @@ function Teachers() {
                   {filteredTeachers.map((teacher) => (
                     <tr key={teacher._id}>
                       <td>{teacher.teacherId}</td>
-
                       <td>{teacher.name}</td>
-
                       <td>{teacher.studentCount}</td>
-
                       <td>{teacher.subjects.length}</td>
-
                       <td>{teacher.commission}%</td>
 
                       <td>
@@ -180,12 +211,11 @@ function Teachers() {
                         <button
                           className="view-button"
                           onClick={() =>
-                            navigate(
-                              `/teachers/${teacher._id}`
-                            )
+                            navigate(`/teachers/${teacher._id}`)
                           }
                         >
-                          View 👁️
+                          <Eye size={15} aria-hidden="true" />
+                          View
                         </button>
                       </td>
                     </tr>

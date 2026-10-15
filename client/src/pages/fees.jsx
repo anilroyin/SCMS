@@ -1,10 +1,25 @@
 import { useEffect, useState } from "react"
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import {
+  ChevronLeft,
+  ReceiptText,
+  IndianRupee,
+  UserCheck,
+  CircleAlert,
+  Wallet,
+  PlusCircle,
+  Search,
+  GraduationCap,
+  ChartNoAxesCombined,
+  Users,
+  BookOpen,
+  Percent,
+  UserRound
+} from "lucide-react"
 import "./fees.css"
 
 function Fees() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { studentId } = useParams()
   const [searchParams] = useSearchParams()
 
@@ -75,9 +90,7 @@ function Fees() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to get fees"
-        )
+        throw new Error(data.message || "Failed to get fees")
       }
 
       setStudents(data.students)
@@ -107,9 +120,7 @@ function Fees() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to get fee summary"
-        )
+        throw new Error(data.message || "Failed to get fee summary")
       }
 
       setSummary(data.summary)
@@ -134,9 +145,7 @@ function Fees() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to get teachers"
-        )
+        throw new Error(data.message || "Failed to get teachers")
       }
 
       setTeachers(data.teachers)
@@ -182,14 +191,10 @@ function Fees() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to generate fees"
-        )
+        throw new Error(data.message || "Failed to generate fees")
       }
 
-      setMessage(
-        `${data.generatedCount} fee records generated.`
-      )
+      setMessage(`${data.generatedCount} fee records generated.`)
 
       await loadFees()
     } catch (error) {
@@ -209,12 +214,8 @@ function Fees() {
     const searchValue = search.toLowerCase().trim()
 
     const matchesSearch =
-      student.studentId
-        .toLowerCase()
-        .includes(searchValue) ||
-      student.name
-        .toLowerCase()
-        .includes(searchValue)
+      student.studentId.toLowerCase().includes(searchValue) ||
+      student.name.toLowerCase().includes(searchValue)
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -239,30 +240,27 @@ function Fees() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1>Fees</h1>
-          <p>
-            Manage student monthly fees and collections.
-          </p>
+          <h1><Wallet size={22} />Fees</h1>
+          <p>Manage student monthly fees and collections.</p>
         </div>
 
-              <button
-  className="back-button"
-  onClick={() =>
-    navigate(
-      sessionStorage.getItem("feesReturnPath") || "/",
-      { replace: true }
-    )
-  }
->
-  Back
-</button>
+        <button
+          className="back-button"
+          onClick={() =>
+            navigate(
+              sessionStorage.getItem("feesReturnPath") || "/",
+              { replace: true }
+            )
+          }
+        >
+          <ChevronLeft size={17} aria-hidden="true" />
+          Back
+        </button>
       </div>
 
       <div className="fee-controls">
         <div>
-          <label htmlFor="billingMonth">
-            Billing Month
-          </label>
+          <label htmlFor="billingMonth">Billing Month</label>
 
           <input
             id="billingMonth"
@@ -280,9 +278,8 @@ function Fees() {
           onClick={generateFees}
           disabled={generating}
         >
-          {generating
-            ? "Generating..."
-            : "Generate Fees"}
+          <PlusCircle size={17} aria-hidden="true" />
+          {generating ? "Generating..." : "Generate Fees"}
         </button>
       </div>
 
@@ -294,67 +291,73 @@ function Fees() {
 
       <div className="summary-grid">
         <div className="summary-card">
-          <span>Total Original Fee</span>
-          <strong>
-            {formatCurrency(
-              summary.totalOriginalFee
-            )}
-          </strong>
+          <span className="summary-card-label">
+            <ReceiptText size={18} aria-hidden="true" />
+            Total Original Fee
+          </span>
+          <strong>{formatCurrency(summary.totalOriginalFee)}</strong>
         </div>
 
         <div className="summary-card">
-          <span>Total Net Fee</span>
-          <strong>
-            {formatCurrency(
-              summary.totalNetFee
-            )}
-          </strong>
+          <span className="summary-card-label">
+            <IndianRupee size={18} aria-hidden="true" />
+            Total Net Fee
+          </span>
+          <strong>{formatCurrency(summary.totalNetFee)}</strong>
         </div>
 
         <div className="summary-card">
-          <span>Fee Paid Students</span>
+          <span className="summary-card-label">
+            <UserCheck size={18} aria-hidden="true" />
+            Fee Paid Students
+          </span>
           <strong>{paidStudents}</strong>
         </div>
 
         <div className="summary-card">
-          <span>Fee Due Students</span>
+          <span className="summary-card-label">
+            <UserRound size={18} aria-hidden="true" />
+            Fee Due Students
+          </span>
           <strong>{dueStudents}</strong>
         </div>
 
         <div className="summary-card">
-          <span>Total Collection</span>
+          <span className="summary-card-label">
+            <Wallet size={18} aria-hidden="true" />
+            Total Collection
+          </span>
 
           <div className="collection-value">
-            <strong>
-              {formatCurrency(
-                summary.totalCollection
-              )}
-            </strong>
+            <strong>{formatCurrency(summary.totalCollection)}</strong>
 
             {collectionComplete && (
-              <span className="full-tag">
-                Full
-              </span>
+              <span className="full-tag">Full</span>
             )}
           </div>
         </div>
 
         <div className="summary-card">
-          <span>Total Due</span>
-          <strong>
-            {formatCurrency(summary.totalDue)}
-          </strong>
+          <span className="summary-card-label">
+            <CircleAlert size={18} aria-hidden="true" />
+            Total Due
+          </span>
+          <strong>{formatCurrency(summary.totalDue)}</strong>
         </div>
       </div>
 
       <div className="fees-card">
         <div className="fees-card-header">
           <div>
-            <h2>Student Fees</h2>
+            <h2>
+              <ReceiptText size={19} aria-hidden="true" />
+              Student Fees
+            </h2>
             <p>{formatMonth(billingMonth)}</p>
           </div>
 
           <span className="fee-count">
+            <Users size={15} aria-hidden="true" />
             {filteredStudents.length} students
           </span>
         </div>
@@ -362,6 +365,7 @@ function Fees() {
         <div className="fee-filters">
           <div className="search-box">
             <label htmlFor="studentSearch">
+              <Search size={15} aria-hidden="true" />
               Search Student
             </label>
 
@@ -378,6 +382,7 @@ function Fees() {
 
           <div className="teacher-filter">
             <label htmlFor="teacherFilter">
+              <GraduationCap size={15} aria-hidden="true" />
               Teacher
             </label>
 
@@ -390,15 +395,10 @@ function Fees() {
                 setStatusFilter("all")
               }}
             >
-              <option value="all">
-                All Teachers
-              </option>
+              <option value="all">All Teachers</option>
 
               {teachers.map((teacher) => (
-                <option
-                  key={teacher._id}
-                  value={teacher._id}
-                >
+                <option key={teacher._id} value={teacher._id}>
                   {teacher.name}
                 </option>
               ))}
@@ -407,6 +407,7 @@ function Fees() {
 
           <div className="status-filter">
             <label htmlFor="statusFilter">
+              <ChartNoAxesCombined size={15} aria-hidden="true" />
               Payment Status
             </label>
 
@@ -419,9 +420,7 @@ function Fees() {
             >
               <option value="all">All</option>
               <option value="paid">Full</option>
-              <option value="partial">
-                Partial
-              </option>
+              <option value="partial">Partial</option>
               <option value="due">Due</option>
             </select>
           </div>
@@ -437,9 +436,15 @@ function Fees() {
               <thead>
                 <tr>
                   <th>Student</th>
-                  <th>Total Subjects</th>
+                  <th>
+                   
+                    Total Subjects
+                  </th>
                   <th>Original Fee</th>
-                  <th>Discount</th>
+                  <th>
+                    <Percent size={15} aria-hidden="true" />
+                    Discount
+                  </th>
                   <th>Net Fee</th>
                   <th>Paid</th>
                   <th>Due</th>
@@ -452,58 +457,25 @@ function Fees() {
                   <tr
                     key={student.studentId}
                     className="clickable-row"
-                    onClick={() =>
-                      openStudentFees(student.id)
-                    }
+                    onClick={() => openStudentFees(student.id)}
                   >
                     <td>
-                      <strong>
-                        {student.studentId}
-                      </strong>
-
+                      <strong>{student.studentId}</strong>
                       <span className="table-secondary">
                         {student.name}
                       </span>
                     </td>
 
-                    <td>
-                      {student.totalSubjects}
-                    </td>
+                    <td>{student.totalSubjects}</td>
+                    <td>{formatCurrency(student.originalFee)}</td>
+                    <td>{student.discount}%</td>
+                    <td>{formatCurrency(student.netFee)}</td>
+                    <td>{formatCurrency(student.paidAmount)}</td>
+                    <td>{formatCurrency(student.dueAmount)}</td>
 
                     <td>
-                      {formatCurrency(
-                        student.originalFee
-                      )}
-                    </td>
-
-                    <td>
-                      {student.discount}%
-                    </td>
-
-                    <td>
-                      {formatCurrency(
-                        student.netFee
-                      )}
-                    </td>
-
-                    <td>
-                      {formatCurrency(
-                        student.paidAmount
-                      )}
-                    </td>
-
-                    <td>
-                      {formatCurrency(
-                        student.dueAmount
-                      )}
-                    </td>
-
-                    <td>
-                      <span
-                        className={`status ${student.paymentStatus}`}
-                      >
-                        {student.paymentStatus ===
-                        "paid"
+                      <span className={`status ${student.paymentStatus}`}>
+                        {student.paymentStatus === "paid"
                           ? "Full"
                           : student.paymentStatus}
                       </span>

@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./helpSupport.css"
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, Headset } from "lucide-react";
 
 const supportPhone = "7000000510"
 const supportEmail = "support@scms.com"
-
 const suggestions = [
   "How can I check my fees?",
   "How can I get my fee receipt?",
@@ -123,6 +124,7 @@ function getBotResponse(message) {
 }
 
 function HelpSupport() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -182,13 +184,14 @@ function HelpSupport() {
         <div className="help-support-page">
           <div className="help-support-header">
             <div>
-              <h1>Help & Support</h1>
+              <h1><Headset size={22} />Help & Support</h1>
               <p>Find answers to your questions about SCMS.</p>
             </div>
 
-            <Link to="/" className="help-support-back">
-              Back to Dashboard
-            </Link>
+            <button
+               className="help-support-back"
+               onClick={() => navigate(-1)}
+               > <ChevronLeft size={18} /> Back</button>
           </div>
 
           <section className="support-chat-card">

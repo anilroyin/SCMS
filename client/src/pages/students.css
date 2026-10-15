@@ -6,9 +6,12 @@
 }
 
 .page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #26313f;
-  font-size: 28px;
+  font-size: 24px;
 }
 
 .page-header p {
@@ -17,6 +20,10 @@
 }
 
 .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   border: none;
   border-radius: 7px;
   padding: 11px 18px;
@@ -34,6 +41,54 @@
 .page-message {
   margin-bottom: 20px;
   color: #dc2626;
+}
+
+.student-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.summary-card span {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.student-summary .summary-card .summary-card-label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  width: auto;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.student-summary .summary-card .summary-card-label svg {
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  color: #80919f;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0;
+  color: #26313f;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .students-card {
@@ -56,6 +111,18 @@
   font-size: 18px;
 }
 
+.students-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.students-search > svg {
+  flex-shrink: 0;
+  color: #80919f;
+}
+
 .search-input {
   width: 240px;
   padding: 10px 12px;
@@ -65,7 +132,33 @@
   font-size: 14px;
 }
 
+.students-search .search-input {
+  min-width: 0;
+}
+
 .search-input:focus {
+  border-color: #80919f;
+}
+
+.student-filters {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.student-filters select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26313f;
+  font-size: 14px;
+  outline: none;
+}
+
+.student-filters select:focus {
   border-color: #80919f;
 }
 
@@ -93,6 +186,13 @@
   background: #f5f7f9;
 }
 
+.students-table th svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  color: #80919f;
+}
+
 .students-table td {
   color: #26313f;
 }
@@ -101,58 +201,17 @@
   background: #f8fafc;
 }
 
+.view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
 .empty-message {
   margin: 20px 0 0;
   color: #6b7280;
   text-align: center;
-}
-
-.student-summary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.summary-card {
-  background: #ffffff;
-  border: 1px solid #d9dee3;
-  border-radius: 10px;
-  padding: 18px 20px;
-}
-
-.summary-card span {
-  display: block;
-  color: #6b7280;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.summary-card strong {
-  color: #26313f;
-  font-size: 24px;
-}
-
-.student-filters {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.student-filters select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d9dee3;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #26313f;
-  font-size: 14px;
-  outline: none;
-}
-
-.student-filters select:focus {
-  border-color: #80919f;
 }
 
 .status-badge {

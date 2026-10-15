@@ -3,17 +3,28 @@
   box-sizing: border-box;
 }
 
+/* Header */
+
 .schedule-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .schedule-page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #26313f;
-  font-size: 26px;
+  font-size: 24px;
+}
+
+.schedule-page-header h1 svg {
+  flex-shrink: 0;
+  color: #80919f;
 }
 
 .schedule-page-header p {
@@ -23,18 +34,27 @@
 }
 
 .schedule-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 18px;
   border: none;
   border-radius: 7px;
-  padding: 11px 18px;
   background: #80919f;
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .schedule-add-button:hover {
   background: #4b6276;
+}
+
+.schedule-add-button svg {
+  flex-shrink: 0;
 }
 
 /* Message */
@@ -53,20 +73,21 @@
 
 .schedule-day-selector {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 20px;
 }
 
 .schedule-day-button {
+  padding: 11px 8px;
   border: 1px solid #d9dee3;
   border-radius: 7px;
-  padding: 11px 8px;
   background: #ffffff;
   color: #26313f;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .schedule-day-button:hover {
@@ -83,10 +104,10 @@
 /* Schedule Card */
 
 .schedule-card {
-  background: #ffffff;
+  padding: 20px;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 20px;
+  background: #ffffff;
 }
 
 .schedule-card-header {
@@ -94,9 +115,17 @@
 }
 
 .schedule-card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   color: #26313f;
   font-size: 19px;
+}
+
+.schedule-card-header h2 svg {
+  flex-shrink: 0;
+  color: #80919f;
 }
 
 .schedule-card-header p {
@@ -120,8 +149,8 @@
 .schedule-table th,
 .schedule-table td {
   padding: 12px;
-  text-align: left;
   border-bottom: 1px solid #e5e7eb;
+  text-align: left;
   font-size: 14px;
   white-space: nowrap;
 }
@@ -130,6 +159,13 @@
   background: #f5f7f9;
   color: #6b7280;
   font-weight: 600;
+}
+
+.schedule-table th svg {
+  display: inline-block;
+  margin-right: 5px;
+  color: #80919f;
+  vertical-align: middle;
 }
 
 .schedule-table td {
@@ -184,58 +220,78 @@
 
 .schedule-actions {
   display: flex;
+  align-items: center;
   gap: 7px;
 }
 
 .schedule-edit-button,
 .schedule-delete-button {
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 7px 12px;
+  border: 1px solid #d9dee3;
+  border-radius: 6px;
+  background: #ffffff;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .schedule-edit-button {
-  border: 1px solid #d9dee3;
-  background: #ffffff;
   color: #26313f;
 }
 
 .schedule-edit-button:hover {
-  background: #f5f7f9;
   border-color: #80919f;
+  background: #f5f7f9;
 }
 
 .schedule-delete-button {
-  border: 1px solid #d9dee3;
-  background: #ffffff;
   color: #6b7280;
 }
 
 .schedule-delete-button:hover {
-  background: #f5f7f9;
   border-color: #6b7280;
+  background: #f5f7f9;
+}
+
+.schedule-edit-button svg,
+.schedule-delete-button svg {
+  flex-shrink: 0;
 }
 
 /* Empty State */
 
 .schedule-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 40px 20px;
-  text-align: center;
   color: #6b7280;
   font-size: 14px;
+  text-align: center;
 }
 
-/* Tablet */
+.schedule-empty svg {
+  color: #80919f;
+}
+
+.schedule-empty p {
+  margin: 0;
+}
+
+/* Responsive Layout */
 
 @media (max-width: 1000px) {
   .schedule-day-selector {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-/* Mobile */
 
 @media (max-width: 700px) {
   .schedule-page-header {
@@ -249,7 +305,7 @@
   }
 
   .schedule-day-selector {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .schedule-card {
@@ -259,5 +315,14 @@
   .schedule-table th,
   .schedule-table td {
     padding: 10px;
+  }
+
+  .schedule-actions {
+    gap: 6px;
+  }
+
+  .schedule-edit-button,
+  .schedule-delete-button {
+    padding: 7px 9px;
   }
 }

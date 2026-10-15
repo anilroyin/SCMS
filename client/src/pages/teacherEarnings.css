@@ -18,9 +18,12 @@
 }
 
 .teacher-earnings-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #26313f;
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .teacher-earnings-header p {

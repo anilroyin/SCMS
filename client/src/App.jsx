@@ -27,10 +27,12 @@ import SendNotification from "./pages/sendNotification"
 import HelpSupport from "./pages/helpSupport"
 import ProtectedRoute from "./components/protectedRoute"
 import Reports from "./pages/reports"
+import SessionTimeout from "./components/sessionTimeout"
 
 function App() {
   return (
     <BrowserRouter>
+      <SessionTimeout />
       <Routes>
         <Route
           path="/login"
@@ -297,10 +299,12 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/student/help-support"
-          element={<HelpSupport />}
+          element={
+          <ProtectedRoute>
+            <HelpSupport />
+          </ProtectedRoute>}
         />
         <Route
           path="/reports"

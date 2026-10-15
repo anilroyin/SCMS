@@ -15,7 +15,7 @@
 .page-header h1 {
   margin: 0;
   color: #26313f;
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .page-header p {
@@ -24,15 +24,23 @@
   font-size: 14px;
 }
 
-.primary-button {
-  border: none;
+.primary-button,
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   border-radius: 7px;
   padding: 11px 18px;
-  background: #80919f;
-  color: #ffffff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.primary-button {
+  border: none;
+  background: #80919f;
+  color: #ffffff;
 }
 
 .primary-button:hover {
@@ -44,16 +52,22 @@
   cursor: not-allowed;
 }
 
+.back-button {
+  border: 1px solid #d9dee3;
+  background: #ffffff;
+  color: #26313f;
+}
+
 .fee-controls {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 20px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 18px 20px;
-  margin-bottom: 18px;
 }
 
 .fee-controls > div {
@@ -62,7 +76,13 @@
   gap: 7px;
 }
 
-.fee-controls label {
+.fee-controls label,
+.search-box label,
+.teacher-filter label,
+.status-filter label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: #6b7280;
   font-size: 13px;
   font-weight: 600;
@@ -79,7 +99,10 @@
   box-sizing: border-box;
 }
 
-.fee-controls input:focus {
+.fee-controls input:focus,
+.search-box input:focus,
+.teacher-filter select:focus,
+.status-filter select:focus {
   outline: none;
   border-color: #80919f;
 }
@@ -104,22 +127,31 @@
 }
 
 .summary-card {
+  min-width: 0;
+  padding: 16px 18px;
+  box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 16px 18px;
-  min-width: 0;
-  box-sizing: border-box;
 }
 
-.summary-card span {
-  display: block;
+.summary-card .summary-card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   margin-bottom: 6px;
   color: #6b7280;
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.summary-card-label svg {
+  flex-shrink: 0;
+  color: #80919f;
 }
 
 .summary-card strong {
+  display: block;
   color: #26313f;
   font-size: 20px;
   font-weight: 600;
@@ -144,10 +176,10 @@
 /* Fees Card */
 
 .fees-card {
+  padding: 20px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 20px;
 }
 
 .fees-card-header {
@@ -157,10 +189,22 @@
   margin-bottom: 16px;
 }
 
+.fees-card-header > div {
+  min-width: 0;
+}
+
 .fees-card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   color: #26313f;
   font-size: 18px;
+}
+
+.fees-card-header h2 svg {
+  flex-shrink: 0;
+  color: #80919f;
 }
 
 .fees-card-header p {
@@ -170,8 +214,12 @@
 }
 
 .fee-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: #6b7280;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 /* Search and Filters */
@@ -189,14 +237,14 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
+  min-width: 0;
 }
 
-.search-box label,
-.teacher-filter label,
-.status-filter label {
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 600;
+.search-box label svg,
+.teacher-filter label svg,
+.status-filter label svg {
+  flex-shrink: 0;
+  color: #80919f;
 }
 
 .search-box input,
@@ -223,13 +271,6 @@
   width: 150px;
 }
 
-.search-box input:focus,
-.teacher-filter select:focus,
-.status-filter select:focus {
-  outline: none;
-  border-color: #80919f;
-}
-
 /* Table */
 
 .table-container {
@@ -238,6 +279,7 @@
 
 .fees-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -254,6 +296,61 @@
   background: #f5f7f9;
   color: #6b7280;
   font-weight: 600;
+}
+
+/* Student */
+.fees-table th:nth-child(1),
+.fees-table td:nth-child(1) {
+  width: 10%;
+}
+
+/* Total Subjects */
+.fees-table th:nth-child(2),
+.fees-table td:nth-child(2) {
+  width: 9%;
+}
+
+/* Original Fee */
+.fees-table th:nth-child(3),
+.fees-table td:nth-child(3) {
+  width: 12%;
+}
+
+/* Discount */
+.fees-table th:nth-child(4),
+.fees-table td:nth-child(4) {
+  width: 10%;
+}
+
+/* Net Fee */
+.fees-table th:nth-child(5),
+.fees-table td:nth-child(5) {
+  width: 12%;
+}
+
+/* Paid */
+.fees-table th:nth-child(6),
+.fees-table td:nth-child(6) {
+  width: 11%;
+}
+
+/* Due */
+.fees-table th:nth-child(7),
+.fees-table td:nth-child(7) {
+  width: 11%;
+}
+
+/* Status */
+.fees-table th:nth-child(8),
+.fees-table td:nth-child(8) {
+  width: 8%;
+}
+
+.fees-table th svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+  color: #80919f;
 }
 
 .fees-table td {
@@ -324,7 +421,7 @@
 
 @media (max-width: 900px) {
   .summary-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .search-box input,
@@ -347,7 +444,7 @@
     gap: 15px;
   }
 
-  .page-header .primary-button {
+  .page-header .back-button {
     width: 100%;
   }
 
@@ -365,7 +462,7 @@
   }
 
   .summary-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .fee-filters {
@@ -394,21 +491,10 @@
 
 @media (max-width: 450px) {
   .summary-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .collection-value {
     flex-wrap: wrap;
   }
-}
-
-.back-button {
-  border: 1px solid #d9dee3;
-  border-radius: 7px;
-  padding: 11px 18px;
-  background: #ffffff;
-  color: #26313f;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
 }

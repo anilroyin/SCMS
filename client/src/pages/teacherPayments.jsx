@@ -1,5 +1,20 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  ChevronLeft,
+  Wallet,
+  IndianRupee,
+  Building2,
+  CircleCheck,
+  Clock,
+  Search,
+  Users,
+  GraduationCap,
+  ReceiptText,
+  Banknote,
+  Eye,
+  CreditCard 
+} from "lucide-react"
 import "./teacherPayments.css"
 
 function TeacherPayments() {
@@ -82,16 +97,11 @@ function TeacherPayments() {
 
   const filteredTeachers = teachers.filter(
     (teacher) => {
-      const searchValue =
-        search.toLowerCase().trim()
+      const searchValue = search.toLowerCase().trim()
 
       return (
-        teacher.teacherId
-          .toLowerCase()
-          .includes(searchValue) ||
-        teacher.name
-          .toLowerCase()
-          .includes(searchValue)
+        teacher.teacherId.toLowerCase().includes(searchValue) ||
+        teacher.name.toLowerCase().includes(searchValue)
       )
     }
   )
@@ -114,29 +124,28 @@ function TeacherPayments() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1>Teacher Payments</h1>
-
-          <p>
-            Manage teacher earnings and payments.
-          </p>
+          <h1><CreditCard size={22} />Teacher Payments</h1>
+          <p>Manage teacher earnings and payments.</p>
         </div>
 
-         <button
-  className="back-button"
-  onClick={() =>
-    navigate(
-      sessionStorage.getItem("teacherPaymentsReturnPath") || "/teachers",
-      { replace: true }
-    )
-  }
->
-  Back
-</button>
+        <button
+          className="back-button"
+          onClick={() =>
+            navigate(
+              sessionStorage.getItem("teacherPaymentsReturnPath") || "/teachers",
+              { replace: true }
+            )
+          }
+        >
+          <ChevronLeft size={17} />
+          Back
+        </button>
       </div>
 
       <div className="payment-controls">
         <div>
           <label htmlFor="billingMonth">
+            <ReceiptText size={16} />
             Billing Month
           </label>
 
@@ -161,67 +170,58 @@ function TeacherPayments() {
 
       <div className="teacher-summary-grid">
         <div className="teacher-summary-card">
-          <span>Total Student Collection</span>
-
-          <strong>
-            {formatCurrency(
-              summary.totalCollected
-            )}
-          </strong>
+          <span className="teacher-summary-label">
+            <IndianRupee size={18} />
+            Total Student Collection
+          </span>
+          <strong>{formatCurrency(summary.totalCollected)}</strong>
         </div>
 
         <div className="teacher-summary-card">
-          <span>Total Teacher Earned</span>
-
-          <strong>
-            {formatCurrency(
-              summary.totalTeacherEarned
-            )}
-          </strong>
+          <span className="teacher-summary-label">
+            <Wallet size={18} />
+            Total Teacher Earned
+          </span>
+          <strong>{formatCurrency(summary.totalTeacherEarned)}</strong>
         </div>
 
         <div className="teacher-summary-card">
-          <span>Total Center Earned</span>
-
-          <strong>
-            {formatCurrency(
-              summary.totalCenterEarned
-            )}
-          </strong>
+          <span className="teacher-summary-label">
+            <Building2 size={18} />
+            Total Center Earned
+          </span>
+          <strong>{formatCurrency(summary.totalCenterEarned)}</strong>
         </div>
 
         <div className="teacher-summary-card">
-          <span>Total Paid to Teachers</span>
-
-          <strong>
-            {formatCurrency(
-              summary.totalPaid
-            )}
-          </strong>
+          <span className="teacher-summary-label">
+            <CircleCheck size={18} />
+            Total Paid to Teachers
+          </span>
+          <strong>{formatCurrency(summary.totalPaid)}</strong>
         </div>
 
         <div className="teacher-summary-card">
-          <span>Total Teacher Payable</span>
-
-          <strong>
-            {formatCurrency(
-              summary.totalPayable
-            )}
-          </strong>
+          <span className="teacher-summary-label">
+            <Clock size={18} />
+            Total Teacher Payable
+          </span>
+          <strong>{formatCurrency(summary.totalPayable)}</strong>
         </div>
       </div>
 
       <div className="payments-card">
         <div className="payments-card-header">
           <div>
-            <h2>Teacher Payments</h2>
-
-            <p>
-              {formatMonth(billingMonth)}
-            </p>
+            <h2>
+              <Banknote size={19} />
+              Teacher Payments
+            </h2>
+            <p>{formatMonth(billingMonth)}</p>
           </div>
 
           <span className="teacher-count">
+            <Users size={15} />
             {filteredTeachers.length} teachers
           </span>
         </div>
@@ -229,6 +229,7 @@ function TeacherPayments() {
         <div className="payment-filters">
           <div className="search-box">
             <label htmlFor="teacherSearch">
+              <Search size={15} />
               Search Teacher
             </label>
 
@@ -253,61 +254,53 @@ function TeacherPayments() {
             <table className="payments-table">
               <thead>
                 <tr>
-                  <th>Teacher</th>
-                  <th>Total Earned</th>
-                  <th>Total Paid</th>
-                  <th>Payable</th>
+                  <th>
+                    <GraduationCap size={15} />
+                    Teacher
+                  </th>
+                  <th>
+                    <Wallet size={15} />
+                    Total Earned
+                  </th>
+                  <th>
+                    <CircleCheck size={15} />
+                    Total Paid
+                  </th>
+                  <th>
+                    <Clock size={15} />
+                    Payable
+                  </th>
                   <th>Action</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredTeachers.map(
-                  (teacher) => (
-                    <tr key={teacher.teacherId}>
-                      <td>
-                        <strong>
-                          {teacher.teacherId}
-                        </strong>
+                {filteredTeachers.map((teacher) => (
+                  <tr key={teacher.teacherId}>
+                    <td>
+                      <strong>{teacher.teacherId}</strong>
+                      <span className="table-secondary">
+                        {teacher.name}
+                      </span>
+                    </td>
 
-                        <span className="table-secondary">
-                          {teacher.name}
-                        </span>
-                      </td>
+                    <td>{formatCurrency(teacher.totalEarned)}</td>
+                    <td>{formatCurrency(teacher.totalPaid)}</td>
+                    <td>{formatCurrency(teacher.payable)}</td>
 
-                      <td>
-                        {formatCurrency(
-                          teacher.totalEarned
-                        )}
-                      </td>
-
-                      <td>
-                        {formatCurrency(
-                          teacher.totalPaid
-                        )}
-                      </td>
-
-                      <td>
-                        {formatCurrency(
-                          teacher.payable
-                        )}
-                      </td>
-
-                      <td>
-                        <button
-                          className="view-button"
-                          onClick={() =>
-                            openTeacherDetails(
-                              teacher.id
-                            )
-                          }
-                        >
-                          Pay | View 👁️
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                )}
+                    <td>
+                      <button
+                        className="view-button"
+                        onClick={() =>
+                          openTeacherDetails(teacher.id)
+                        }
+                      >
+                        Pay | View
+                        <Eye size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

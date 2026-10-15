@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  BookOpen,
+  Plus,
+  CheckCircle,
+  CircleX,
+  Search,
+  Users,
+  GraduationCap,
+  Eye
+} from "lucide-react"
 import Sidebar from "../components/sidebar"
 import "./subjects.css"
 
@@ -79,7 +89,7 @@ function Subjects() {
       <main className="dashboard-content">
         <div className="page-header">
           <div>
-            <h1>Subjects</h1>
+            <h1><BookOpen size={22} />Subjects</h1>
             <p>Manage coaching center subjects</p>
           </div>
 
@@ -87,6 +97,7 @@ function Subjects() {
             className="primary-button"
             onClick={() => navigate("/subjects/add")}
           >
+            <Plus size={17} aria-hidden="true" />
             Add Subject
           </button>
         </div>
@@ -97,17 +108,26 @@ function Subjects() {
 
         <section className="subject-summary">
           <div className="summary-card">
-            <span>Total Subjects</span>
+            <span className="summary-card-label">
+              <BookOpen size={18} aria-hidden="true" />
+              Total Subjects
+            </span>
             <strong>{totalSubjects}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Active</span>
+            <span className="summary-card-label">
+              <CheckCircle size={18} aria-hidden="true" />
+              Active
+            </span>
             <strong>{activeSubjects}</strong>
           </div>
 
           <div className="summary-card">
-            <span>Inactive</span>
+            <span className="summary-card-label">
+              <CircleX size={18} aria-hidden="true" />
+              Inactive
+            </span>
             <strong>{inactiveSubjects}</strong>
           </div>
         </section>
@@ -116,15 +136,19 @@ function Subjects() {
           <div className="subjects-card-header">
             <h2>All Subjects</h2>
 
-            <input
-              type="search"
-              placeholder="Search by subject..."
-              className="search-input"
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-            />
+            <div className="subjects-search">
+              <Search size={17} aria-hidden="true" />
+
+              <input
+                type="search"
+                placeholder="Search by subject..."
+                className="search-input"
+                value={search}
+                onChange={(event) =>
+                  setSearch(event.target.value)
+                }
+              />
+            </div>
           </div>
 
           <div className="subject-filters">
@@ -149,10 +173,19 @@ function Subjects() {
               <table className="subjects-table">
                 <thead>
                   <tr>
-                    <th>Subject</th>
+                    <th>
+                      <BookOpen size={15} aria-hidden="true" />
+                      Subject
+                    </th>
                     <th>Description</th>
-                    <th>Teachers</th>
-                    <th>Students</th>
+                    <th>
+                      <GraduationCap size={15} aria-hidden="true" />
+                      Teachers
+                    </th>
+                    <th>
+                      <Users size={15} aria-hidden="true" />
+                      Students
+                    </th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -176,12 +209,11 @@ function Subjects() {
                         <button
                           className="view-button"
                           onClick={() =>
-                            navigate(
-                              `/subjects/${subject._id}`
-                            )
+                            navigate(`/subjects/${subject._id}`)
                           }
                         >
-                          View 👁️
+                          <Eye size={15} aria-hidden="true" />
+                          View
                         </button>
                       </td>
                     </tr>

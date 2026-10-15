@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import Sidebar from "../components/sidebar"
 import "./teacherEarnings.css"
+import { CircleDollarSign } from "lucide-react";
 
 function TeacherEarnings() {
   const [billingMonth, setBillingMonth] = useState("2026-10")
@@ -58,7 +59,7 @@ function TeacherEarnings() {
       <main className="teacher-earnings-content">
         <header className="teacher-earnings-header">
           <div>
-            <h1>My Earnings</h1>
+            <h1><CircleDollarSign size={22} />My Earnings</h1>
             <p>
               Billing Month: {formatMonth(billingMonth)}
             </p>

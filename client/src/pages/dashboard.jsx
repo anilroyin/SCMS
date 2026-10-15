@@ -1,6 +1,22 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
+  Users,
+  UserRound,
+  TrendingDown,
+  GraduationCap,
+  IndianRupee,
+  Wallet,
+  BookOpen,
+  CalendarDays,
+  Bell,
+  ChartNoAxesCombined,
+  ReceiptText,
+  CreditCard,
+  Cake,
+  LayoutDashboard
+} from "lucide-react"
+import {
   ResponsiveContainer,
   LineChart,
   Line,
@@ -210,13 +226,16 @@ function Dashboard() {
       <main className="dashboard-content">
         <header className="dashboard-header">
           <div>
-            <h1>Dashboard</h1>
+            <h1> <LayoutDashboard size={22} />Dashboard</h1>
             <p>Welcome back, {user.name}</p>
           </div>
 
           <div className="dashboard-user">
             <span>{user.role.charAt(0).toUpperCase() + user.role.slice(1)}: {user.name}</span>
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleLogout} className="dashboard-logout-button">
+              <UserRound size={16} aria-hidden="true" />
+              Logout
+            </button>
           </div>
         </header>
 
@@ -229,27 +248,45 @@ function Dashboard() {
           <>
             <section className="dashboard-summary">
               <div className="dashboard-summary-card">
-                <span>Total Students</span>
+                <div className="dashboard-summary-label">
+                  <Users size={17} aria-hidden="true" />
+                  <span>Total Students</span>
+                </div>
                 <strong>{dashboard.summary.totalStudents}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>Active Students</span>
+                <div className="dashboard-summary-label">
+                  <UserRound size={17} aria-hidden="true" />
+                  <span>Active Students</span>
+                </div>
                 <strong>{dashboard.summary.activeStudents}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>Student Churn</span>
+                <div className="dashboard-summary-label">
+                  <TrendingDown size={17} aria-hidden="true" />
+                  <span>Student Churn</span>
+                </div>
                 <strong>{dashboard.summary.studentChurn}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>Total Teachers</span>
+                <div className="dashboard-summary-label">
+                  <GraduationCap size={17} aria-hidden="true" />
+                  <span>Total Teachers</span>
+                </div>
                 <strong>{dashboard.summary.totalTeachers}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>This Month Collection</span>
+                <div className="dashboard-summary-label">
+                  <IndianRupee size={17} aria-hidden="true" />
+                  <span>Collection(CM)</span>
+                </div>
                 <strong>{formatMoney(dashboard.summary.thisMonthCollection)}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>Outstanding Fees</span>
+                <div className="dashboard-summary-label">
+                  <Wallet size={17} aria-hidden="true" />
+                  <span>Outstanding Fees</span>
+                </div>
                 <strong>{formatMoney(dashboard.summary.outstandingFees)}</strong>
               </div>
             </section>
@@ -258,7 +295,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Fee Collection</h2>
+                    <h2 className="dashboard-section-title"><IndianRupee size={19} aria-hidden="true" />Fee Collection</h2>
                     <p>Weekly collection for the current month</p>
                   </div>
                 </div>
@@ -284,7 +321,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Fee Status</h2>
+                    <h2 className="dashboard-section-title"><ChartNoAxesCombined size={19} aria-hidden="true" />Fee Status</h2>
                     <p>Current month student fee status</p>
                   </div>
                 </div>
@@ -296,7 +333,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Today's Schedule</h2>
+                    <h2 className="dashboard-section-title"><CalendarDays size={19} aria-hidden="true" />Today's Schedule</h2>
                     <p>Today's remaining classes</p>
                   </div>
                 </div>
@@ -328,7 +365,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Birthdays This Week</h2>
+                    <h2 className="dashboard-section-title"><Cake size={19} aria-hidden="true" />Birthdays This Week</h2>
                     <p>Today and the next 7 days</p>
                   </div>
                 </div>
@@ -391,7 +428,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Recent Notifications</h2>
+                  <h2 className="dashboard-section-title"><Bell size={19} aria-hidden="true" />Recent Notifications</h2>
                   <p>Latest system notifications</p>
                 </div>
               </div>
@@ -404,7 +441,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Teacher Earnings</h2>
+                  <h2 className="dashboard-section-title"><CreditCard size={19} aria-hidden="true" />Teacher Earnings</h2>
                   <p>Teacher earnings based on collected fees</p>
                 </div>
               </div>
@@ -432,7 +469,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Recent Collections</h2>
+                  <h2 className="dashboard-section-title"><ReceiptText size={19} aria-hidden="true" />Recent Collections</h2>
                   <p>Track recent student fee entries</p>
                 </div>
               </div>
@@ -487,19 +524,31 @@ function Dashboard() {
           <>
             <section className="dashboard-summary teacher-summary">
               <div className="dashboard-summary-card">
-                <span>My Students</span>
+                <div className="dashboard-summary-label">
+                  <Users size={17} aria-hidden="true" />
+                  <span>My Students</span>
+                </div>
                 <strong>{dashboard.summary.myStudents}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>My Subjects</span>
+                <div className="dashboard-summary-label">
+                  <BookOpen size={17} aria-hidden="true" />
+                  <span>My Subjects</span>
+                </div>
                 <strong>{dashboard.summary.mySubjects}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>Today's Classes</span>
+                <div className="dashboard-summary-label">
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <span>Today's Classes</span>
+                </div>
                 <strong>{dashboard.summary.todaysClasses}</strong>
               </div>
               <div className="dashboard-summary-card">
-                <span>My Earnings</span>
+                <div className="dashboard-summary-label">
+                  <IndianRupee size={17} aria-hidden="true" />
+                  <span>My Earnings</span>
+                </div>
                 <strong>{formatMoney(dashboard.summary.myEarnings)}</strong>
               </div>
             </section>
@@ -508,7 +557,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Today's Schedule</h2>
+                    <h2 className="dashboard-section-title"><CalendarDays size={19} aria-hidden="true" />Today's Schedule</h2>
                     <p>Your classes for today</p>
                   </div>
                 </div>
@@ -540,7 +589,7 @@ function Dashboard() {
               <div className="dashboard-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Students' Fee Status</h2>
+                    <h2 className="dashboard-section-title"><Wallet size={19} aria-hidden="true" />Students' Fee Status</h2>
                     <p>Current month fee status</p>
                   </div>
                 </div>
@@ -551,7 +600,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Monthly Earnings</h2>
+                  <h2 className="dashboard-section-title"><IndianRupee size={19} aria-hidden="true" />Monthly Earnings</h2>
                   <p>Your earnings over the last six months</p>
                 </div>
               </div>
@@ -588,7 +637,7 @@ function Dashboard() {
             <section className="dashboard-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>Recent Notifications</h2>
+                  <h2 className="dashboard-section-title"><Bell size={19} aria-hidden="true" />Recent Notifications</h2>
                   <p>Announcements and notifications for you</p>
                 </div>
               </div>
@@ -613,22 +662,34 @@ function Dashboard() {
           <>
             <section className="dashboard-summary student-summary">
               <div className="dashboard-summary-card">
-                <span>My Subjects</span>
+                <div className="dashboard-summary-label">
+                  <BookOpen size={17} aria-hidden="true" />
+                  <span>My Subjects</span>
+                </div>
                 <strong>{dashboard.summary.mySubjects}</strong>
               </div>
 
               <div className="dashboard-summary-card">
-                <span>My Teachers</span>
+                <div className="dashboard-summary-label">
+                  <GraduationCap size={17} aria-hidden="true" />
+                  <span>My Teachers</span>
+                </div>
                 <strong>{dashboard.summary.myTeachers}</strong>
               </div>
 
               <div className="dashboard-summary-card">
-                <span>This Month's Fees</span>
+                <div className="dashboard-summary-label">
+                  <ReceiptText size={17} aria-hidden="true" />
+                  <span>This Month's Fees</span>
+                </div>
                 <strong>{formatMoney(dashboard.summary.totalFee)}</strong>
               </div>
 
               <div className="dashboard-summary-card">
-                <span>Outstanding Due</span>
+                <div className="dashboard-summary-label">
+                  <Wallet size={17} aria-hidden="true" />
+                  <span>Outstanding Due</span>
+                </div>
                 <strong>{formatMoney(dashboard.summary.totalDue)}</strong>
               </div>
             </section>
@@ -637,7 +698,7 @@ function Dashboard() {
               <div className="dashboard-panel student-schedule-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Today's Schedule</h2>
+                    <h2 className="dashboard-section-title"><CalendarDays size={19} aria-hidden="true" />Today's Schedule</h2>
                     <p>Your classes scheduled for today</p>
                   </div>
                 </div>
@@ -690,7 +751,7 @@ function Dashboard() {
               <div className="dashboard-panel student-notifications-panel">
                 <div className="dashboard-panel-header">
                   <div>
-                    <h2>Recent Notifications</h2>
+                    <h2 className="dashboard-section-title"><Bell size={19} aria-hidden="true" />Recent Notifications</h2>
                     <p>Latest announcements and messages</p>
                   </div>
                 </div>
@@ -705,7 +766,7 @@ function Dashboard() {
             <section className="dashboard-panel student-fee-panel">
               <div className="dashboard-panel-header">
                 <div>
-                  <h2>My Fee Payments</h2>
+                  <h2 className="dashboard-section-title"><ReceiptText size={19} aria-hidden="true" />My Fee Payments</h2>
                   <p>Fee status for the current billing month</p>
                 </div>
               </div>
@@ -758,17 +819,26 @@ function Dashboard() {
 
               <div className="student-fee-summary">
                 <div className="dashboard-summary-card">
+                  <div className="dashboard-summary-label">
+                  <ReceiptText size={17} aria-hidden="true" />
                   <span>Total Fees</span>
+                </div>
                   <strong>{formatMoney(dashboard.summary.totalFee)}</strong>
                 </div>
 
                 <div className="dashboard-summary-card">
+                  <div className="dashboard-summary-label">
+                  <CreditCard size={17} aria-hidden="true" />
                   <span>Total Paid</span>
+                </div>
                   <strong>{formatMoney(dashboard.summary.totalPaid)}</strong>
                 </div>
 
                 <div className="dashboard-summary-card">
+                  <div className="dashboard-summary-label">
+                  <Wallet size={17} aria-hidden="true" />
                   <span>Total Due</span>
+                </div>
                   <strong>{formatMoney(dashboard.summary.totalDue)}</strong>
                 </div>
               </div>

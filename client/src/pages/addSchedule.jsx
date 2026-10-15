@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/sidebar"
 import "./addSchedule.css"
+import { ChevronLeft } from "lucide-react";
 
 function AddSchedule() {
   const navigate = useNavigate()
@@ -181,7 +182,7 @@ function AddSchedule() {
               type="button"
               className="add-schedule-back-button"
               onClick={() => navigate("/schedule")}
-            >
+            ><ChevronLeft size={18} />
               Back
             </button>
           </div>

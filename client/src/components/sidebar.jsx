@@ -1,6 +1,20 @@
 
 import { useEffect, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  BookOpen,
+  Wallet,
+  CreditCard,
+  CalendarDays,
+  ChartNoAxesCombined,
+  Bell,
+  UserRound,
+  CircleDollarSign,
+  Headset
+} from "lucide-react"
 
 function Sidebar() {
   const location = useLocation()
@@ -14,13 +28,8 @@ function Sidebar() {
 
     try {
       const payload = token.split(".")[1]
-
       const user = JSON.parse(
-        atob(
-          payload
-            .replace(/-/g, "+")
-            .replace(/_/g, "/")
-        )
+        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
       )
 
       return user.role || ""
@@ -43,13 +52,8 @@ function Sidebar() {
 
     try {
       const payload = token.split(".")[1]
-
       const user = JSON.parse(
-        atob(
-          payload
-            .replace(/-/g, "+")
-            .replace(/_/g, "/")
-        )
+        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
       )
 
       const endpoint =
@@ -149,47 +153,68 @@ function Sidebar() {
   }, [])
 
   const adminLinks = [
-    { label: "Dashboard", path: "/" },
-    { label: "Students", path: "/students" },
-    { label: "Teachers", path: "/teachers" },
-    { label: "Subjects", path: "/subjects" },
-    { label: "Fees", path: "/fees" },
+    { label: "Dashboard", path: "/", icon: LayoutDashboard },
+    { label: "Students", path: "/students", icon: Users },
+    { label: "Teachers", path: "/teachers", icon: GraduationCap },
+    { label: "Subjects", path: "/subjects", icon: BookOpen },
+    { label: "Fees", path: "/fees", icon: Wallet },
     {
       label: "Teacher Payments",
-      path: "/teacher-payments"
+      path: "/teacher-payments",
+      icon: CreditCard
     },
-    { label: "Schedule", path: "/schedule" },
-    { label: "Reports", path: "/reports" },
+    { label: "Schedule", path: "/schedule", icon: CalendarDays },
+    {
+      label: "Reports",
+      path: "/reports",
+      icon: ChartNoAxesCombined
+    },
     {
       label: "Notifications",
-      path: "/notifications"
+      path: "/notifications",
+      icon: Bell
     }
   ]
 
   const teacherLinks = [
-    { label: "Dashboard", path: "/" },
-    { label: "My Profile", path: "/teacher/profile" },
-    { label: "My Students", path: "/teacher/students" },
-    { label: "My Schedule", path: "/teacher/schedule" },
-    { label: "My Earnings", path: "/teacher/earnings" },
+    { label: "Dashboard", path: "/", icon: LayoutDashboard },
+    { label: "My Profile", path: "/teacher/profile", icon: UserRound },
+    { label: "My Students", path: "/teacher/students", icon: Users },
+    {
+      label: "My Schedule",
+      path: "/teacher/schedule",
+      icon: CalendarDays
+    },
+    {
+      label: "My Earnings",
+      path: "/teacher/earnings",
+      icon: CircleDollarSign
+    },
     {
       label: "Notifications",
-      path: "/notifications"
+      path: "/notifications",
+      icon: Bell
     }
   ]
 
   const studentLinks = [
-    { label: "Dashboard", path: "/" },
-    { label: "My Profile", path: "/student/profile" },
-    { label: "My Schedule", path: "/student/schedule" },
-    { label: "My Fees", path: "/student/fees" },
+    { label: "Dashboard", path: "/", icon: LayoutDashboard },
+    { label: "My Profile", path: "/student/profile", icon: UserRound },
+    {
+      label: "My Schedule",
+      path: "/student/schedule",
+      icon: CalendarDays
+    },
+    { label: "My Fees", path: "/student/fees", icon: Wallet },
     {
       label: "Notifications",
-      path: "/notifications"
+      path: "/notifications",
+      icon: Bell
     },
     {
       label: "Help & Support",
-      path: "/student/help-support"
+      path: "/student/help-support",
+      icon: Headset
     }
   ]
 
@@ -211,73 +236,58 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        {links.map((link) => (
-          <NavLink
-            key={link.path}
-            to={link.path}
-            state={
-              ["/fees", "/teacher-payments"].includes(link.path)
-                ? { from: location.pathname }
-                : undefined
-            }
-            onClick={() => {
-              if (link.path === "/fees") {
-                sessionStorage.setItem(
-                  "feesReturnPath",
-                  location.pathname
-                )
-              }
+        {links.map((link) => {
+          const Icon = link.icon
 
-              if (link.path === "/teacher-payments") {
-                sessionStorage.setItem(
-                  "teacherPaymentsReturnPath",
-                  location.pathname
-                )
+          return (
+            <NavLink
+              key={link.path}
+              to={link.path}
+              state={
+                ["/fees", "/teacher-payments"].includes(link.path)
+                  ? { from: location.pathname }
+                  : undefined
               }
+              onClick={() => {
+                if (link.path === "/fees") {
+                  sessionStorage.setItem(
+                    "feesReturnPath",
+                    location.pathname
+                  )
+                }
 
-              if (link.path === "/notifications") {
-                sessionStorage.setItem(
-                  "notificationsReturnPath",
-                  location.pathname
-                )
-              }
-            }}
-          >
-            {link.label === "Notifications" ? (
-              <span className="sidebar-notification-item">
-                <span>Notifications</span>
+                if (link.path === "/teacher-payments") {
+                  sessionStorage.setItem(
+                    "teacherPaymentsReturnPath",
+                    location.pathname
+                  )
+                }
 
-                {unreadNotifications > 0 && (
-                  <span className="sidebar-notification-badge">
-                    {unreadNotifications}
-                  </span>
-                )}
+                if (link.path === "/notifications") {
+                  sessionStorage.setItem(
+                    "notificationsReturnPath",
+                    location.pathname
+                  )
+                }
+              }}
+            >
+              <span className="sidebar-link-content">
+                <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+
+                <span className="sidebar-link-label">
+                  {link.label}
+                </span>
+
+                {link.label === "Notifications" &&
+                  unreadNotifications > 0 && (
+                    <span className="sidebar-notification-badge">
+                      {unreadNotifications}
+                    </span>
+                  )}
               </span>
-            ) : link.label === "Help & Support" ? (
-              <span className="sidebar-support-item">
-                <span>Help & Support</span>
-
-                <svg
-                  className="sidebar-support-icon"
-                  viewBox="0 0 24 24"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M21 11.5a8.5 8.5 0 0 1-12.9 7.3L3 20l1.2-4.1A8.5 8.5 0 1 1 21 11.5Z" />
-                  <path d="M8 10h.01M12 10h.01M16 10h.01" />
-                </svg>
-              </span>
-            ) : (
-              link.label
-            )}
-          </NavLink>
-        ))}
+            </NavLink>
+          )
+        })}
       </nav>
     </aside>
   )

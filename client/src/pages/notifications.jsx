@@ -1,5 +1,22 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {
+  Bell,
+  BellRing,
+  Send,
+  ChevronLeft,
+  Trash2,
+  UserRound,
+  CalendarDays,
+  ShieldCheck,
+  Users,
+  MessageSquare,
+  Target,
+  Clock3,
+  CheckCheck,
+  X,
+  FileText
+} from "lucide-react"
 import Sidebar from "../components/sidebar"
 import "./notifications.css"
 
@@ -64,8 +81,7 @@ function Notifications() {
 
         if (!response.ok) {
           throw new Error(
-            data.message ||
-              "Failed to get notifications"
+            data.message || "Failed to get notifications"
           )
         }
 
@@ -82,20 +98,17 @@ function Notifications() {
         }
       )
 
-      const receivedData =
-        await receivedResponse.json()
+      const receivedData = await receivedResponse.json()
 
       if (!receivedResponse.ok) {
         throw new Error(
-          receivedData.message ||
-            "Failed to get notifications"
+          receivedData.message || "Failed to get notifications"
         )
       }
 
-      const receivedNotifications =
-        Array.isArray(receivedData)
-          ? receivedData
-          : receivedData.notifications || []
+      const receivedNotifications = Array.isArray(receivedData)
+        ? receivedData
+        : receivedData.notifications || []
 
       if (user.role === "teacher") {
         const sentResponse = await fetch(
@@ -111,15 +124,13 @@ function Notifications() {
 
         if (!sentResponse.ok) {
           throw new Error(
-            sentData.message ||
-              "Failed to get sent notifications"
+            sentData.message || "Failed to get sent notifications"
           )
         }
 
-        const sentNotifications =
-          Array.isArray(sentData)
-            ? sentData
-            : sentData.notifications || []
+        const sentNotifications = Array.isArray(sentData)
+          ? sentData
+          : sentData.notifications || []
 
         const allNotifications = [
           ...receivedNotifications,
@@ -137,8 +148,7 @@ function Notifications() {
 
         uniqueNotifications.sort(
           (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
+            new Date(b.createdAt) - new Date(a.createdAt)
         )
 
         setNotifications(uniqueNotifications)
@@ -173,8 +183,7 @@ function Notifications() {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Failed to mark notification as read"
+          data.message || "Failed to mark notification as read"
         )
       }
 
@@ -186,9 +195,7 @@ function Notifications() {
         )
       )
 
-      window.dispatchEvent(
-        new Event("notificationsUpdated")
-      )
+      window.dispatchEvent(new Event("notificationsUpdated"))
 
       return true
     } catch (error) {
@@ -213,8 +220,7 @@ function Notifications() {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Failed to mark notification as read"
+          data.message || "Failed to mark notification as read"
         )
       }
 
@@ -226,9 +232,7 @@ function Notifications() {
         )
       )
 
-      window.dispatchEvent(
-        new Event("notificationsUpdated")
-      )
+      window.dispatchEvent(new Event("notificationsUpdated"))
 
       return true
     } catch (error) {
@@ -259,24 +263,20 @@ function Notifications() {
 
       if (!response.ok) {
         throw new Error(
-          data.message ||
-            "Failed to delete notification"
+          data.message || "Failed to delete notification"
         )
       }
 
       setNotifications((currentNotifications) =>
         currentNotifications.filter(
-          (item) =>
-            item._id !== selectedNotification._id
+          (item) => item._id !== selectedNotification._id
         )
       )
 
       setShowDeleteModal(false)
       setSelectedNotification(null)
 
-      window.dispatchEvent(
-        new Event("notificationsUpdated")
-      )
+      window.dispatchEvent(new Event("notificationsUpdated"))
     } catch (error) {
       setMessage(error.message)
       setShowDeleteModal(false)
@@ -286,13 +286,8 @@ function Notifications() {
   }
 
   const handleNotificationClick = async (notification) => {
-    if (
-      isAdmin &&
-      !notification.adminRead
-    ) {
-      const markedAsRead = await markAdminAsRead(
-        notification._id
-      )
+    if (isAdmin && !notification.adminRead) {
+      const markedAsRead = await markAdminAsRead(notification._id)
 
       if (markedAsRead) {
         setSelectedNotification({
@@ -337,8 +332,7 @@ function Notifications() {
       individual_teacher: "Individual Teacher",
       teacher_students: "All Own Students",
       teacher_class: "Class-wise Students",
-      teacher_individual_student:
-        "Individual Student"
+      teacher_individual_student: "Individual Student"
     }
 
     return targetNames[targetType] || targetType
@@ -349,15 +343,12 @@ function Notifications() {
     (
       (
         role === "admin" &&
-        selectedNotification.sender?.role ===
-          "admin" &&
-        selectedNotification.sender?._id ===
-          currentUserId
+        selectedNotification.sender?.role === "admin" &&
+        selectedNotification.sender?._id === currentUserId
       ) ||
       (
         role === "teacher" &&
-        selectedNotification.sender?._id ===
-          currentUserId
+        selectedNotification.sender?._id === currentUserId
       )
     )
 
@@ -368,7 +359,7 @@ function Notifications() {
 
         <main className="dashboard-content">
           <div className="notifications-page">
-            <div className="notifications-loading">
+            <div className="notifications-loading"> 
               Loading notifications...
             </div>
           </div>
@@ -387,9 +378,12 @@ function Notifications() {
             <div className="notifications-header">
               <div>
                 <h1>
-                  {isAdmin
-                    ? "Notification Details"
-                    : "Notification"}
+                  {isAdmin ? (
+                    <BellRing size={22} />
+                  ) : (
+                    <Bell size={22} />
+                  )}
+                  {isAdmin ? "Notification Details" : "Notification"}
                 </h1>
 
                 <p>View notification details</p>
@@ -399,20 +393,18 @@ function Notifications() {
                 {canDeleteSelectedNotification && (
                   <button
                     className="notifications-delete-button"
-                    onClick={() =>
-                      setShowDeleteModal(true)
-                    }
+                    onClick={() => setShowDeleteModal(true)}
                   >
+                    <Trash2 size={16} />
                     Delete
                   </button>
                 )}
 
                 <button
                   className="notifications-back-button"
-                  onClick={() =>
-                    setSelectedNotification(null)
-                  }
+                  onClick={() => setSelectedNotification(null)}
                 >
+                  <ChevronLeft size={16} />
                   Back
                 </button>
               </div>
@@ -427,21 +419,27 @@ function Notifications() {
             <div className="notification-detail-card">
               <div className="notification-detail-header">
                 <h2>
+                  <FileText size={19} />
                   {selectedNotification.title}
                 </h2>
               </div>
 
               <div className="notification-detail-info">
                 <div>
-                  <strong>From:</strong>
+                  <strong>
+                    <UserRound size={15} />
+                    From:
+                  </strong>
                   <span>
-                    {selectedNotification.sender?.name ||
-                      "Unknown"}
+                    {selectedNotification.sender?.name || "Unknown"}
                   </span>
                 </div>
 
                 <div>
-                  <strong>Role:</strong>
+                  <strong>
+                    <ShieldCheck size={15} />
+                    Role:
+                  </strong>
                   <span>
                     {selectedNotification.sender?.role ||
                       selectedNotification.senderRole ||
@@ -450,56 +448,59 @@ function Notifications() {
                 </div>
 
                 <div>
-                  <strong>Date:</strong>
+                  <strong>
+                    <CalendarDays size={15} />
+                    Date:
+                  </strong>
                   <span>
-                    {formatDate(
-                      selectedNotification.createdAt
-                    )}
+                    {formatDate(selectedNotification.createdAt)}
                   </span>
                 </div>
 
-                {(isAdmin ||
-                  selectedNotification.isSent) && (
+                {(isAdmin || selectedNotification.isSent) && (
                   <div>
-                    <strong>Target:</strong>
+                    <strong>
+                      <Target size={15} />
+                      Target:
+                    </strong>
                     <span>
-                      {getTargetName(
-                        selectedNotification.targetType
-                      )}
+                      {getTargetName(selectedNotification.targetType)}
                     </span>
                   </div>
                 )}
 
                 {selectedNotification.className && (
                   <div>
-                    <strong>Class:</strong>
-                    <span>
-                      {selectedNotification.className}
-                    </span>
+                    <strong>
+                      <Users size={15} />
+                      Class:
+                    </strong>
+                    <span>{selectedNotification.className}</span>
                   </div>
                 )}
               </div>
 
               <div className="notification-detail-message">
-                <strong>Message</strong>
-                <p>
-                  {selectedNotification.message}
-                </p>
+                <strong>
+                  <MessageSquare size={16} />
+                  Message
+                </strong>
+                <p>{selectedNotification.message}</p>
               </div>
 
-              {(isAdmin ||
-                selectedNotification.isSent) && (
+              {(isAdmin || selectedNotification.isSent) && (
                 <div className="notification-recipients">
                   <div className="notification-recipients-header">
-                    <strong>Recipients</strong>
+                    <strong>
+                      <Users size={16} />
+                      Recipients
+                    </strong>
                     <span>
-                      {selectedNotification.recipients?.length ||
-                        0}
+                      {selectedNotification.recipients?.length || 0}
                     </span>
                   </div>
 
-                  {selectedNotification.recipients?.length >
-                  0 ? (
+                  {selectedNotification.recipients?.length > 0 ? (
                     <div className="notification-recipient-list">
                       {selectedNotification.recipients.map(
                         (recipient) => (
@@ -508,13 +509,8 @@ function Notifications() {
                             key={recipient._id}
                           >
                             <div>
-                              <strong>
-                                {recipient.name}
-                              </strong>
-
-                              <span>
-                                {recipient.email}
-                              </span>
+                              <strong>{recipient.name}</strong>
+                              <span>{recipient.email}</span>
                             </div>
 
                             <span className="notification-recipient-role">
@@ -539,31 +535,29 @@ function Notifications() {
           <div
             className="notification-modal-overlay"
             onClick={() =>
-              !deleteLoading &&
-              setShowDeleteModal(false)
+              !deleteLoading && setShowDeleteModal(false)
             }
           >
             <div
               className="notification-delete-modal"
-              onClick={(event) =>
-                event.stopPropagation()
-              }
+              onClick={(event) => event.stopPropagation()}
             >
-              <h2>Delete Notification</h2>
+              <h2>
+                <Trash2 size={20} />
+                Delete Notification
+              </h2>
 
               <p>
-                Are you sure you want to delete this
-                notification?
+                Are you sure you want to delete this notification?
               </p>
 
               <div className="notification-modal-actions">
                 <button
                   className="notification-modal-cancel"
-                  onClick={() =>
-                    setShowDeleteModal(false)
-                  }
+                  onClick={() => setShowDeleteModal(false)}
                   disabled={deleteLoading}
                 >
+                  <X size={15} />
                   Cancel
                 </button>
 
@@ -572,9 +566,8 @@ function Notifications() {
                   onClick={deleteNotification}
                   disabled={deleteLoading}
                 >
-                  {deleteLoading
-                    ? "Deleting..."
-                    : "Delete"}
+                  <Trash2 size={15} />
+                  {deleteLoading ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>
@@ -593,9 +586,12 @@ function Notifications() {
           <div className="notifications-header">
             <div>
               <h1>
-                {isAdmin
-                  ? "Notification Log"
-                  : "Notifications"}
+                {isAdmin ? (
+                  <BellRing size={22} />
+                ) : (
+                  <Bell size={22} />
+                )}
+                {isAdmin ? "Notifications" : "Notifications"}
               </h1>
 
               <p>
@@ -609,26 +605,26 @@ function Notifications() {
               {(isAdmin || role === "teacher") && (
                 <button
                   className="notifications-send-button"
-                  onClick={() =>
-                    navigate("/notifications/send")
-                  }
+                  onClick={() => navigate("/notifications/send")}
                 >
+                  <Send size={16} />
                   Send Notification
                 </button>
               )}
 
               <button
-                 className="notifications-back-button"
-                 onClick={() => {
-                 const returnPath = sessionStorage.getItem(
-                 "notificationsReturnPath"
+                className="notifications-back-button"
+                onClick={() => {
+                  const returnPath = sessionStorage.getItem(
+                    "notificationsReturnPath"
                   )
 
-                 navigate(returnPath || "/", { replace: true })
-              }}
+                  navigate(returnPath || "/", { replace: true })
+                }}
               >
-              Back
-            </button>
+                <ChevronLeft size={16} />
+                Back
+              </button>
             </div>
           </div>
 
@@ -640,6 +636,7 @@ function Notifications() {
 
           {notifications.length === 0 ? (
             <div className="notifications-empty">
+              <Bell size={25} />
               {isAdmin
                 ? "No notification records found."
                 : "No notifications found."}
@@ -652,9 +649,7 @@ function Notifications() {
                   className={`notification-card ${
                     isAdmin
                       ? `admin-notification ${
-                          !notification.adminRead
-                            ? "admin-new"
-                            : ""
+                          !notification.adminRead ? "admin-new" : ""
                         }`
                       : notification.isSent
                         ? "read"
@@ -662,21 +657,18 @@ function Notifications() {
                           ? "read"
                           : "unread"
                   }`}
-                  onClick={() =>
-                    handleNotificationClick(
-                      notification
-                    )
-                  }
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="notification-card-header">
                     <div>
                       <h2>
+                        <Bell size={17} />
+
                         <span className="notification-title-text">
                           {notification.title}
                         </span>
 
-                        {isAdmin &&
-                          !notification.adminRead && (
+                        {isAdmin && !notification.adminRead && (
                           <span className="notification-admin-new-badge">
                             New
                           </span>
@@ -684,23 +676,20 @@ function Notifications() {
                       </h2>
 
                       <span className="notification-sender">
-                        {`From: ${
-                          notification.sender?.name ||
-                          "Unknown"
-                        }`}
+                        From: {notification.sender?.name || "Unknown"}
                       </span>
                     </div>
 
                     {isAdmin ? (
                       <span className="notification-target">
-                        {getTargetName(
-                          notification.targetType
-                        )}
+                        <Target size={14} />
+                        {getTargetName(notification.targetType)}
                       </span>
                     ) : (
                       !notification.isSent &&
                       !notification.isRead && (
                         <span className="notification-unread">
+                          <Clock3 size={13} />
                           Unread
                         </span>
                       )
@@ -715,20 +704,25 @@ function Notifications() {
                     {isAdmin ? (
                       <>
                         <span>
-                          Recipients:{" "}
-                          {notification.recipients?.length ||
-                            0}
+                          <Users size={14} />
+                          Recipients: {notification.recipients?.length || 0}
                         </span>
 
                         <span>
-                          {formatDate(
-                            notification.createdAt
-                          )}
+                          <CalendarDays size={14} />
+                          {formatDate(notification.createdAt)}
                         </span>
                       </>
                     ) : (
                       <>
                         <span>
+                          {notification.isSent ? (
+                            <Send size={14} />
+                          ) : notification.isRead ? (
+                            <CheckCheck size={14} />
+                          ) : (
+                            <Clock3 size={14} />
+                          )}
                           {notification.isSent
                             ? "Sent"
                             : notification.isRead
@@ -737,9 +731,8 @@ function Notifications() {
                         </span>
 
                         <span>
-                          {formatDate(
-                            notification.createdAt
-                          )}
+                          <CalendarDays size={14} />
+                          {formatDate(notification.createdAt)}
                         </span>
                       </>
                     )}
