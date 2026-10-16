@@ -19,7 +19,7 @@ function TeacherEarnings() {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/teacher-earnings/me?billingMonth=${billingMonth}`,
+          `https://scms-backend-uhfo.onrender.com/api/teacher-earnings/me?billingMonth=${billingMonth}`,
           {
             headers: {
               Authorization: `Bearer ${token}`

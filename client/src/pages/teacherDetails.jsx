@@ -26,8 +26,8 @@ function TeacherDetails() {
 
       try {
         const url = isTeacherProfile
-          ? "http://localhost:3000/api/teachers/me"
-          : `http://localhost:3000/api/teachers/${id}`
+          ? "https://scms-backend-uhfo.onrender.com/api/teachers/me"
+          : `https://scms-backend-uhfo.onrender.com/api/teachers/${id}`
 
         const response = await fetch(url, {
           headers: {

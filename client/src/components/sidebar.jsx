@@ -58,8 +58,8 @@ function Sidebar() {
 
       const endpoint =
         user.role === "admin"
-          ? "http://localhost:3000/api/notifications/logs"
-          : "http://localhost:3000/api/notifications/me"
+          ? "https://scms-backend-uhfo.onrender.com/api/notifications/logs"
+          : "https://scms-backend-uhfo.onrender.com/api/notifications/me"
 
       const response = await fetch(endpoint, {
         headers: {
@@ -107,7 +107,7 @@ function Sidebar() {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/auth/me",
+          "https://scms-backend-uhfo.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${token}`

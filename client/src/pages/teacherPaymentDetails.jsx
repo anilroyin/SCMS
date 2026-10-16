@@ -92,7 +92,7 @@ function TeacherPaymentDetails() {
       setMessage("")
 
       const response = await fetch(
-        `http://localhost:3000/api/teacher-payments/${teacherId}?billingMonth=${billingMonth}`,
+        `https://scms-backend-uhfo.onrender.com/api/teacher-payments/${teacherId}?billingMonth=${billingMonth}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -149,7 +149,7 @@ function TeacherPaymentDetails() {
       setMessage("")
 
       const response = await fetch(
-        `http://localhost:3000/api/teacher-payments/${teacherId}/payment`,
+        `https://scms-backend-uhfo.onrender.com/api/teacher-payments/${teacherId}/payment`,
         {
           method: "POST",
           headers: {

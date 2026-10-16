@@ -60,7 +60,7 @@ function SendNotification() {
             teachersResponse
           ] = await Promise.all([
             fetch(
-              "http://localhost:3000/api/students",
+              "https://scms-backend-uhfo.onrender.com/api/students",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -68,7 +68,7 @@ function SendNotification() {
               }
             ),
             fetch(
-              "http://localhost:3000/api/teachers",
+              "https://scms-backend-uhfo.onrender.com/api/teachers",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -127,7 +127,7 @@ function SendNotification() {
 
         if (user.role === "teacher") {
           const response = await fetch(
-            "http://localhost:3000/api/teachers/me/students",
+            "https://scms-backend-uhfo.onrender.com/api/teachers/me/students",
             {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -265,7 +265,7 @@ function SendNotification() {
       }
 
       const response = await fetch(
-        "http://localhost:3000/api/notifications",
+        "https://scms-backend-uhfo.onrender.com/api/notifications",
         {
           method: "POST",
           headers: {

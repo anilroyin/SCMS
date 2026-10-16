@@ -20,7 +20,7 @@ function ForgotPassword() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/auth/forgot-password",
+        "https://scms-backend-uhfo.onrender.com/api/auth/forgot-password",
         {
           method: "POST",
           headers: {

@@ -32,7 +32,7 @@ function Subjects() {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/subjects",
+          "https://scms-backend-uhfo.onrender.com/api/subjects",
           {
             headers: {
               Authorization: `Bearer ${token}`

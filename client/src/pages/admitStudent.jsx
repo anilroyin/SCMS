@@ -45,13 +45,13 @@ function AdmitStudent() {
 
       try {
         const [subjectsResponse, teachersResponse] = await Promise.all([
-          fetch("http://localhost:3000/api/subjects", {
+          fetch("https://scms-backend-uhfo.onrender.com/api/subjects", {
             headers: {
               Authorization: `Bearer ${token}`
             }
           }),
 
-          fetch("http://localhost:3000/api/teachers", {
+          fetch("https://scms-backend-uhfo.onrender.com/api/teachers", {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -159,7 +159,7 @@ function AdmitStudent() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/students", {
+      const response = await fetch("https://scms-backend-uhfo.onrender.com/api/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

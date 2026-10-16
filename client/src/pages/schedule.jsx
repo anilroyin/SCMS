@@ -43,7 +43,7 @@ function Schedule() {
       setMessage("")
 
       const userResponse = await fetch(
-        "http://localhost:3000/api/auth/me",
+        "https://scms-backend-uhfo.onrender.com/api/auth/me",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -64,10 +64,10 @@ function Schedule() {
 
       const schedulesUrl =
         userData.user.role === "teacher"
-          ? "http://localhost:3000/api/schedules/me"
+          ? "https://scms-backend-uhfo.onrender.com/api/schedules/me"
           : userData.user.role === "student"
-            ? "http://localhost:3000/api/schedules/student/me"
-            : "http://localhost:3000/api/schedules"
+            ? "https://scms-backend-uhfo.onrender.com/api/schedules/student/me"
+            : "https://scms-backend-uhfo.onrender.com/api/schedules"
 
       const response = await fetch(schedulesUrl, {
         headers: {
@@ -143,7 +143,7 @@ function Schedule() {
       setMessage("")
 
       const response = await fetch(
-        `http://localhost:3000/api/schedules/${scheduleId}`,
+        `https://scms-backend-uhfo.onrender.com/api/schedules/${scheduleId}`,
         {
           method: "DELETE",
           headers: {

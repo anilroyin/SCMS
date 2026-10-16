@@ -69,7 +69,7 @@ function Notifications() {
 
       if (user.role === "admin") {
         const response = await fetch(
-          "http://localhost:3000/api/notifications/logs",
+          "https://scms-backend-uhfo.onrender.com/api/notifications/logs",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -90,7 +90,7 @@ function Notifications() {
       }
 
       const receivedResponse = await fetch(
-        "http://localhost:3000/api/notifications/me",
+        "https://scms-backend-uhfo.onrender.com/api/notifications/me",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -112,7 +112,7 @@ function Notifications() {
 
       if (user.role === "teacher") {
         const sentResponse = await fetch(
-          "http://localhost:3000/api/notifications/sent",
+          "https://scms-backend-uhfo.onrender.com/api/notifications/sent",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -170,7 +170,7 @@ function Notifications() {
   const markAsRead = async (notificationId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/notifications/${notificationId}/read`,
+        `https://scms-backend-uhfo.onrender.com/api/notifications/${notificationId}/read`,
         {
           method: "PUT",
           headers: {
@@ -207,7 +207,7 @@ function Notifications() {
   const markAdminAsRead = async (notificationId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/notifications/${notificationId}/admin-read`,
+        `https://scms-backend-uhfo.onrender.com/api/notifications/${notificationId}/admin-read`,
         {
           method: "PUT",
           headers: {
@@ -250,7 +250,7 @@ function Notifications() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/notifications/${selectedNotification._id}`,
+        `https://scms-backend-uhfo.onrender.com/api/notifications/${selectedNotification._id}`,
         {
           method: "DELETE",
           headers: {

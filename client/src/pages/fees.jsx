@@ -79,7 +79,7 @@ function Fees() {
           : ""
 
       const response = await fetch(
-        `http://localhost:3000/api/fees?billingMonth=${billingMonth}${teacherQuery}`,
+        `https://scms-backend-uhfo.onrender.com/api/fees?billingMonth=${billingMonth}${teacherQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -109,7 +109,7 @@ function Fees() {
           : ""
 
       const response = await fetch(
-        `http://localhost:3000/api/fees/summary?billingMonth=${billingMonth}${teacherQuery}`,
+        `https://scms-backend-uhfo.onrender.com/api/fees/summary?billingMonth=${billingMonth}${teacherQuery}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -134,7 +134,7 @@ function Fees() {
   const fetchTeachers = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/teachers",
+        "https://scms-backend-uhfo.onrender.com/api/teachers",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -175,7 +175,7 @@ function Fees() {
       setMessage("")
 
       const response = await fetch(
-        "http://localhost:3000/api/fees/generate",
+        "https://scms-backend-uhfo.onrender.com/api/fees/generate",
         {
           method: "POST",
           headers: {

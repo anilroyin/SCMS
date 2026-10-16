@@ -40,7 +40,7 @@ function EditSchedule() {
           teachersResponse
         ] = await Promise.all([
           fetch(
-            `http://localhost:3000/api/schedules/${id}`,
+            `https://scms-backend-uhfo.onrender.com/api/schedules/${id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -48,7 +48,7 @@ function EditSchedule() {
             }
           ),
           fetch(
-            "http://localhost:3000/api/subjects",
+            "https://scms-backend-uhfo.onrender.com/api/subjects",
             {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -56,7 +56,7 @@ function EditSchedule() {
             }
           ),
           fetch(
-            "http://localhost:3000/api/teachers",
+            "https://scms-backend-uhfo.onrender.com/api/teachers",
             {
               headers: {
                 Authorization: `Bearer ${token}`
@@ -167,7 +167,7 @@ function EditSchedule() {
       setSaving(true)
 
       const response = await fetch(
-        `http://localhost:3000/api/schedules/${id}`,
+        `https://scms-backend-uhfo.onrender.com/api/schedules/${id}`,
         {
           method: "PUT",
           headers: {

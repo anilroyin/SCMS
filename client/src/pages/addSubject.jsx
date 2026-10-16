@@ -37,7 +37,7 @@ function AddSubject() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/subjects",
+        "https://scms-backend-uhfo.onrender.com/api/subjects",
         {
           method: "POST",
           headers: {

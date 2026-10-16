@@ -45,8 +45,8 @@ function StudentDetails() {
 
     try {
       const url = isStudentProfile
-        ? "http://localhost:3000/api/students/me"
-        : `http://localhost:3000/api/students/${id}`
+        ? "https://scms-backend-uhfo.onrender.com/api/students/me"
+        : `https://scms-backend-uhfo.onrender.com/api/students/${id}`
 
       const response = await fetch(url, {
         headers: {
@@ -86,7 +86,7 @@ function StudentDetails() {
         const [subjectsResponse, teachersResponse] =
           await Promise.all([
             fetch(
-              "http://localhost:3000/api/subjects",
+              "https://scms-backend-uhfo.onrender.com/api/subjects",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -94,7 +94,7 @@ function StudentDetails() {
               }
             ),
             fetch(
-              "http://localhost:3000/api/teachers",
+              "https://scms-backend-uhfo.onrender.com/api/teachers",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -156,7 +156,7 @@ function StudentDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/students/${id}/status`,
+        `https://scms-backend-uhfo.onrender.com/api/students/${id}/status`,
         {
           method: "PUT",
           headers: {
@@ -197,7 +197,7 @@ function StudentDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/students/${id}/subjects`,
+        `https://scms-backend-uhfo.onrender.com/api/students/${id}/subjects`,
         {
           method: "POST",
           headers: {
@@ -254,7 +254,7 @@ function StudentDetails() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/students/${id}/subjects/${subjectId}`,
+        `https://scms-backend-uhfo.onrender.com/api/students/${id}/subjects/${subjectId}`,
         {
           method: "DELETE",
           headers: {

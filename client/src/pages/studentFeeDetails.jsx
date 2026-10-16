@@ -85,7 +85,7 @@ function StudentFeeDetails() {
   const getUserRole = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/auth/me",
+        "https://scms-backend-uhfo.onrender.com/api/auth/me",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -113,8 +113,8 @@ function StudentFeeDetails() {
       setLoading(true)
 
       const url = isStudent
-        ? `http://localhost:3000/api/fees/student/me?billingMonth=${billingMonth}`
-        : `http://localhost:3000/api/fees/student/${studentId}?billingMonth=${billingMonth}`
+        ? `https://scms-backend-uhfo.onrender.com/api/fees/student/me?billingMonth=${billingMonth}`
+        : `https://scms-backend-uhfo.onrender.com/api/fees/student/${studentId}?billingMonth=${billingMonth}`
 
       const response = await fetch(url, {
         headers: {
@@ -170,7 +170,7 @@ function StudentFeeDetails() {
       setMessage("")
 
       const response = await fetch(
-        `http://localhost:3000/api/fees/student/${studentId}/payment`,
+        `https://scms-backend-uhfo.onrender.com/api/fees/student/${studentId}/payment`,
         {
           method: "POST",
           headers: {

@@ -38,7 +38,7 @@ function EditTeacher() {
         const [teacherResponse, subjectsResponse] =
           await Promise.all([
             fetch(
-              `http://localhost:3000/api/teachers/${id}`,
+              `https://scms-backend-uhfo.onrender.com/api/teachers/${id}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -46,7 +46,7 @@ function EditTeacher() {
               }
             ),
             fetch(
-              "http://localhost:3000/api/subjects",
+              "https://scms-backend-uhfo.onrender.com/api/subjects",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -128,7 +128,7 @@ function EditTeacher() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/teachers/${id}`,
+        `https://scms-backend-uhfo.onrender.com/api/teachers/${id}`,
         {
           method: "PUT",
           headers: {

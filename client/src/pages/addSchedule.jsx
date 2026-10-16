@@ -36,7 +36,7 @@ function AddSchedule() {
         const [subjectsResponse, teachersResponse] =
           await Promise.all([
             fetch(
-              "http://localhost:3000/api/subjects",
+              "https://scms-backend-uhfo.onrender.com/api/subjects",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -44,7 +44,7 @@ function AddSchedule() {
               }
             ),
             fetch(
-              "http://localhost:3000/api/teachers",
+              "https://scms-backend-uhfo.onrender.com/api/teachers",
               {
                 headers: {
                   Authorization: `Bearer ${token}`
@@ -122,7 +122,7 @@ function AddSchedule() {
       setSaving(true)
 
       const response = await fetch(
-        "http://localhost:3000/api/schedules",
+        "https://scms-backend-uhfo.onrender.com/api/schedules",
         {
           method: "POST",
           headers: {

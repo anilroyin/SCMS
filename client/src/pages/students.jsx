@@ -39,7 +39,7 @@ function Students() {
 
       try {
         const userResponse = await fetch(
-          "http://localhost:3000/api/auth/me",
+          "https://scms-backend-uhfo.onrender.com/api/auth/me",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -60,8 +60,8 @@ function Students() {
 
         const studentsUrl =
           userData.user.role === "teacher"
-            ? "http://localhost:3000/api/teachers/me/students"
-            : "http://localhost:3000/api/students"
+            ? "https://scms-backend-uhfo.onrender.com/api/teachers/me/students"
+            : "https://scms-backend-uhfo.onrender.com/api/students"
 
         const response = await fetch(studentsUrl, {
           headers: {

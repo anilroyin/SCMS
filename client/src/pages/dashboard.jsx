@@ -33,7 +33,7 @@ import {
 import Sidebar from "../components/sidebar"
 import "./dashboard.css"
 
-const API = "http://localhost:3000/api"
+const API = "https://scms-backend-uhfo.onrender.com/api"
 
 function Dashboard() {
   const [user, setUser] = useState(null)

@@ -49,7 +49,7 @@ function ResetPassword() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/auth/reset-password/${token}`,
+        `https://scms-backend-uhfo.onrender.com/api/auth/reset-password/${token}`,
         {
           method: "POST",
           headers: {

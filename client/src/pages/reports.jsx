@@ -24,7 +24,7 @@ import {
 import Sidebar from "../components/sidebar"
 import "./reports.css"
 
-const API = "http://localhost:3000/api"
+const API = "https://scms-backend-uhfo.onrender.com/api"
 
 function Reports() {
   const navigate = useNavigate()

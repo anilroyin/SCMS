@@ -34,7 +34,7 @@ function Teachers() {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/teachers",
+          "https://scms-backend-uhfo.onrender.com/api/teachers",
           {
             headers: {
               Authorization: `Bearer ${token}`

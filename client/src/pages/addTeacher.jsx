@@ -34,7 +34,7 @@ function AddTeacher() {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/subjects",
+          "https://scms-backend-uhfo.onrender.com/api/subjects",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -85,7 +85,7 @@ function AddTeacher() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/teachers",
+        "https://scms-backend-uhfo.onrender.com/api/teachers",
         {
           method: "POST",
           headers: {

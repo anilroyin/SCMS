@@ -65,7 +65,7 @@ function TeacherPayments() {
       setMessage("")
 
       const response = await fetch(
-        `http://localhost:3000/api/teacher-payments?billingMonth=${billingMonth}`,
+        `https://scms-backend-uhfo.onrender.com/api/teacher-payments?billingMonth=${billingMonth}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
