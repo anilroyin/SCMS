@@ -14,12 +14,20 @@ const sendEmail = async (to, subject, text) => {
     }
   })
 
+  console.log("Attempting SMTP connection...")
+
+  await transporter.verify()
+
+  console.log("SMTP connection verified")
+
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to,
     subject,
     text
   })
+
+  console.log("Password reset email sent successfully")
 }
 
 export default sendEmail
