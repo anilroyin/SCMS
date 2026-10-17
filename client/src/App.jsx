@@ -28,6 +28,8 @@ import HelpSupport from "./pages/helpSupport"
 import ProtectedRoute from "./components/protectedRoute"
 import Reports from "./pages/reports"
 import SessionTimeout from "./components/sessionTimeout"
+import PrivacyPolicy from "./pages/privacyPolicy"
+import TermsOfService from "./pages/termsOfService"
 
 function App() {
   return (
@@ -314,6 +316,8 @@ function App() {
          </ProtectedRoute>
          }
         />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
     </Routes>
       </BrowserRouter>
   )
