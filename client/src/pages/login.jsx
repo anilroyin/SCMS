@@ -8,6 +8,7 @@ function Login() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
 
@@ -21,6 +22,9 @@ function Login() {
   const handleLogin = async (event) => {
     event.preventDefault()
 
+    if (loading) return
+
+    setLoading(true)
     setMessage("")
 
     try {
@@ -48,6 +52,8 @@ function Login() {
       navigate("/")
     } catch (error) {
       setMessage("Unable to connect to server")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -70,6 +76,7 @@ function Login() {
               onChange={(event) => setEmail(event.target.value)}
               placeholder="Enter your email"
               required
+              disabled={loading}
             />
           </div>
 
@@ -84,6 +91,7 @@ function Login() {
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password"
                 required
+                disabled={loading}
               />
 
               <button
@@ -93,6 +101,7 @@ function Login() {
                 aria-label={
                   showPassword ? "Hide password" : "Show password"
                 }
+                disabled={loading}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -105,13 +114,18 @@ function Login() {
             <button
               type="button"
               onClick={() => navigate("/forgot-password")}
+              disabled={loading}
             >
               Forgot Password?
             </button>
           </div>
 
-          <button type="submit" className="login-button">
-            Login
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? "Please wait, signing in..." : "Login"}
           </button>
         </form>
       </div>
