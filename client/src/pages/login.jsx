@@ -251,9 +251,9 @@ function Login() {
 
           <button
             type="button"
-            onClick={() => navigate("/terms-of-use")}
+            onClick={() => navigate("/terms-of-service")}
           >
-            Terms of Use
+            Terms of Service
           </button>
 
           <button
