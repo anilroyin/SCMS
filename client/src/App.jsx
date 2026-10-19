@@ -30,6 +30,7 @@ import Reports from "./pages/reports"
 import SessionTimeout from "./components/sessionTimeout"
 import PrivacyPolicy from "./pages/privacyPolicy"
 import TermsOfService from "./pages/termsOfService"
+import AboutSCMS from "./pages/aboutSCMS"
 
 function App() {
   return (
@@ -318,6 +319,7 @@ function App() {
         />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/about-scms" element={<AboutSCMS />} />
     </Routes>
       </BrowserRouter>
   )
