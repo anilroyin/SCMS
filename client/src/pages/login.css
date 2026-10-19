@@ -1,7 +1,4 @@
-
-/* ==========================================================================
-   RESET & BASE STYLES
-   ========================================================================== */
+/*Base styles*/
 
 * {
   box-sizing: border-box;
@@ -21,9 +18,7 @@ button {
   font-size: inherit;
 }
 
-/* ==========================================================================
-   PAGE CONTAINER & BACKGROUND
-   ========================================================================== */
+/*Page container and background*/
 
 .login-page {
   height: 100vh;
@@ -38,9 +33,7 @@ button {
   padding: 40px 80px;
 }
 
-/* ==========================================================================
-   MAIN LAYOUT CONTAINER
-   ========================================================================== */
+/*main layout container*/
 
 .login-main {
   flex: 1;
@@ -53,9 +46,7 @@ button {
   align-items: center;
 }
 
-/* ==========================================================================
-   LEFT COLUMN: BRAND & FEATURES SECTION
-   ========================================================================== */
+/* LEFT COLUMN: Brand and features section*/
 
 .login-intro {
   display: flex;
@@ -79,7 +70,7 @@ button {
 }
 
 .login-brand h1 {
-  font-size: 42px;
+  font-size: 35px;
   font-weight: 700;
   letter-spacing: -0.5px;
   color: #2f3b4b;
@@ -165,9 +156,7 @@ button {
   color: #80919f !important;
 }
 
-/* ==========================================================================
-   RIGHT COLUMN: LOGIN CARD
-   ========================================================================== */
+/*Login card*/
 
 .login-card {
   background: #ffffff;
@@ -189,7 +178,7 @@ button {
 }
 
 .login-header h2 {
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 600;
   color: #2f3b4b;
   margin-bottom: 8px;
@@ -320,9 +309,7 @@ button {
   cursor: not-allowed;
 }
 
-/* ==========================================================================
-   FOOTER SECTION
-   ========================================================================== */
+/* Footer section*/
 
 .page-footer {
   margin-top: auto;
@@ -370,14 +357,15 @@ button {
   }
 }
 
-/* ==========================================================================
-   RESPONSIVE LAYOUT
-   ========================================================================== */
+/*Responsive layout*/
 
 @media (max-width: 1150px) {
   .login-page {
     padding: 40px;
     height: auto;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
     overflow-y: auto;
   }
 
@@ -387,31 +375,122 @@ button {
 
   .login-main {
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: 40px;
     padding-bottom: 40px;
   }
 
+  .login-intro {
+    padding-bottom: 0;
+  }
+
   .feature-list {
-    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 24px;
+    width: 100%;
+    max-width: 650px;
+  }
+
+  .feature-list > div:nth-child(even) {
+    margin-left: 0;
+  }
+
+  .login-card {
+    justify-self: center;
+    transform: none;
+    width: 100%;
+    max-width: 460px;
   }
 
   .login-brand {
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .brand-subtitle {
-    text-align: center;
+    text-align: left;
   }
 
   .page-footer {
-    padding: 40px 0 20px;
+    position: static;
+    width: 100%;
+    padding: 30px 0 20px;
   }
 }
 
 @media (max-width: 650px) {
+  .login-page {
+    padding: 24px 18px;
+  }
+
+  .login-main {
+    gap: 32px;
+  }
+
+  .login-intro {
+    gap: 16px;
+  }
+
+  .login-brand {
+    gap: 12px;
+  }
+
+  .login-brand h1 {
+    font-size: 34px;
+  }
+
+  .brand-subtitle {
+    font-size: 14px;
+  }
+
+  .login-features h2 {
+    font-size: 26px;
+  }
+
+  .features-description {
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
   .feature-list {
     grid-template-columns: 1fr;
-    gap: 20px;
+    column-gap: 0;
+    row-gap: 18px;
+    width: 100%;
+  }
+
+  .feature-list > div:nth-child(even) {
+    margin-left: 0;
+  }
+
+  .feature-item {
+    gap: 12px;
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .login-card {
+    padding: 36px 24px;
+    max-width: 100%;
+  }
+
+  .login-header {
+    margin-bottom: 28px;
+  }
+
+  .login-header h2 {
+    font-size: 28px;
+  }
+
+  .page-footer {
+    padding: 24px 0 8px;
+    gap: 10px;
+  }
+
+  .footer-links {
+    gap: 12px;
   }
 }
