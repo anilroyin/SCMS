@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, LockKeyhole } from "lucide-react"
 import "./resetPassword.css"
 
 function ResetPassword() {
@@ -10,13 +9,13 @@ function ResetPassword() {
   const [redirectToLogin, setRedirectToLogin] = useState(false)
 
   useEffect(() => {
-  if (!redirectToLogin) return
+    if (!redirectToLogin) return
 
-  const timer = setTimeout(() => {
-    navigate("/login")
-  }, 3000)
+    const timer = setTimeout(() => {
+      navigate("/login")
+    }, 3000)
 
-  return () => clearTimeout(timer)
+    return () => clearTimeout(timer)
   }, [redirectToLogin, navigate])
 
   const [password, setPassword] = useState("")
@@ -94,7 +93,8 @@ function ResetPassword() {
           <div className="form-group">
             <label htmlFor="new-password">New Password</label>
 
-            <div className="reset-password-field">
+            <div className="reset-password-field login-input-wrap">
+              <LockKeyhole size={19} className="input-icon" />
               <input
                 id="new-password"
                 type={showPassword ? "text" : "password"}
@@ -120,7 +120,8 @@ function ResetPassword() {
           <div className="form-group">
             <label htmlFor="confirm-password">Confirm Password</label>
 
-            <div className="reset-password-field">
+            <div className="reset-password-field login-input-wrap">
+              <LockKeyhole size={19} className="input-icon" />
               <input
                 id="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
