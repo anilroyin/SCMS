@@ -11,7 +11,11 @@ import {
   Mail,
   Lock,
   Wallet,
-  Headset
+  Headset,
+  HandCoins,
+  UserRound,
+  ReceiptText,
+  User
 } from "lucide-react"
 import "./login.css"
 
@@ -76,9 +80,9 @@ function Login() {
       description: "Student records and profiles"
     },
     {
-      icon: GraduationCap,
+      icon: UserRound,
       title: "Manage Teachers",
-      description: "Teacher profiles and assigned students"
+      description: "Teacher records and profiles"
     },
     {
       icon: BookOpen,
@@ -91,18 +95,18 @@ function Login() {
       description: "Fee collection, discounts and dues"
     },
     {
-      icon: Wallet,
+      icon: ReceiptText,
       title: "Generate Fee Receipts",
       description: "Record and verify fee payments"
     },
     {
-      icon: IndianRupee,
+      icon: HandCoins,
       title: "Manage Teacher Payments",
       description: "Commissions and teacher earnings"
     },
     {
       icon: Headset,
-      title: "AI Help & Support",
+      title: "Chatbot Help & Support",
       description: "Assistance for students"
     },
     {
@@ -258,9 +262,9 @@ function Login() {
 
           <button
             type="button"
-            onClick={() => navigate("/contact-developer")}
+            onClick={() => navigate("/about-scms")}
           >
-            Contact Developer
+            About SCMS
           </button>
         </nav>
       </footer>

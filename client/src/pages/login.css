@@ -1,6 +1,8 @@
+
 /* ==========================================================================
    RESET & BASE STYLES
    ========================================================================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -9,8 +11,7 @@
 }
 
 body {
-  color: #1e293b;
-  
+  color: #2f3b4b;
 }
 
 button {
@@ -23,15 +24,16 @@ button {
 /* ==========================================================================
    PAGE CONTAINER & BACKGROUND
    ========================================================================== */
+
 .login-page {
-  height: 100vh; 
+  height: 100vh;
   width: 100vw;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  overflow: hidden; /* Completely eliminates scrolling up and down */
-  background: url('/scms-login-background.png') no-repeat center center;
+  overflow: hidden;
+  background: url('/scms-bg-image.png') no-repeat center center;
   background-size: cover;
   padding: 40px 80px;
 }
@@ -39,28 +41,29 @@ button {
 /* ==========================================================================
    MAIN LAYOUT CONTAINER
    ========================================================================== */
+
 .login-main {
   flex: 1;
-  max-width: 1200px; 
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  gap: 10px; 
+  gap: 10px;
   align-items: center;
 }
 
 /* ==========================================================================
    LEFT COLUMN: BRAND & FEATURES SECTION
    ========================================================================== */
+
 .login-intro {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding-bottom: 60px; /* Shifts features clear of lower desktop background items */
+  padding-bottom: 60px;
 }
 
-/* Branding Alignment Row Setup */
 .login-brand {
   display: flex;
   flex-direction: row;
@@ -70,7 +73,7 @@ button {
 }
 
 .brand-icon-wrap {
-  color: #1d4ed8;
+  color: #4b6276;
   display: flex;
   align-items: center;
 }
@@ -79,41 +82,43 @@ button {
   font-size: 42px;
   font-weight: 700;
   letter-spacing: -0.5px;
-  color: #0f172a;
+  color: #2f3b4b;
   line-height: 1;
 }
 
-/* Subtitle placement */
 .brand-subtitle {
   width: 100%;
   font-size: 16px;
-  color: #64748b;
+  color: #6b7280;
   font-weight: 500;
   margin-top: -4px;
 }
 
-/* Main Heading */
 .login-features h2 {
   font-size: 32px;
   font-weight: 600;
   line-height: 1.3;
-  color: #1e293b;
+  color: #2f3b4b;
   margin-bottom: 12px;
 }
 
-/* Subtitle under feature header */
 .features-description {
   font-size: 15px;
-  color: #64748b;
+  color: #6b7280;
   margin-bottom: 24px;
 }
 
-/* Features List Container - 2-Column Grid */
 .feature-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 20px; 
-  max-width: 650px;
+  grid-template-columns: 315px 315px;
+  column-gap: 0;
+  row-gap: 30px;
+  width: 630px;
+  max-width: 100%;
+}
+
+.feature-list > div:nth-child(even) {
+  margin-left: -50px;
 }
 
 .feature-item {
@@ -122,7 +127,6 @@ button {
   gap: 14px;
 }
 
-/* Feature Icon Circles */
 .feature-icon {
   display: inline-flex;
   align-items: center;
@@ -137,40 +141,46 @@ button {
 .feature-text h3 {
   font-size: 15px;
   font-weight: 600;
-  color: #1e293b;
+  color: #2f3b4b;
   margin-bottom: 2px;
 }
 
 .feature-text p {
   font-size: 13px;
-  color: #64748b;
+  color: #6b7280;
   line-height: 1.4;
 }
 
-/* Color codes loops for features lists */
-.feature-list > div:nth-child(1) .feature-icon { background-color: #eff6ff !important; color: #2563eb !important; }
-.feature-list > div:nth-child(2) .feature-icon { background-color: #ecfdf5 !important; color: #10b981 !important; }
-.feature-list > div:nth-child(3) .feature-icon { background-color: #f5f3ff !important; color: #7c3aed !important; }
-.feature-list > div:nth-child(4) .feature-icon { background-color: #fff7ed !important; color: #ea580c !important; }
-.feature-list > div:nth-child(5) .feature-icon { background-color: #eff6ff !important; color: #2563eb !important; }
-.feature-list > div:nth-child(6) .feature-icon { background-color: #ecfdf5 !important; color: #10b981 !important; }
-.feature-list > div:nth-child(7) .feature-icon { background-color: #f5f3ff !important; color: #7c3aed !important; }
-.feature-list > div:nth-child(8) .feature-icon { background-color: #fff7ed !important; color: #ea580c !important; }
+/* Feature Icons */
+
+.feature-list > div:nth-child(1) .feature-icon,
+.feature-list > div:nth-child(2) .feature-icon,
+.feature-list > div:nth-child(3) .feature-icon,
+.feature-list > div:nth-child(4) .feature-icon,
+.feature-list > div:nth-child(5) .feature-icon,
+.feature-list > div:nth-child(6) .feature-icon,
+.feature-list > div:nth-child(7) .feature-icon,
+.feature-list > div:nth-child(8) .feature-icon {
+  background-color: #ffffff !important;
+  color: #80919f !important;
+}
 
 /* ==========================================================================
    RIGHT COLUMN: LOGIN CARD
    ========================================================================== */
+
 .login-card {
   background: #ffffff;
   border-radius: 14px;
   padding: 56px 44px;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03), 
-              0 20px 40px -20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(47, 59, 75, 0.03),
+              0 20px 40px -20px rgba(47, 59, 75, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.8);
   width: 100%;
   max-width: 460px;
-  justify-self: start; 
+  justify-self: start;
   z-index: 10;
+  transform: translateX(-50px);
 }
 
 .login-header {
@@ -181,16 +191,17 @@ button {
 .login-header h2 {
   font-size: 32px;
   font-weight: 600;
-  color: #0f172a;
+  color: #2f3b4b;
   margin-bottom: 8px;
 }
 
 .login-header p {
   font-size: 15px;
-  color: #64748b;
+  color: #6b7280;
 }
 
 /* Form Groups */
+
 .form-group {
   margin-bottom: 24px;
 }
@@ -199,11 +210,12 @@ button {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: #2f3b4b;
   margin-bottom: 8px;
 }
 
 /* Input Wrapper Structures */
+
 .login-input-wrap {
   position: relative;
   display: flex;
@@ -214,7 +226,7 @@ button {
 .input-icon {
   position: absolute;
   left: 16px;
-  color: #94a3b8;
+  color: #80919f;
   pointer-events: none;
   z-index: 10;
   display: flex;
@@ -223,12 +235,12 @@ button {
 
 .login-input-wrap input {
   width: 100%;
-  padding: 14px 16px 14px 48px !important; 
+  padding: 14px 16px 14px 48px !important;
   font-size: 15px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #d9dee3;
   border-radius: 10px;
-  color: #1e293b;
-  background-color: #ffffff !important; 
+  color: #2f3b4b;
+  background-color: #ffffff !important;
   transition: all 0.2s ease;
   position: relative;
   z-index: 1;
@@ -236,11 +248,12 @@ button {
 
 .login-input-wrap input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: #80919f;
+  box-shadow: 0 0 0 4px rgba(128, 145, 159, 0.15);
 }
 
-/* Password Toggle Visibility Adjustments */
+/* Password Toggle */
+
 .password-field input {
   padding-right: 48px !important;
 }
@@ -248,17 +261,22 @@ button {
 .password-toggle {
   position: absolute;
   right: 16px;
-  color: #94a3b8;
+  color: #80919f;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
 }
 
+.password-toggle:hover {
+  color: #4b6276;
+}
+
 /* Action Links */
+
 .login-message {
   font-size: 14px;
-  color: #ef4444;
+  color: #b42318;
   margin-bottom: 16px;
   font-weight: 500;
 }
@@ -270,7 +288,7 @@ button {
 }
 
 .forgot-password button {
-  color: #2563eb;
+  color: #4b6276;
   font-size: 14px;
   font-weight: 600;
 }
@@ -280,20 +298,21 @@ button {
 }
 
 /* Primary Button */
+
 .login-button {
   width: 100%;
-  background-color: #1d6bf3;
+  background-color: #80919f;
   color: #ffffff;
   padding: 16px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(29, 107, 243, 0.2);
+  box-shadow: 0 4px 12px rgba(75, 98, 118, 0.2);
 }
 
 .login-button:hover:not(:disabled) {
-  background-color: #1257cb;
+  background-color: #4b6276;
 }
 
 .login-button:disabled {
@@ -302,24 +321,24 @@ button {
 }
 
 /* ==========================================================================
-   FOOTER SECTION (FIXED OVERLAP & POSITIONING)
+   FOOTER SECTION
    ========================================================================== */
+
 .page-footer {
   margin-top: auto;
   padding: 24px 0 0 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   gap: 8px;
 }
 
 .page-footer p {
   font-size: 13px;
-  color: #64748b;
+  color: #6b7280;
   text-align: center;
 }
 
-/* Footer Links Flexbox Layout Wrapper */
 .footer-links {
   display: flex;
   align-items: center;
@@ -329,66 +348,62 @@ button {
 }
 
 .footer-links button {
-  color: #64748b;
+  color: #6b7280;
   font-size: 13px;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .footer-links button:hover {
-  color: #2563eb;
+  color: #4b6276;
   text-decoration: underline;
 }
 
-/* Clear alignment adjustment relative to the right-side grid column container */
 @media (min-width: 1101px) {
   .page-footer {
     position: absolute;
-    bottom: 25px; /* Moved slightly up away from the screen edge */
-    right: 80px;  /* Dynamically snaps flush exactly right-aligned under the login card layout lane */
-    width: 460px; /* Locks matching width of your white login-card box layout */
+    bottom: 25px;
+    right: 140px;
+    width: 460px;
     padding-top: 20px;
     z-index: 10;
   }
-  
-  .page-footer::before {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 1px;
-    background-color: #e2e8f0;
-    margin-bottom: 12px;
-  }
 }
 
-
 /* ==========================================================================
-   RESPONSIVE LAYOUT BREAKPOINTS
+   RESPONSIVE LAYOUT
    ========================================================================== */
+
 @media (max-width: 1150px) {
   .login-page {
     padding: 40px;
     height: auto;
     overflow-y: auto;
   }
+
   body {
     overflow: auto;
   }
+
   .login-main {
     grid-template-columns: 1fr;
     gap: 48px;
     padding-bottom: 40px;
   }
+
   .feature-list {
     max-width: 100%;
   }
+
   .login-brand {
     align-items: center;
     justify-content: center;
   }
+
   .brand-subtitle {
     text-align: center;
   }
+
   .page-footer {
     padding: 40px 0 20px;
   }
