@@ -1,7 +1,7 @@
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import "./forgotPassword.css"
+import { Mail } from "lucide-react"
 
 function ForgotPassword() {
   const [email, setEmail] = useState("")
@@ -59,14 +59,17 @@ function ForgotPassword() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="forgot-email">Email</label>
-            <input
-              id="forgot-email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Enter your registered email"
-              required
-            />
+            <div className="login-input-wrap">
+              <Mail size={19} className="input-icon" />
+              <input
+               id="forgot-email"
+               type="email"
+               value={email}
+               onChange={(event) => setEmail(event.target.value)}
+               placeholder="Enter your registered email"
+               required
+               />
+            </div>
           </div>
 
           {message && (
