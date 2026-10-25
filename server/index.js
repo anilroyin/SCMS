@@ -14,6 +14,7 @@ import scheduleRoutes from "./routes/scheduleRoutes.js"
 import notificationRoutes from "./routes/notificationRoutes.js"
 import reportRoutes from "./routes/reportRoutes.js"
 import dashboardRoutes from "./routes/dashboardRoutes.js"
+import expenseRoutes from "./routes/expenseRoutes.js"
 
 dotenv.config({ quiet: true })
 
@@ -32,6 +33,7 @@ app.use("/api/students", studentRoutes)
 app.use("/api/subjects", subjectRoutes)
 app.use("/api/teachers", teacherRoutes)
 app.use("/api/fees", feeRoutes)
+app.use("/api/expenses", expenseRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 
 app.use(
