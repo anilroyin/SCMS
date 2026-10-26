@@ -13,7 +13,8 @@ import {
   Bell,
   UserRound,
   CircleDollarSign,
-  Headset
+  Headset,
+  BriefcaseBusiness
 } from "lucide-react"
 
 function Sidebar() {
@@ -162,6 +163,11 @@ function Sidebar() {
       label: "Teacher Payments",
       path: "/teacher-payments",
       icon: CreditCard
+    },
+    {
+      label: "Finances",
+      path: "/finances",
+      icon: BriefcaseBusiness
     },
     { label: "Schedule", path: "/schedule", icon: CalendarDays },
     {
