@@ -47,10 +47,46 @@ const getContributionDue = (allocation, isCancelled) => {
     Math.max(
       allocation.allocatedAmount -
       allocation.paidAmount -
+      (allocation.advanceApplied || 0) -
       allocation.reversedAmount,
       0
     )
   )
+}
+
+const getAvailableTeacherAdvances = async (teacherIds) => {
+  const advances = new Map(
+    teacherIds.map(teacherId => [teacherId.toString(), 0])
+  )
+
+  const expenses = await Expense.find({
+    "allocations.teacherId": { $in: teacherIds }
+  }).select("isCancelled allocations.teacherId allocations.paidAmount allocations.advanceApplied")
+
+  for (const expense of expenses) {
+    for (const allocation of expense.allocations) {
+      const teacherId = allocation.teacherId.toString()
+
+      if (!advances.has(teacherId)) continue
+
+      const advanceApplied = allocation.advanceApplied || 0
+
+      const credit = expense.isCancelled
+        ? allocation.paidAmount + advanceApplied
+        : -advanceApplied
+
+      advances.set(
+        teacherId,
+        roundAmount(advances.get(teacherId) + credit)
+      )
+    }
+  }
+
+  for (const [teacherId, amount] of advances) {
+    advances.set(teacherId, roundAmount(Math.max(amount, 0)))
+  }
+
+  return advances
 }
 
 const getContributionStatus = (allocated, paid, due) => {
@@ -90,6 +126,10 @@ export const createExpense = async (req, res) => {
       ? Math.floor((totalAmount / teacherCount) * 100) / 100
       : 0
 
+    const advances = await getAvailableTeacherAdvances(
+      teachers.map(teacher => teacher._id)
+    )
+
     let allocatedTotal = 0
 
     const allocations = teachers.map((teacher, index) => {
@@ -99,10 +139,16 @@ export const createExpense = async (req, res) => {
 
       allocatedTotal = roundAmount(allocatedTotal + allocatedAmount)
 
+      const teacherId = teacher._id.toString()
+      const advanceApplied = roundAmount(
+        Math.min(allocatedAmount, advances.get(teacherId) || 0)
+      )
+
       return {
         teacherId: teacher._id,
         allocatedAmount,
         paidAmount: 0,
+        advanceApplied,
         reversedAmount: 0,
         adjustmentRequired: false,
         payments: []
@@ -149,7 +195,6 @@ export const getExpenses = async (req, res) => {
 export const getExpenseSummary = async (req, res) => {
   try {
     const filter = getExpenseFilter(req.query)
-
     const expenses = await Expense.find(filter)
 
     const totalExpenses = roundAmount(
@@ -198,6 +243,7 @@ export const getExpenseSummary = async (req, res) => {
 export const getTeacherContributions = async (req, res) => {
   try {
     const dateFilter = getDateFilter(req.query)
+
     const expenses = await Expense.find(
       dateFilter ? { expenseDate: dateFilter } : {}
     ).populate("allocations.teacherId", "name teacherId status")
@@ -292,6 +338,7 @@ export const getTeacherContributionHistory = async (req, res) => {
         description: expense.description,
         allocatedAmount: allocation.allocatedAmount,
         paidAmount: allocation.paidAmount,
+        advanceApplied: allocation.advanceApplied || 0,
         dueAmount: due,
         isCancelled: expense.isCancelled,
         adjustmentRequired: allocation.adjustmentRequired,
@@ -368,6 +415,7 @@ export const getMyContributions = async (req, res) => {
         description: expense.description,
         allocatedAmount: allocation.allocatedAmount,
         paidAmount: allocation.paidAmount,
+        advanceApplied: allocation.advanceApplied || 0,
         dueAmount: due,
         isCancelled: expense.isCancelled,
         adjustmentRequired: allocation.adjustmentRequired,
@@ -507,7 +555,13 @@ export const cancelExpense = async (req, res) => {
 
     for (const allocation of expense.allocations) {
       const unpaidAmount = roundAmount(
-        Math.max(allocation.allocatedAmount - allocation.paidAmount, 0)
+        Math.max(
+          allocation.allocatedAmount -
+          allocation.paidAmount -
+          (allocation.advanceApplied || 0) -
+          allocation.reversedAmount,
+          0
+        )
       )
 
       allocation.reversedAmount = roundAmount(
@@ -526,7 +580,7 @@ export const cancelExpense = async (req, res) => {
     await expense.save()
 
     return res.status(200).json({
-      message: "Expense cancelled. Unpaid allocations were reversed, and previously paid contributions were flagged for adjustment.",
+      message: "Expense cancelled. Unpaid allocations were reversed, and paid contributions and applied advances are available as teacher credit.",
       expense
     })
   } catch (error) {
