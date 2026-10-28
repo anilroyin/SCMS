@@ -23,6 +23,33 @@ const contributionPaymentSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
+const refundSchema = new mongoose.Schema({
+  amount: {
+    type: Number,
+    required: true,
+    min: 0.01
+  },
+  refundDate: {
+    type: Date,
+    default: Date.now
+  },
+  paymentMethod: {
+    type: String,
+    enum: ["cash", "upi", "bank_transfer", "other"],
+    default: "cash"
+  },
+  note: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  recordedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  }
+}, { timestamps: true })
+
 const teacherAllocationSchema = new mongoose.Schema({
   teacherId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -39,21 +66,35 @@ const teacherAllocationSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
+
+  // Amount of available teacher advance applied to this allocation
   advanceApplied: {
     type: Number,
     default: 0,
     min: 0
   },
+
+  // Outstanding contribution reversed when an expense is cancelled
   reversedAmount: {
     type: Number,
     default: 0,
     min: 0
   },
+
+  // Indicates that a paid contribution or applied advance needs adjustment
   adjustmentRequired: {
     type: Boolean,
     default: false
   },
-  payments: [contributionPaymentSchema]
+
+  payments: {
+    type: [contributionPaymentSchema],
+    default: []
+  },
+  refunds: {
+    type: [refundSchema],
+    default: []
+  }
 }, { timestamps: true })
 
 const expenseSchema = new mongoose.Schema({
@@ -76,25 +117,49 @@ const expenseSchema = new mongoose.Schema({
     trim: true,
     default: ""
   },
+
+  // Who bears the expense?
+  // centre: the centre pays the full amount
+  // teachers: split equally among active teachers
+  paidBy: {
+    type: String,
+    enum: ["centre", "teachers"],
+    default: "teachers",
+    required: true
+  },
+
+  // Number of active teachers when the expense was created
   teacherCountSnapshot: {
     type: Number,
     required: true,
     min: 0
   },
-  allocations: [teacherAllocationSchema],
+
+  allocations: {
+    type: [teacherAllocationSchema],
+    default: []
+  },
+
+  // Cancellation and audit details
   isCancelled: {
     type: Boolean,
     default: false
-  },
-  cancelledAt: {
-    type: Date,
-    default: null
   },
   cancelReason: {
     type: String,
     trim: true,
     default: ""
   },
+  cancelledAt: {
+    type: Date,
+    default: null
+  },
+  cancelledBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
+
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -102,8 +167,9 @@ const expenseSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-expenseSchema.index({ expenseDate: 1, isCancelled: 1 })
+expenseSchema.index({ expenseDate: 1 })
 expenseSchema.index({ "allocations.teacherId": 1 })
+expenseSchema.index({ isCancelled: 1, expenseDate: 1 })
 
 const Expense = mongoose.model("Expense", expenseSchema)
 
