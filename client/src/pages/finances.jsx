@@ -170,6 +170,19 @@ function Finances() {
     loadFinance()
   }, [loadFinance])
 
+  
+  // Automatically dismiss success messages after 2.5 seconds.
+  useEffect(() => {
+    if (!message) return
+
+    const timer = setTimeout(() => {
+      setMessage("")
+    }, 2500)
+
+    return () => clearTimeout(timer)
+  }, [message])
+
+
   const handleCreateExpense = async event => {
     event.preventDefault()
     setSaving(true)
