@@ -31,6 +31,7 @@ import SessionTimeout from "./components/sessionTimeout"
 import PrivacyPolicy from "./pages/privacyPolicy"
 import TermsOfService from "./pages/termsOfService"
 import AboutSCMS from "./pages/aboutSCMS"
+import Finances from "./pages/finances"
 
 function App() {
   return (
@@ -200,6 +201,15 @@ function App() {
           element={
             <ProtectedRoute>
               <TeacherPayments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finances"
+          element={
+            <ProtectedRoute>
+              <Finances />
             </ProtectedRoute>
           }
         />
