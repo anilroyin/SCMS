@@ -1,0 +1,839 @@
+
+import { useCallback, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import {
+  Plus,
+  Wallet,
+  Users,
+  TrendingUp,
+  Receipt,
+  X,
+  RefreshCw,
+  BriefcaseBusiness,
+  ChevronLeft
+} from "lucide-react"
+import Sidebar from "../components/sidebar"
+import "./finances.css"
+
+const API = "https://scms-backend-uhfo.onrender.com/api"
+const SESSION_START = "2026-04"
+
+const money = value =>
+  `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`
+
+const getMonthLabel = month => {
+  const [year, number] = month.split("-").map(Number)
+
+  return new Date(year, number - 1, 1).toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric"
+  })
+}
+
+const getCurrentMonth = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+}
+
+const getFinancialYear = month => {
+  const [year, number] = month.split("-").map(Number)
+  return number >= 4 ? year : year - 1
+}
+
+const getFinancialMonths = year =>
+  Array.from({ length: 12 }, (_, index) => {
+    const date = new Date(year, 3 + index, 1)
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+  })
+
+function Finances() {
+  const navigate = useNavigate()
+
+  const [billingMonth, setBillingMonth] = useState(getCurrentMonth())
+  const [monthly, setMonthly] = useState({})
+  const [annual, setAnnual] = useState({})
+  const [expenses, setExpenses] = useState([])
+  const [contributionExpenses, setContributionExpenses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [showExpenseForm, setShowExpenseForm] = useState(false)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+  const [paymentAmounts, setPaymentAmounts] = useState({})
+  const [paymentMethods, setPaymentMethods] = useState({})
+  const [useAdvance, setUseAdvance] = useState({})
+  const [selectedContributionExpense, setSelectedContributionExpense] = useState({})
+
+  const [expenseForm, setExpenseForm] = useState({
+    category: "",
+    amount: "",
+    expenseDate: new Date().toISOString().slice(0, 10),
+    description: "",
+    paidBy: "teachers"
+  })
+
+  const financialYear = getFinancialYear(billingMonth)
+
+  const request = useCallback(async (path, options = {}) => {
+    const token = localStorage.getItem("token")
+
+    const response = await fetch(`${API}${path}`, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers
+      }
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong.")
+    }
+
+    return data
+  }, [])
+
+  const loadFinance = useCallback(async () => {
+    setLoading(true)
+    setError("")
+
+    try {
+      const months = getFinancialMonths(financialYear)
+
+      const monthlyResults = await Promise.all(
+        months.map(async month => {
+          const [feeData, paymentData] = await Promise.all([
+            request(`/fees/summary?billingMonth=${month}`),
+            request(`/teacher-payments?billingMonth=${month}`)
+          ])
+
+          return {
+            month,
+            business: Number(feeData.summary?.totalCollection || 0),
+            dues: Number(feeData.summary?.totalDue || 0),
+            teacherPaid: Number(paymentData.summary?.totalPaid || 0),
+            centreEarnings: Number(paymentData.summary?.totalCenterEarned || 0)
+          }
+        })
+      )
+
+      const selectedMonth = monthlyResults.find(
+        item => item.month === billingMonth
+      ) || {
+        business: 0,
+        dues: 0,
+        teacherPaid: 0,
+        centreEarnings: 0
+      }
+
+      const [expenseSummary, expenseList, yearExpenses] = await Promise.all([
+        request(`/expenses/summary?financialYear=${financialYear}`),
+        request(`/expenses?month=${billingMonth}`),
+        request(`/expenses?financialYear=${financialYear}&includeCancelled=true`)
+      ])
+
+      const totals = monthlyResults.reduce((result, item) => ({
+        business: result.business + item.business,
+        dues: result.dues + item.dues,
+        teacherPaid: result.teacherPaid + item.teacherPaid,
+        centreEarnings: result.centreEarnings + item.centreEarnings
+      }), {
+        business: 0,
+        dues: 0,
+        teacherPaid: 0,
+        centreEarnings: 0
+      })
+
+      setMonthly(selectedMonth)
+
+      setAnnual({
+        ...totals,
+        expenses: Number(expenseSummary.totalExpenses || 0),
+        expenseReceived: Number(expenseSummary.totalContributionsPaid || 0),
+        expenseDue: Number(expenseSummary.totalContributionDue || 0)
+      })
+
+      setExpenses(Array.isArray(expenseList) ? expenseList : [])
+      setContributionExpenses(Array.isArray(yearExpenses) ? yearExpenses : [])
+    } catch (err) {
+      setError(err.message || "Unable to load financial data.")
+    } finally {
+      setLoading(false)
+    }
+  }, [billingMonth, financialYear, request])
+
+  useEffect(() => {
+    loadFinance()
+  }, [loadFinance])
+
+  const handleCreateExpense = async event => {
+    event.preventDefault()
+    setSaving(true)
+    setError("")
+    setMessage("")
+
+    try {
+      await request("/expenses", {
+        method: "POST",
+        body: JSON.stringify({
+          ...expenseForm,
+          amount: Number(expenseForm.amount)
+        })
+      })
+
+      setExpenseForm({
+        category: "",
+        amount: "",
+        expenseDate: new Date().toISOString().slice(0, 10),
+        description: "",
+        paidBy: "teachers"
+      })
+
+      setShowExpenseForm(false)
+      setMessage("Expense recorded successfully.")
+      await loadFinance()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelExpense = async expenseId => {
+    const reason = window.prompt("Enter the reason for cancelling this expense:")
+
+    if (reason === null) return
+
+    if (!reason.trim()) {
+      setError("A cancellation reason is required.")
+      return
+    }
+
+    setError("")
+    setMessage("")
+
+    try {
+      const result = await request(`/expenses/${expenseId}/cancel`, {
+        method: "PATCH",
+        body: JSON.stringify({ reason: reason.trim() })
+      })
+
+      setMessage(result.message || "Expense cancelled.")
+      await loadFinance()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const handleContributionPayment = async teacher => {
+    const expenseId = selectedContributionExpense[teacher.id]
+    const expense = teacher.expenses.find(item => item.expenseId === expenseId)
+
+    if (!expense) {
+      setError("Select an expense before recording a contribution.")
+      return
+    }
+
+    const key = `${expense.expenseId}-${teacher.id}`
+    const amount = Number(paymentAmounts[key] || 0)
+    const applyAdvance = Boolean(useAdvance[key])
+
+    const advanceToUse = applyAdvance
+      ? Math.min(Number(teacher.availableAdvance || 0), expense.due)
+      : 0
+
+    const cashDue = Math.max(0, expense.due - advanceToUse)
+
+    if (
+      !Number.isFinite(amount) ||
+      amount < 0 ||
+      amount > cashDue ||
+      (amount === 0 && advanceToUse <= 0)
+    ) {
+      setError(
+        `Enter a cash amount from ${money(0)} to ${money(cashDue)}${
+          advanceToUse > 0 ? " or use the available advance" : ""
+        }.`
+      )
+      return
+    }
+
+    setError("")
+    setMessage("")
+
+    try {
+      await request(
+        `/expenses/${expense.expenseId}/contributions/${teacher.id}/payment`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            amount,
+            useAdvance: applyAdvance,
+            paymentMethod: paymentMethods[key] || "cash"
+          })
+        }
+      )
+
+      setPaymentAmounts(previous => ({ ...previous, [key]: "" }))
+      setUseAdvance(previous => ({ ...previous, [key]: false }))
+      setMessage("Teacher contribution recorded.")
+      await loadFinance()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const teacherContributions = {}
+
+  contributionExpenses.forEach(expense => {
+    if (expense.paidBy === "centre") return
+
+    ;(expense.allocations || []).forEach(allocation => {
+      const teacher = allocation.teacherId
+      if (!teacher?._id) return
+
+      const id = teacher._id
+
+      if (!teacherContributions[id]) {
+        teacherContributions[id] = {
+          id,
+          name: teacher.name,
+          teacherId: teacher.teacherId,
+          allocated: 0,
+          paid: 0,
+          due: 0,
+          availableAdvance: 0,
+          expenses: []
+        }
+      }
+
+      const row = teacherContributions[id]
+      const allocated = Number(allocation.allocatedAmount || 0)
+      const paid = Number(allocation.paidAmount || 0)
+      const applied = Number(allocation.advanceApplied || 0)
+      const reversed = Number(allocation.reversedAmount || 0)
+
+      if (expense.isCancelled) {
+        row.availableAdvance += paid + applied
+        row.paid += paid
+        return
+      }
+
+      const due = Math.max(0, allocated - paid - applied - reversed)
+
+      row.allocated += Math.max(0, allocated - reversed)
+      row.paid += paid
+      row.due += due
+      row.availableAdvance -= applied
+
+      if (due > 0) {
+        row.expenses.push({
+          expenseId: expense._id,
+          category: expense.category,
+          date: expense.expenseDate,
+          due
+        })
+      }
+    })
+  })
+
+  Object.values(teacherContributions).forEach(teacher => {
+    teacher.allocated = Math.max(0, teacher.allocated)
+    teacher.availableAdvance = Math.max(0, teacher.availableAdvance)
+  })
+
+  const contributionRows = Object.values(teacherContributions)
+
+  const availableMonths = []
+  const [startYear, startMonth] = SESSION_START.split("-").map(Number)
+  const startDate = new Date(startYear, startMonth - 1, 1)
+  const endDate = new Date()
+  endDate.setDate(1)
+
+  for (
+    let date = new Date(endDate);
+    date >= startDate;
+    date.setMonth(date.getMonth() - 1)
+  ) {
+    availableMonths.push(
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+    )
+  }
+
+  const monthlyCards = [
+    { label: "Fee collected", value: monthly.business, icon: Wallet },
+    { label: "Fee Dues", value: monthly.dues, icon: Receipt },
+    { label: "Teacher Paid", value: monthly.teacherPaid, icon: Users },
+    { label: "Centre Earnings", value: monthly.centreEarnings, icon: TrendingUp }
+  ]
+
+  const annualCards = [
+    { label: "Total Business", value: annual.business },
+    { label: "Fee Dues", value: annual.dues },
+    { label: "Total Paid to Teachers", value: annual.teacherPaid },
+    { label: "Total Centre Earnings", value: annual.centreEarnings },
+    { label: "Total Expenses", value: annual.expenses },
+    { label: "Teacher Contributions Received", value: annual.expenseReceived },
+    { label: "Teacher Contribution Due", value: annual.expenseDue },
+    {
+      label: "Net Centre Earnings",
+      value: Number(annual.centreEarnings || 0) -
+        Number(annual.expenses || 0)
+    }
+  ]
+
+  if (loading) {
+    return (
+      <div className="finances-layout">
+        <Sidebar />
+        <main className="page-container finances-page">
+          <p>Loading finances...</p>
+        </main>
+      </div>
+    )
+  }
+
+  return (
+    <div className="finances-layout">
+      <Sidebar />
+
+      <main className="page-container finances-page">
+        <div className="page-header">
+          <div>
+            <h1><BriefcaseBusiness size={22}/>Finances</h1>
+            <p>Monitor collections, teacher payments, centre earnings and expenses.</p>
+          </div>
+
+         <button
+              className="back-button"
+              onClick={() => {
+              const returnPath = sessionStorage.getItem("financesReturnPath");
+
+             if (returnPath) {
+              navigate(returnPath, { replace: true });
+               } else {
+              navigate(-1);
+              }
+            }}
+            type="button"
+          >
+            <ChevronLeft size={16} />
+            Back
+          </button>
+        </div>
+
+        {error && <div className="payment-message error">{error}</div>}
+        {message && <div className="payment-message success">{message}</div>}
+
+        <section className="finances-section">
+          <div className="finances-section-header">
+            <div>
+              <h2>Monthly Overview</h2>
+              <p>Financial activity for the selected month.</p>
+            </div>
+
+            <select
+              value={billingMonth}
+              onChange={event => setBillingMonth(event.target.value)}
+              aria-label="Billing month"
+            >
+              {availableMonths.map(month => (
+                <option value={month} key={month}>
+                  {getMonthLabel(month)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="finance-summary-grid">
+            {monthlyCards.map(({ label, value, icon: Icon }) => (
+              <div className="finance-summary-card" key={label}>
+                <div className="finance-summary-icon">
+                  <Icon size={20} />
+                </div>
+                <span className="finance-summary-label">{label}</span>
+                <strong>{money(value)}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="finances-section">
+          <div className="finances-section-header">
+            <div>
+              <h2>Annual Overview</h2>
+              <p>Accumulated totals for the financial year.</p>
+            </div>
+            <span className="finance-year-label">
+              FY {financialYear}–{String(financialYear + 1).slice(-2)}
+            </span>
+          </div>
+
+          <div className="finance-summary-grid">
+            {annualCards.map(({ label, value }) => (
+              <div className="finance-summary-card" key={label}>
+                <span className="finance-summary-label">{label}</span>
+                <strong>{money(value)}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="finances-section">
+          <div className="finances-section-header">
+            <div>
+              <h2>Monthly Expenses</h2>
+              <p>Record centre costs and track teacher contributions.</p>
+            </div>
+
+            <button
+              type="button"
+              className="finance-primary-button"
+              onClick={() => setShowExpenseForm(value => !value)}
+            >
+              {showExpenseForm ? <X size={16} /> : <Plus size={16} />}
+              {showExpenseForm ? "Close" : "Add Expense"}
+            </button>
+          </div>
+
+          {showExpenseForm && (
+            <form className="finance-expense-form" onSubmit={handleCreateExpense}>
+              <div className="finance-form-grid">
+                <label>
+                  Category
+                  <input
+                    value={expenseForm.category}
+                    onChange={event =>
+                      setExpenseForm({ ...expenseForm, category: event.target.value })
+                    }
+                    required
+                    maxLength={100}
+                    placeholder="e.g. Electricity"
+                  />
+                </label>
+
+                <label>
+                  Amount (₹)
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={expenseForm.amount}
+                    onChange={event =>
+                      setExpenseForm({ ...expenseForm, amount: event.target.value })
+                    }
+                    required
+                  />
+                </label>
+
+                <label>
+                  Expense Date
+                  <input
+                    type="date"
+                    value={expenseForm.expenseDate}
+                    onChange={event =>
+                      setExpenseForm({ ...expenseForm, expenseDate: event.target.value })
+                    }
+                    required
+                  />
+                </label>
+
+                <label>
+                  Paid By
+                  <select
+                    value={expenseForm.paidBy}
+                    onChange={event =>
+                      setExpenseForm({ ...expenseForm, paidBy: event.target.value })
+                    }
+                    required
+                  >
+                    <option value="teachers">Shared by teachers</option>
+                    <option value="centre">Centre pays</option>
+                  </select>
+                </label>
+
+                <label className="finance-description-field">
+                  Description
+                  <input
+                    value={expenseForm.description}
+                    onChange={event =>
+                      setExpenseForm({ ...expenseForm, description: event.target.value })
+                    }
+                    placeholder="Optional"
+                  />
+                </label>
+              </div>
+
+              <button
+                className="finance-primary-button"
+                type="submit"
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save Expense"}
+              </button>
+            </form>
+          )}
+
+          <div className="table-container">
+            <table className="finances-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Paid By</th>
+                  <th>Amount</th>
+                  <th>Teachers</th>
+                  <th>Contribution Due</th>
+                  <th>Status / Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {expenses.map(expense => {
+                  const due = expense.paidBy === "centre"
+                    ? 0
+                    : (expense.allocations || []).reduce(
+                      (sum, allocation) =>
+                        sum + Math.max(
+                          0,
+                          Number(allocation.allocatedAmount || 0) -
+                          Number(allocation.paidAmount || 0) -
+                          Number(allocation.advanceApplied || 0) -
+                          Number(allocation.reversedAmount || 0)
+                        ),
+                      0
+                    )
+
+                  return (
+                    <tr key={expense._id}>
+                      <td>{new Date(expense.expenseDate).toLocaleDateString("en-IN")}</td>
+                      <td>
+                        <strong>{expense.category}</strong>
+                        {expense.description && (
+                          <div className="table-secondary">{expense.description}</div>
+                        )}
+                      </td>
+                      <td>
+                        {expense.paidBy === "centre" ? "Centre" : "Teachers"}
+                      </td>
+                      <td>{money(expense.amount)}</td>
+                      <td>{expense.paidBy === "centre" ? "—" : expense.teacherCountSnapshot}</td>
+                      <td>{money(due)}</td>
+                      <td>
+                        {expense.isCancelled ? (
+                          <span className="status cancelled">Cancelled</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="finance-text-button"
+                            onClick={() => handleCancelExpense(expense._id)}
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+
+                {!expenses.length && (
+                  <tr>
+                    <td colSpan="7" className="empty-state">
+                      No expenses recorded for {getMonthLabel(billingMonth)}.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="finances-section">
+          <div className="finances-section-header">
+            <div>
+              <h2>Teacher Contributions</h2>
+              <p>Track each teacher's share, outstanding contribution and advance balance.</p>
+            </div>
+
+            <button
+              type="button"
+              className="finance-icon-button"
+              onClick={loadFinance}
+              title="Refresh finance data"
+              aria-label="Refresh finance data"
+            >
+              <RefreshCw size={16} />
+            </button>
+          </div>
+
+          <div className="table-container">
+            <table className="finances-table">
+              <thead>
+                <tr>
+                  <th>Teacher</th>
+                  <th>Allocated</th>
+                  <th>Paid</th>
+                  <th>Due</th>
+                  <th>Payment Method</th>
+                  <th>Record Payment</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {contributionRows.map(teacher => {
+                  const expenseId = selectedContributionExpense[teacher.id]
+                  const selectedExpense = teacher.expenses.find(
+                    expense => expense.expenseId === expenseId
+                  )
+
+                  const key = selectedExpense
+                    ? `${selectedExpense.expenseId}-${teacher.id}`
+                    : ""
+
+                  return (
+                    <tr key={teacher.id}>
+                      <td>
+                        <strong>{teacher.name}</strong>
+                        <div className="table-secondary">{teacher.teacherId}</div>
+                      </td>
+
+                      <td>{money(teacher.allocated)}</td>
+                      <td>{money(teacher.paid)}</td>
+                      <td>{money(teacher.due)}</td>
+
+                      <td>
+                        {teacher.due > 0 ? (
+                          <select
+                            value={key ? paymentMethods[key] || "cash" : "cash"}
+                            onChange={event => {
+                              if (key) {
+                                setPaymentMethods(previous => ({
+                                  ...previous,
+                                  [key]: event.target.value
+                                }))
+                              }
+                            }}
+                            aria-label={`Payment method for ${teacher.name}`}
+                          >
+                            <option value="cash">Cash</option>
+                            <option value="upi">UPI</option>
+                            <option value="bank_transfer">Bank transfer</option>
+                            <option value="other">Other</option>
+                          </select>
+                        ) : (
+                          <span className="status paid">Paid</span>
+                        )}
+                      </td>
+
+                      <td>
+                        {teacher.due > 0 ? (
+                          <div className="finance-contribution-row">
+                            <select
+                              value={expenseId || ""}
+                              onChange={event =>
+                                setSelectedContributionExpense(previous => ({
+                                  ...previous,
+                                  [teacher.id]: event.target.value
+                                }))
+                              }
+                              aria-label={`Select expense for ${teacher.name}`}
+                            >
+                              <option value="">Select expense</option>
+                              {teacher.expenses.map(expense => (
+                                <option key={expense.expenseId} value={expense.expenseId}>
+                                  {expense.category} — Due {money(expense.due)}
+                                </option>
+                              ))}
+                            </select>
+
+                            {selectedExpense && (
+                              <div className="finance-advance-control">
+                                <span className="table-secondary">
+                                  Available advance: {money(teacher.availableAdvance)}
+                                </span>
+
+                                {teacher.availableAdvance > 0 && (
+                                  <label>
+                                    <input
+                                      type="checkbox"
+                                      checked={Boolean(useAdvance[key])}
+                                      onChange={event =>
+                                        setUseAdvance(previous => ({
+                                          ...previous,
+                                          [key]: event.target.checked
+                                        }))
+                                      }
+                                    />
+                                    Use advance (
+                                    {money(Math.min(teacher.availableAdvance, selectedExpense.due))})
+                                  </label>
+                                )}
+                              </div>
+                            )}
+
+                            <input
+                              type="number"
+                              min="0"
+                              max={selectedExpense
+                                ? Math.max(
+                                  0,
+                                  selectedExpense.due -
+                                  (useAdvance[key]
+                                    ? Math.min(teacher.availableAdvance, selectedExpense.due)
+                                    : 0)
+                                )
+                                : undefined}
+                              step="0.01"
+                              placeholder="Cash amount"
+                              value={key ? paymentAmounts[key] || "" : ""}
+                              disabled={!selectedExpense}
+                              onChange={event => {
+                                if (key) {
+                                  setPaymentAmounts(previous => ({
+                                    ...previous,
+                                    [key]: event.target.value
+                                  }))
+                                }
+                              }}
+                              aria-label={`Payment amount for ${teacher.name}`}
+                            />
+
+                            <button
+                              type="button"
+                              className="finance-primary-button"
+                              disabled={!selectedExpense}
+                              onClick={() => handleContributionPayment(teacher)}
+                            >
+                              Record
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="table-secondary">No due</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+
+                {!contributionRows.length && (
+                  <tr>
+                    <td colSpan="6" className="empty-state">
+                      No teacher contributions for this financial year.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}
+
+export default Finances
