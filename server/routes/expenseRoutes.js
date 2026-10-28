@@ -8,7 +8,8 @@ import {
   getTeacherContributionHistory,
   getMyContributions,
   recordTeacherContribution,
-  cancelExpense
+  cancelExpense,
+  recordTeacherRefund
 } from "../controllers/expenseController.js"
 import protect from "../middleware/authMiddleware.js"
 import allowRoles from "../middleware/roleMiddleware.js"
@@ -57,8 +58,9 @@ router.get(
   getExpenses
 )
 
+// Record a teacher's payment across outstanding shared expenses, oldest first.
 router.post(
-  "/:expenseId/contributions/:teacherId/payment",
+  "/contributions/:teacherId/payment",
   protect,
   allowRoles("admin"),
   recordTeacherContribution
@@ -69,6 +71,13 @@ router.patch(
   protect,
   allowRoles("admin"),
   cancelExpense
+)
+
+router.post(
+  "/:expenseId/contributions/:teacherId/refund",
+  protect,
+  allowRoles("admin"),
+  recordTeacherRefund
 )
 
 export default router
