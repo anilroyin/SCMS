@@ -58,7 +58,7 @@ router.get(
   getExpenses
 )
 
-// Record a teacher's payment across outstanding shared expenses, oldest first.
+// Record a teacher's contribution to an expense.
 router.post(
   "/contributions/:teacherId/payment",
   protect,
