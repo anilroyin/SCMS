@@ -66,27 +66,6 @@ const teacherAllocationSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
-
-  // Amount of available teacher advance applied to this allocation
-  advanceApplied: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-
-  // Outstanding contribution reversed when an expense is cancelled
-  reversedAmount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-
-  // Indicates that a paid contribution or applied advance needs adjustment
-  adjustmentRequired: {
-    type: Boolean,
-    default: false
-  },
-
   payments: {
     type: [contributionPaymentSchema],
     default: []
