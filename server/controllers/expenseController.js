@@ -1,4 +1,3 @@
-
 import Expense from "../models/expense.js"
 import Teacher from "../models/teacher.js"
 
@@ -472,7 +471,7 @@ export const getMyContributions = async (req, res) => {
 
 export const recordTeacherContribution = async (req, res) => {
   try {
-    const { expenseId, teacherId } = req.params
+    const { teacherId } = req.params
     const {
       amount,
       paymentDate,
@@ -488,41 +487,9 @@ export const recordTeacherContribution = async (req, res) => {
       })
     }
 
-    const expense = await Expense.findById(expenseId)
-
-    if (!expense) {
-      return res.status(404).json({
-        message: "Expense not found"
-      })
-    }
-
-    if (expense.isCancelled) {
+    if (!teacherId) {
       return res.status(400).json({
-        message: "Contributions cannot be recorded for a cancelled expense"
-      })
-    }
-
-    const allocation = expense.allocations.find(
-      item => item.teacherId.toString() === teacherId.toString()
-    )
-
-    if (!allocation) {
-      return res.status(404).json({
-        message: "Teacher allocation not found for this expense"
-      })
-    }
-
-    const dueBefore = getContributionDue(allocation)
-
-    if (dueBefore <= 0) {
-      return res.status(400).json({
-        message: "This teacher has no outstanding contribution for this expense"
-      })
-    }
-
-    if (paymentAmount > dueBefore) {
-      return res.status(400).json({
-        message: `Payment cannot exceed the outstanding amount of ₹${dueBefore.toFixed(2)}`
+        message: "Teacher ID is required"
       })
     }
 
@@ -542,29 +509,104 @@ export const recordTeacherContribution = async (req, res) => {
       })
     }
 
-    allocation.payments.push({
-      amount: paymentAmount,
-      paymentDate: date,
-      paymentMethod: method,
-      note: note?.trim() || ""
+    // Find this teacher's non-cancelled expenses, oldest first.
+    const expenses = await Expense.find({
+      isCancelled: { $ne: true },
+      "allocations.teacherId": teacherId
+    }).sort({
+      expenseDate: 1,
+      createdAt: 1
     })
 
-    allocation.paidAmount = roundAmount(
-      Number(allocation.paidAmount || 0) + paymentAmount
-    )
+    const outstandingAllocations = []
+    let totalAllocated = 0
+    let totalPaidBefore = 0
+    let totalDueBefore = 0
 
-    await expense.save()
+    for (const expense of expenses) {
+      const allocation = expense.allocations.find(
+        item => item.teacherId.toString() === teacherId.toString()
+      )
 
-    const dueAmount = getContributionDue(allocation)
+      if (!allocation) continue
+
+      const allocated = Number(allocation.allocatedAmount || 0)
+      const paid = Number(allocation.paidAmount || 0)
+      const due = getContributionDue(allocation)
+
+      totalAllocated += allocated
+      totalPaidBefore += paid
+      totalDueBefore += due
+
+      if (due > 0) {
+        outstandingAllocations.push({
+          expense,
+          allocation,
+          due
+        })
+      }
+    }
+
+    totalAllocated = roundAmount(totalAllocated)
+    totalPaidBefore = roundAmount(totalPaidBefore)
+    totalDueBefore = roundAmount(totalDueBefore)
+
+    if (outstandingAllocations.length === 0 || totalDueBefore <= 0) {
+      return res.status(400).json({
+        message: "This teacher has no outstanding contribution"
+      })
+    }
+
+    if (paymentAmount > totalDueBefore) {
+      return res.status(400).json({
+        message: `Payment cannot exceed the outstanding amount of ₹${totalDueBefore.toFixed(2)}`
+      })
+    }
+
+    let remainingPayment = paymentAmount
+
+    for (const item of outstandingAllocations) {
+      if (remainingPayment <= 0) break
+
+      const amountForExpense = roundAmount(
+        Math.min(remainingPayment, item.due)
+      )
+
+      if (amountForExpense <= 0) continue
+
+      if (!Array.isArray(item.allocation.payments)) {
+        item.allocation.payments = []
+      }
+
+      item.allocation.payments.push({
+        amount: amountForExpense,
+        paymentDate: date,
+        paymentMethod: method,
+        note: note?.trim() || ""
+      })
+
+      item.allocation.paidAmount = roundAmount(
+        Number(item.allocation.paidAmount || 0) + amountForExpense
+      )
+
+      remainingPayment = roundAmount(
+        remainingPayment - amountForExpense
+      )
+
+      await item.expense.save()
+    }
+
+    const totalPaid = roundAmount(totalPaidBefore + paymentAmount)
+    const totalDue = roundAmount(totalDueBefore - paymentAmount)
 
     return res.status(200).json({
       message: "Teacher contribution recorded successfully",
-      paidAmount: allocation.paidAmount,
-      dueAmount,
+      paidAmount: totalPaid,
+      dueAmount: totalDue,
       status: getContributionStatus(
-        allocation.allocatedAmount,
-        allocation.paidAmount,
-        dueAmount
+        totalAllocated,
+        totalPaid,
+        totalDue
       )
     })
   } catch (error) {
@@ -596,9 +638,6 @@ export const cancelExpense = async (req, res) => {
     expense.isCancelled = true
     expense.cancelledAt = new Date()
     expense.cancelReason = cancelReason?.trim() || ""
-
-    // Keep all existing teacher payments unchanged.
-    // Refunds are recorded separately when teachers collect their money.
 
     await expense.save()
 
