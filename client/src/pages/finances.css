@@ -119,24 +119,20 @@
 }
 
 /* Default card layout: icon and label in one row, amount below */
-
 .finance-summary-card {
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
   grid-template-rows: auto auto;
   align-items: center;
   align-content: center;
-  column-gap: 12px;
-  row-gap: 8px;
+  row-gap: 10px;
   min-width: 0;
-  height: 92px;
-  box-sizing: border-box;
-  padding: 12px 18px;
+  min-height: 10px;
+  padding: 12px;
   border: 1px solid #d9dee3;
   border-radius: 10px;
   background: #fff;
 }
-
 
 .finance-summary-icon {
   grid-column: 1;
@@ -361,19 +357,59 @@
   background: #f9eeee;
 }
 
-/* Teacher contribution controls */
-.finance-contribution-row {
-  display: flex;
-  min-width: 230px;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
+/* Teacher contribution table column widths */
+.finances-section:has(.finance-contribution-row) .finances-table {
+  width: 100%;
+  table-layout: fixed;
 }
 
-.finance-contribution-row select,
-.finance-contribution-row input {
+.finances-section:has(.finance-contribution-row) .finances-table th,
+.finances-section:has(.finance-contribution-row) .finances-table td {
+  overflow-wrap: anywhere;
+}
+
+/* Teacher column: wider than the other columns */
+.finances-section:has(.finance-contribution-row) .finances-table th:first-child,
+.finances-section:has(.finance-contribution-row) .finances-table td:first-child {
+  width: 22%;
+}
+
+/* Record Payment column: widest */
+.finances-section:has(.finance-contribution-row) .finances-table th:last-child,
+.finances-section:has(.finance-contribution-row) .finances-table td:last-child {
+  width: 25%;
+}
+
+/* Teacher contribution controls: input and Record button side by side */
+.finance-contribution-row {
+  display: flex;
+  min-width: 0;
   width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.finance-contribution-row select {
+  width: 100%;
+  min-width: 0;
   box-sizing: border-box;
+}
+
+.finance-contribution-row input {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px 7px;
+}
+
+.finance-contribution-row button {
+  flex: 0 0 auto;
+  padding: 10px 30px;
+  min-height: 40px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .finance-advance-control {
@@ -491,6 +527,15 @@
 
   .finance-summary-card strong {
     font-size: 18px;
+  }
+
+  /* Keep the teacher contribution table readable on small screens */
+  .finances-section:has(.finance-contribution-row) .table-container {
+    overflow-x: auto;
+  }
+
+  .finances-section:has(.finance-contribution-row) .finances-table {
+    min-width: 900px;
   }
 }
 

@@ -65,7 +65,6 @@ function Finances() {
   const [paymentAmounts, setPaymentAmounts] = useState({})
   const [paymentMethods, setPaymentMethods] = useState({})
   const [useAdvance, setUseAdvance] = useState({})
-  const [selectedContributionExpense, setSelectedContributionExpense] = useState({})
 
   const [expenseForm, setExpenseForm] = useState({
     category: "",
@@ -220,7 +219,7 @@ function Finances() {
     try {
       const result = await request(`/expenses/${expenseId}/cancel`, {
         method: "PATCH",
-        body: JSON.stringify({ reason: reason.trim() })
+        body: JSON.stringify({ cancelReason: reason.trim() })
       })
 
       setMessage(result.message || "Expense cancelled.")
@@ -231,23 +230,13 @@ function Finances() {
   }
 
   const handleContributionPayment = async teacher => {
-    const expenseId = selectedContributionExpense[teacher.id]
-    const expense = teacher.expenses.find(item => item.expenseId === expenseId)
-
-    if (!expense) {
-      setError("Select an expense before recording a contribution.")
-      return
-    }
-
-    const key = `${expense.expenseId}-${teacher.id}`
+    const key = teacher.id
     const amount = Number(paymentAmounts[key] || 0)
     const applyAdvance = Boolean(useAdvance[key])
-
     const advanceToUse = applyAdvance
-      ? Math.min(Number(teacher.availableAdvance || 0), expense.due)
+      ? Math.min(Number(teacher.availableAdvance || 0), teacher.due)
       : 0
-
-    const cashDue = Math.max(0, expense.due - advanceToUse)
+    const cashDue = Math.max(0, teacher.due - advanceToUse)
 
     if (
       !Number.isFinite(amount) ||
@@ -267,17 +256,14 @@ function Finances() {
     setMessage("")
 
     try {
-      await request(
-        `/expenses/${expense.expenseId}/contributions/${teacher.id}/payment`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            amount,
-            useAdvance: applyAdvance,
-            paymentMethod: paymentMethods[key] || "cash"
-          })
-        }
-      )
+      await request(`/expenses/contributions/${teacher.id}/payment`, {
+        method: "POST",
+        body: JSON.stringify({
+          amount,
+          useAdvance: applyAdvance,
+          paymentMethod: paymentMethods[key] || "cash"
+        })
+      })
 
       setPaymentAmounts(previous => ({ ...previous, [key]: "" }))
       setUseAdvance(previous => ({ ...previous, [key]: false }))
@@ -307,8 +293,7 @@ function Finances() {
           allocated: 0,
           paid: 0,
           due: 0,
-          availableAdvance: 0,
-          expenses: []
+          availableAdvance: 0
         }
       }
 
@@ -330,15 +315,6 @@ function Finances() {
       row.paid += paid
       row.due += due
       row.availableAdvance -= applied
-
-      if (due > 0) {
-        row.expenses.push({
-          expenseId: expense._id,
-          category: expense.category,
-          date: expense.expenseDate,
-          due
-        })
-      }
     })
   })
 
@@ -405,19 +381,18 @@ function Finances() {
       <main className="page-container finances-page">
         <div className="page-header">
           <div>
-            <h1><BriefcaseBusiness size={22}/>Finances</h1>
+            <h1><BriefcaseBusiness size={22} /> Finances</h1>
             <p>Monitor collections, teacher payments, centre earnings and expenses.</p>
           </div>
 
-         <button
-              className="back-button"
-              onClick={() => {
-              const returnPath = sessionStorage.getItem("financesReturnPath");
-
-             if (returnPath) {
-              navigate(returnPath, { replace: true });
-               } else {
-              navigate(-1);
+          <button
+            className="back-button"
+            onClick={() => {
+              const returnPath = sessionStorage.getItem("financesReturnPath")
+              if (returnPath) {
+                navigate(returnPath, { replace: true })
+              } else {
+                navigate(-1)
               }
             }}
             type="button"
@@ -618,11 +593,11 @@ function Finances() {
                           <div className="table-secondary">{expense.description}</div>
                         )}
                       </td>
-                      <td>
-                        {expense.paidBy === "centre" ? "Centre" : "Teachers"}
-                      </td>
+                      <td>{expense.paidBy === "centre" ? "Centre" : "Teachers"}</td>
                       <td>{money(expense.amount)}</td>
-                      <td>{expense.paidBy === "centre" ? "—" : expense.teacherCountSnapshot}</td>
+                      <td>
+                        {expense.paidBy === "centre" ? "—" : expense.teacherCountSnapshot}
+                      </td>
                       <td>{money(due)}</td>
                       <td>
                         {expense.isCancelled ? (
@@ -686,14 +661,11 @@ function Finances() {
 
               <tbody>
                 {contributionRows.map(teacher => {
-                  const expenseId = selectedContributionExpense[teacher.id]
-                  const selectedExpense = teacher.expenses.find(
-                    expense => expense.expenseId === expenseId
-                  )
-
-                  const key = selectedExpense
-                    ? `${selectedExpense.expenseId}-${teacher.id}`
-                    : ""
+                  const key = teacher.id
+                  const advanceToUse = useAdvance[key]
+                    ? Math.min(teacher.availableAdvance, teacher.due)
+                    : 0
+                  const cashDue = Math.max(0, teacher.due - advanceToUse)
 
                   return (
                     <tr key={teacher.id}>
@@ -701,23 +673,19 @@ function Finances() {
                         <strong>{teacher.name}</strong>
                         <div className="table-secondary">{teacher.teacherId}</div>
                       </td>
-
                       <td>{money(teacher.allocated)}</td>
                       <td>{money(teacher.paid)}</td>
                       <td>{money(teacher.due)}</td>
-
                       <td>
                         {teacher.due > 0 ? (
                           <select
-                            value={key ? paymentMethods[key] || "cash" : "cash"}
-                            onChange={event => {
-                              if (key) {
-                                setPaymentMethods(previous => ({
-                                  ...previous,
-                                  [key]: event.target.value
-                                }))
-                              }
-                            }}
+                            value={paymentMethods[key] || "cash"}
+                            onChange={event =>
+                              setPaymentMethods(previous => ({
+                                ...previous,
+                                [key]: event.target.value
+                              }))
+                            }
                             aria-label={`Payment method for ${teacher.name}`}
                           >
                             <option value="cash">Cash</option>
@@ -729,84 +697,47 @@ function Finances() {
                           <span className="status paid">Paid</span>
                         )}
                       </td>
-
                       <td>
                         {teacher.due > 0 ? (
                           <div className="finance-contribution-row">
-                            <select
-                              value={expenseId || ""}
-                              onChange={event =>
-                                setSelectedContributionExpense(previous => ({
-                                  ...previous,
-                                  [teacher.id]: event.target.value
-                                }))
-                              }
-                              aria-label={`Select expense for ${teacher.name}`}
-                            >
-                              <option value="">Select expense</option>
-                              {teacher.expenses.map(expense => (
-                                <option key={expense.expenseId} value={expense.expenseId}>
-                                  {expense.category} — Due {money(expense.due)}
-                                </option>
-                              ))}
-                            </select>
-
-                            {selectedExpense && (
-                              <div className="finance-advance-control">
-                                <span className="table-secondary">
-                                  Available advance: {money(teacher.availableAdvance)}
-                                </span>
-
-                                {teacher.availableAdvance > 0 && (
-                                  <label>
-                                    <input
-                                      type="checkbox"
-                                      checked={Boolean(useAdvance[key])}
-                                      onChange={event =>
-                                        setUseAdvance(previous => ({
-                                          ...previous,
-                                          [key]: event.target.checked
-                                        }))
-                                      }
-                                    />
-                                    Use advance (
-                                    {money(Math.min(teacher.availableAdvance, selectedExpense.due))})
-                                  </label>
-                                )}
-                              </div>
-                            )}
-
                             <input
                               type="number"
                               min="0"
-                              max={selectedExpense
-                                ? Math.max(
-                                  0,
-                                  selectedExpense.due -
-                                  (useAdvance[key]
-                                    ? Math.min(teacher.availableAdvance, selectedExpense.due)
-                                    : 0)
-                                )
-                                : undefined}
+                              max={cashDue}
                               step="0.01"
-                              placeholder="Cash amount"
-                              value={key ? paymentAmounts[key] || "" : ""}
-                              disabled={!selectedExpense}
-                              onChange={event => {
-                                if (key) {
-                                  setPaymentAmounts(previous => ({
-                                    ...previous,
-                                    [key]: event.target.value
-                                  }))
-                                }
-                              }}
+                              placeholder="Enter amount"
+                              value={paymentAmounts[key] || ""}
+                              onChange={event =>
+                                setPaymentAmounts(previous => ({
+                                  ...previous,
+                                  [key]: event.target.value
+                                }))
+                              }
                               aria-label={`Payment amount for ${teacher.name}`}
                             />
+
+                            {teacher.availableAdvance > 0 && (
+                              <label className="finance-advance-control">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(useAdvance[key])}
+                                  onChange={event =>
+                                    setUseAdvance(previous => ({
+                                      ...previous,
+                                      [key]: event.target.checked
+                                    }))
+                                  }
+                                />
+                                Use advance ({money(Math.min(
+                                  teacher.availableAdvance,
+                                  teacher.due
+                                ))})
+                              </label>
+                            )}
 
                             <button
                               type="button"
                               className="finance-primary-button"
-                              disabled={!selectedExpense}
                               onClick={() => handleContributionPayment(teacher)}
                             >
                               Record
