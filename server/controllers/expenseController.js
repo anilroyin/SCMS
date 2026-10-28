@@ -1,17 +1,12 @@
 
 import Expense from "../models/expense.js"
 import Teacher from "../models/teacher.js"
-import Notification from "../models/notification.js"
 
 const roundAmount = amount =>
-  Math.round((Number(amount || 0) + Number.EPSILON) * 100) / 100
+  Math.round((amount + Number.EPSILON) * 100) / 100
 
 const getDateFilter = query => {
   const filter = {}
-
-  if (query.month && query.financialYear !== undefined) {
-    throw new Error("Choose either a month or a financial year")
-  }
 
   if (query.month) {
     if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(query.month)) {
@@ -25,7 +20,7 @@ const getDateFilter = query => {
     const year = Number(query.financialYear)
 
     if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-      throw new Error("Financial year must be a valid starting year")
+      throw new Error("Invalid financial year")
     }
 
     filter.$gte = new Date(year, 3, 1)
@@ -36,15 +31,17 @@ const getDateFilter = query => {
 }
 
 const getExpenseFilter = query => {
-  const filter = { isCancelled: { $ne: true } }
+  const filter = { isCancelled: false }
   const dateFilter = getDateFilter(query)
 
-  if (dateFilter) filter.expenseDate = dateFilter
+  if (dateFilter) {
+    filter.expenseDate = dateFilter
+  }
 
   return filter
 }
 
-const getContributionDue = (allocation, isCancelled = false) => {
+const getContributionDue = (allocation, isCancelled) => {
   if (isCancelled) return 0
 
   return roundAmount(Math.max(
@@ -56,36 +53,24 @@ const getContributionDue = (allocation, isCancelled = false) => {
   ))
 }
 
-const getTotalRefunded = allocation =>
-  roundAmount((allocation.refunds || []).reduce(
-    (total, refund) => total + Number(refund.amount || 0),
-    0
-  ))
-
-const getCashRefundDue = allocation =>
-  roundAmount(Math.max(
-    Number(allocation.paidAmount || 0) - getTotalRefunded(allocation),
-    0
-  ))
-
 const getAvailableTeacherAdvance = async teacherId => {
   const expenses = await Expense.find({
     "allocations.teacherId": teacherId
-  }).select("isCancelled paidBy allocations")
+  }).select("isCancelled allocations")
 
   let balance = 0
 
   for (const expense of expenses) {
-    if (expense.paidBy === "centre") continue
-
     const allocation = expense.allocations.find(
       item => item.teacherId.toString() === teacherId.toString()
     )
 
     if (!allocation) continue
 
+    const paid = Number(allocation.paidAmount || 0)
     const applied = Number(allocation.advanceApplied || 0)
-    balance += expense.isCancelled ? applied : -applied
+
+    balance += expense.isCancelled ? paid + applied : -applied
   }
 
   return roundAmount(Math.max(balance, 0))
@@ -98,52 +83,13 @@ const getContributionStatus = (allocated, paid, due) => {
   return "Due"
 }
 
-const populateExpense = query =>
-  query.populate("allocations.teacherId", "name teacherId status")
-
-const getAllocation = (expense, teacherId) =>
-  expense.allocations.find(
-    item => item.teacherId.toString() === teacherId.toString()
-  )
-
-const getExpenseHistoryItem = (expense, allocation) => {
-  const due = getContributionDue(allocation, expense.isCancelled)
-
-  return {
-    expenseId: expense._id,
-    category: expense.category,
-    amount: expense.amount,
-    paidBy: expense.paidBy || "teachers",
-    expenseDate: expense.expenseDate,
-    description: expense.description,
-    allocatedAmount: allocation.allocatedAmount,
-    paidAmount: allocation.paidAmount,
-    advanceApplied: Number(allocation.advanceApplied || 0),
-    dueAmount: due,
-    isCancelled: Boolean(expense.isCancelled),
-    cancelReason: expense.cancelReason || "",
-    cancelledAt: expense.cancelledAt || null,
-    adjustmentRequired: Boolean(allocation.adjustmentRequired),
-    refundAmount: getTotalRefunded(allocation),
-    refundDue: expense.isCancelled ? getCashRefundDue(allocation) : 0,
-    status: expense.isCancelled
-      ? "Cancelled"
-      : getContributionStatus(allocation.allocatedAmount, allocation.paidAmount, due),
-    payments: allocation.payments || [],
-    refunds: allocation.refunds || []
-  }
+const populateExpense = query => {
+  return query.populate("allocations.teacherId", "name teacherId status")
 }
 
 export const createExpense = async (req, res) => {
   try {
-    const {
-      category,
-      amount,
-      expenseDate,
-      description,
-      paidBy = "teachers"
-    } = req.body
-
+    const { category, amount, expenseDate, description } = req.body
     const expenseAmount = Number(amount)
     const date = new Date(expenseDate)
 
@@ -159,56 +105,39 @@ export const createExpense = async (req, res) => {
       return res.status(400).json({ message: "Enter a valid expense date" })
     }
 
-    if (!["centre", "teachers"].includes(paidBy)) {
-      return res.status(400).json({
-        message: "Choose centre or teachers as the expense payer"
-      })
-    }
+    const teachers = await Teacher.find({ status: "active" }).select("_id")
 
     const totalAmount = roundAmount(expenseAmount)
-    let allocations = []
-    let teacherCount = 0
+    const teacherCount = teachers.length
+    const baseShare = teacherCount
+      ? Math.floor((totalAmount / teacherCount) * 100) / 100
+      : 0
 
-    // Centre-paid expenses are recorded only; no teacher allocations.
-    if (paidBy === "teachers") {
-      const teachers = await Teacher.find({ status: "active" }).select("_id")
-      teacherCount = teachers.length
+    let allocatedTotal = 0
 
-      if (!teacherCount) {
-        return res.status(400).json({
-          message: "No active teachers are available for expense allocation"
-        })
+    const allocations = teachers.map((teacher, index) => {
+      const allocatedAmount = index === teacherCount - 1
+        ? roundAmount(totalAmount - allocatedTotal)
+        : baseShare
+
+      allocatedTotal = roundAmount(allocatedTotal + allocatedAmount)
+
+      return {
+        teacherId: teacher._id,
+        allocatedAmount,
+        paidAmount: 0,
+        advanceApplied: 0,
+        reversedAmount: 0,
+        adjustmentRequired: false,
+        payments: []
       }
-
-      const baseShare = Math.floor((totalAmount / teacherCount) * 100) / 100
-      let allocatedTotal = 0
-
-      allocations = teachers.map((teacher, index) => {
-        const allocatedAmount = index === teacherCount - 1
-          ? roundAmount(totalAmount - allocatedTotal)
-          : baseShare
-
-        allocatedTotal = roundAmount(allocatedTotal + allocatedAmount)
-
-        return {
-          teacherId: teacher._id,
-          allocatedAmount,
-          paidAmount: 0,
-          advanceApplied: 0,
-          reversedAmount: 0,
-          adjustmentRequired: false,
-          payments: [],
-          refunds: []
-        }
-      })
-    }
+    })
 
     const expense = await Expense.create({
       category: category.trim(),
       amount: totalAmount,
       expenseDate: date,
       description: description?.trim() || "",
-      paidBy,
       teacherCountSnapshot: teacherCount,
       allocations,
       createdBy: req.user.userId
@@ -221,20 +150,17 @@ export const createExpense = async (req, res) => {
       expense: result
     })
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(500).json({ message: error.message })
   }
 }
 
 export const getExpenses = async (req, res) => {
   try {
-    const dateFilter = getDateFilter(req.query)
-    const filter = {}
-
-    if (req.query.includeCancelled !== "true") {
-      filter.isCancelled = { $ne: true }
-    }
-
-    if (dateFilter) filter.expenseDate = dateFilter
+    const filter = req.query.includeCancelled === "true"
+      ? (getDateFilter(req.query)
+          ? { expenseDate: getDateFilter(req.query) }
+          : {})
+      : getExpenseFilter(req.query)
 
     const expenses = await populateExpense(
       Expense.find(filter).sort({ expenseDate: -1, createdAt: -1 })
@@ -248,47 +174,46 @@ export const getExpenses = async (req, res) => {
 
 export const getExpenseSummary = async (req, res) => {
   try {
-    const expenses = await Expense.find(getExpenseFilter(req.query))
-    const teacherExpenses = expenses.filter(expense => expense.paidBy === "teachers")
+    const filter = getExpenseFilter(req.query)
+    const expenses = await Expense.find(filter)
 
     const totalExpenses = roundAmount(
-      expenses.reduce((total, expense) => total + Number(expense.amount || 0), 0)
+      expenses.reduce((total, expense) => total + expense.amount, 0)
     )
 
     const totalAllocated = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + Number(allocation.allocatedAmount || 0), 0
-        ), 0)
+      expenses.reduce((total, expense) => {
+        return total + expense.allocations.reduce(
+          (sum, allocation) => sum + allocation.allocatedAmount,
+          0
+        )
+      }, 0)
     )
 
     const totalContributionsPaid = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + Number(allocation.paidAmount || 0), 0
-        ), 0)
+      expenses.reduce((total, expense) => {
+        return total + expense.allocations.reduce(
+          (sum, allocation) => sum + allocation.paidAmount,
+          0
+        )
+      }, 0)
     )
 
     const totalContributionDue = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + getContributionDue(allocation), 0
-        ), 0)
-    )
-
-    const totalRefundsRecorded = roundAmount(
-      expenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + getTotalRefunded(allocation), 0
-        ), 0)
+      expenses.reduce((total, expense) => {
+        return total + expense.allocations.reduce(
+          (sum, allocation) =>
+            sum + getContributionDue(allocation, expense.isCancelled),
+          0
+        )
+      }, 0)
     )
 
     return res.status(200).json({
       totalExpenses,
       totalAllocated,
       totalContributionsPaid,
-      totalContributionDue,
-      totalRefundsRecorded
+      totalContributionDue
     })
   } catch (error) {
     return res.status(400).json({ message: error.message })
@@ -298,50 +223,41 @@ export const getExpenseSummary = async (req, res) => {
 export const getTeacherContributions = async (req, res) => {
   try {
     const dateFilter = getDateFilter(req.query)
-    const filter = { paidBy: "teachers" }
-
-    if (dateFilter) filter.expenseDate = dateFilter
-
-    const expenses = await Expense.find(filter)
-      .populate("allocations.teacherId", "name teacherId status")
+    const expenses = await Expense.find(
+      dateFilter ? { expenseDate: dateFilter } : {}
+    ).populate("allocations.teacherId", "name teacherId status")
 
     const teacherMap = new Map()
 
     for (const expense of expenses) {
       for (const allocation of expense.allocations) {
         const teacher = allocation.teacherId
+
         if (!teacher) continue
 
-        const id = teacher._id.toString()
+        const teacherId = teacher._id.toString()
 
-        if (!teacherMap.has(id)) {
-          teacherMap.set(id, {
+        if (!teacherMap.has(teacherId)) {
+          teacherMap.set(teacherId, {
             teacherId: teacher._id,
             teacherCode: teacher.teacherId,
             name: teacher.name,
             totalAllocated: 0,
             totalPaid: 0,
             totalDue: 0,
-            totalRefunded: 0,
-            refundDue: 0,
             availableAdvance: 0,
             adjustmentRequired: false
           })
         }
 
-        const summary = teacherMap.get(id)
+        const summary = teacherMap.get(teacherId)
 
         if (!expense.isCancelled) {
-          summary.totalAllocated += Number(allocation.allocatedAmount || 0)
-          summary.totalDue += getContributionDue(allocation)
+          summary.totalAllocated += allocation.allocatedAmount
+          summary.totalDue += getContributionDue(allocation, false)
         }
 
-        summary.totalPaid += Number(allocation.paidAmount || 0)
-        summary.totalRefunded += getTotalRefunded(allocation)
-
-        if (expense.isCancelled) {
-          summary.refundDue += getCashRefundDue(allocation)
-        }
+        summary.totalPaid += allocation.paidAmount
 
         if (allocation.adjustmentRequired) {
           summary.adjustmentRequired = true
@@ -355,11 +271,11 @@ export const getTeacherContributions = async (req, res) => {
         totalAllocated: roundAmount(teacher.totalAllocated),
         totalPaid: roundAmount(teacher.totalPaid),
         totalDue: roundAmount(teacher.totalDue),
-        totalRefunded: roundAmount(teacher.totalRefunded),
-        refundDue: roundAmount(teacher.refundDue),
         availableAdvance: await getAvailableTeacherAdvance(teacher.teacherId),
         status: getContributionStatus(
-          teacher.totalAllocated, teacher.totalPaid, teacher.totalDue
+          teacher.totalAllocated,
+          teacher.totalPaid,
+          teacher.totalDue
         )
       }))
     )
@@ -374,12 +290,12 @@ export const getTeacherContributionHistory = async (req, res) => {
   try {
     const { teacherId } = req.params
     const dateFilter = getDateFilter(req.query)
-    const filter = {
-      "allocations.teacherId": teacherId,
-      paidBy: "teachers"
-    }
 
-    if (dateFilter) filter.expenseDate = dateFilter
+    const filter = { "allocations.teacherId": teacherId }
+
+    if (dateFilter) {
+      filter.expenseDate = dateFilter
+    }
 
     const expenses = await Expense.find(filter).sort({
       expenseDate: -1,
@@ -387,8 +303,35 @@ export const getTeacherContributionHistory = async (req, res) => {
     })
 
     const history = expenses.map(expense => {
-      const allocation = getAllocation(expense, teacherId)
-      return allocation ? getExpenseHistoryItem(expense, allocation) : null
+      const allocation = expense.allocations.find(
+        item => item.teacherId.toString() === teacherId
+      )
+
+      if (!allocation) return null
+
+      const due = getContributionDue(allocation, expense.isCancelled)
+
+      return {
+        expenseId: expense._id,
+        category: expense.category,
+        amount: expense.amount,
+        expenseDate: expense.expenseDate,
+        description: expense.description,
+        allocatedAmount: allocation.allocatedAmount,
+        paidAmount: allocation.paidAmount,
+        advanceApplied: Number(allocation.advanceApplied || 0),
+        dueAmount: due,
+        isCancelled: expense.isCancelled,
+        adjustmentRequired: allocation.adjustmentRequired,
+        status: expense.isCancelled
+          ? "Cancelled"
+          : getContributionStatus(
+              allocation.allocatedAmount,
+              allocation.paidAmount,
+              due
+            ),
+        payments: allocation.payments
+      }
     }).filter(Boolean)
 
     return res.status(200).json(history)
@@ -406,33 +349,68 @@ export const getMyContributions = async (req, res) => {
     }
 
     const dateFilter = getDateFilter(req.query)
-    const filter = {
-      "allocations.teacherId": teacher._id,
-      paidBy: "teachers"
-    }
+    const filter = { "allocations.teacherId": teacher._id }
 
-    if (dateFilter) filter.expenseDate = dateFilter
+    if (dateFilter) {
+      filter.expenseDate = dateFilter
+    }
 
     const expenses = await Expense.find(filter).sort({
       expenseDate: -1,
       createdAt: -1
     })
 
+    let totalAllocated = 0
+    let totalPaid = 0
+    let totalDue = 0
+    let adjustmentRequired = false
+
     const history = expenses.map(expense => {
-      const allocation = getAllocation(expense, teacher._id)
-      return allocation ? getExpenseHistoryItem(expense, allocation) : null
+      const allocation = expense.allocations.find(
+        item => item.teacherId.toString() === teacher._id.toString()
+      )
+
+      if (!allocation) return null
+
+      const due = getContributionDue(allocation, expense.isCancelled)
+
+      if (!expense.isCancelled) {
+        totalAllocated += allocation.allocatedAmount
+        totalDue += due
+      }
+
+      totalPaid += allocation.paidAmount
+
+      if (allocation.adjustmentRequired) {
+        adjustmentRequired = true
+      }
+
+      return {
+        expenseId: expense._id,
+        category: expense.category,
+        amount: expense.amount,
+        expenseDate: expense.expenseDate,
+        description: expense.description,
+        allocatedAmount: allocation.allocatedAmount,
+        paidAmount: allocation.paidAmount,
+        advanceApplied: Number(allocation.advanceApplied || 0),
+        dueAmount: due,
+        isCancelled: expense.isCancelled,
+        adjustmentRequired: allocation.adjustmentRequired,
+        status: expense.isCancelled
+          ? "Cancelled"
+          : getContributionStatus(
+              allocation.allocatedAmount,
+              allocation.paidAmount,
+              due
+            ),
+        payments: allocation.payments
+      }
     }).filter(Boolean)
 
-    const activeHistory = history.filter(item => !item.isCancelled)
-    const totalAllocated = roundAmount(
-      activeHistory.reduce((sum, item) => sum + Number(item.allocatedAmount || 0), 0)
-    )
-    const totalPaid = roundAmount(
-      history.reduce((sum, item) => sum + Number(item.paidAmount || 0), 0)
-    )
-    const totalDue = roundAmount(
-      activeHistory.reduce((sum, item) => sum + Number(item.dueAmount || 0), 0)
-    )
+    totalAllocated = roundAmount(totalAllocated)
+    totalPaid = roundAmount(totalPaid)
+    totalDue = roundAmount(totalDue)
 
     return res.status(200).json({
       teacher: {
@@ -444,15 +422,13 @@ export const getMyContributions = async (req, res) => {
         totalAllocated,
         totalPaid,
         totalDue,
-        totalRefunded: roundAmount(
-          history.reduce((sum, item) => sum + item.refundAmount, 0)
-        ),
-        refundDue: roundAmount(
-          history.reduce((sum, item) => sum + item.refundDue, 0)
-        ),
         availableAdvance: await getAvailableTeacherAdvance(teacher._id),
-        adjustmentRequired: activeHistory.some(item => item.adjustmentRequired),
-        status: getContributionStatus(totalAllocated, totalPaid, totalDue)
+        adjustmentRequired,
+        status: getContributionStatus(
+          totalAllocated,
+          totalPaid,
+          totalDue
+        )
       },
       history
     })
@@ -461,27 +437,109 @@ export const getMyContributions = async (req, res) => {
   }
 }
 
-// Records a teacher payment against their outstanding shared expenses,
-// oldest first. Centre-paid expenses are never considered.
 export const recordTeacherContribution = async (req, res) => {
   try {
-    const { teacherId } = req.params
+    const { expenseId, teacherId } = req.params
+
     const {
       amount,
       paymentDate,
-      paymentMethod = "cash",
+      paymentMethod,
       note,
-      useAdvance = false
+      useAdvance = false,
+      advanceAmount = 0
     } = req.body
 
-    const cashAmount = roundAmount(amount)
+    const paymentAmount = Number(amount ?? 0)
+    const requestedAdvance = Number(advanceAmount)
 
-    if (!Number.isFinite(Number(amount)) || cashAmount < 0) {
-      return res.status(400).json({ message: "Enter a valid payment amount" })
+    if (!Number.isFinite(paymentAmount) || paymentAmount < 0) {
+      return res.status(400).json({
+        message: "Enter a valid cash payment amount"
+      })
     }
 
-    if (!["cash", "upi", "bank_transfer", "other"].includes(paymentMethod)) {
-      return res.status(400).json({ message: "Invalid payment method" })
+    if (!Number.isFinite(requestedAdvance) || requestedAdvance < 0) {
+      return res.status(400).json({
+        message: "Enter a valid advance amount"
+      })
+    }
+
+    if (typeof useAdvance !== "boolean") {
+      return res.status(400).json({
+        message: "Invalid Use advance value"
+      })
+    }
+
+    if (!useAdvance && requestedAdvance > 0) {
+      return res.status(400).json({
+        message: "Select Use advance before entering an advance amount"
+      })
+    }
+
+    const expense = await Expense.findById(expenseId)
+
+    if (!expense) {
+      return res.status(404).json({ message: "Expense not found" })
+    }
+
+    if (expense.isCancelled) {
+      return res.status(400).json({
+        message: "Contributions cannot be recorded for a cancelled expense"
+      })
+    }
+
+    const allocation = expense.allocations.find(
+      item => item.teacherId.toString() === teacherId.toString()
+    )
+
+    if (!allocation) {
+      return res.status(404).json({
+        message: "Teacher allocation not found for this expense"
+      })
+    }
+
+    const dueBefore = getContributionDue(allocation, false)
+
+    if (dueBefore <= 0) {
+      return res.status(400).json({
+        message: "This teacher has no outstanding contribution for this expense"
+      })
+    }
+
+    const availableAdvance = useAdvance
+      ? await getAvailableTeacherAdvance(teacherId)
+      : 0
+
+    const advanceUsed = useAdvance ? roundAmount(requestedAdvance) : 0
+
+    if (advanceUsed > availableAdvance) {
+      return res.status(400).json({
+        message: `Advance cannot exceed the available balance of ₹${availableAdvance.toFixed(2)}`
+      })
+    }
+
+    if (advanceUsed > dueBefore) {
+      return res.status(400).json({
+        message: `Advance cannot exceed this expense's outstanding amount of ₹${dueBefore.toFixed(2)}`
+      })
+    }
+
+    const dueAfterAdvance = roundAmount(
+      Math.max(dueBefore - advanceUsed, 0)
+    )
+    const cashAmount = roundAmount(paymentAmount)
+
+    if (cashAmount > dueAfterAdvance) {
+      return res.status(400).json({
+        message: `Cash payment cannot exceed the remaining amount of ₹${dueAfterAdvance.toFixed(2)} after advance.`
+      })
+    }
+
+    if (advanceUsed <= 0 && cashAmount <= 0) {
+      return res.status(400).json({
+        message: "Enter a cash payment or a positive advance amount"
+      })
     }
 
     const date = paymentDate ? new Date(paymentDate) : new Date()
@@ -490,111 +548,48 @@ export const recordTeacherContribution = async (req, res) => {
       return res.status(400).json({ message: "Invalid payment date" })
     }
 
-    const expenses = await Expense.find({
-      paidBy: "teachers",
-      isCancelled: { $ne: true },
-      "allocations.teacherId": teacherId
-    }).sort({ expenseDate: 1, createdAt: 1 })
+    const method = paymentMethod || "cash"
 
-    const allocations = expenses.map(expense => ({
-      expense,
-      allocation: getAllocation(expense, teacherId)
-    })).filter(item =>
-      item.allocation && getContributionDue(item.allocation) > 0
-    )
+    if (!["cash", "upi", "bank_transfer", "other"].includes(method)) {
+      return res.status(400).json({ message: "Invalid payment method" })
+    }
 
-    const totalDue = roundAmount(
-      allocations.reduce(
-        (sum, item) => sum + getContributionDue(item.allocation), 0
+    if (advanceUsed > 0) {
+      allocation.advanceApplied = roundAmount(
+        Number(allocation.advanceApplied || 0) + advanceUsed
       )
-    )
+    }
 
-    if (totalDue <= 0) {
-      return res.status(400).json({
-        message: "This teacher has no outstanding contributions"
+    if (cashAmount > 0) {
+      allocation.payments.push({
+        amount: cashAmount,
+        paymentDate: date,
+        paymentMethod: method,
+        note: note?.trim() || ""
       })
+
+      allocation.paidAmount = roundAmount(
+        Number(allocation.paidAmount || 0) + cashAmount
+      )
     }
 
-    const availableAdvance = useAdvance
-      ? await getAvailableTeacherAdvance(teacherId)
-      : 0
+    await expense.save()
 
-    const advanceUsed = roundAmount(Math.min(availableAdvance, totalDue))
-    const cashLimit = roundAmount(totalDue - advanceUsed)
-
-    if (cashAmount > cashLimit) {
-      return res.status(400).json({
-        message: `Payment cannot exceed ₹${cashLimit.toFixed(2)} after applying advance`
-      })
-    }
-
-    if (cashAmount <= 0 && advanceUsed <= 0) {
-      return res.status(400).json({
-        message: "Enter a payment or select an available advance"
-      })
-    }
-
-    let advanceRemaining = advanceUsed
-    let cashRemaining = cashAmount
-
-    for (const { expense, allocation } of allocations) {
-      let due = getContributionDue(allocation)
-
-      if (advanceRemaining > 0 && due > 0) {
-        const applied = roundAmount(Math.min(advanceRemaining, due))
-        allocation.advanceApplied = roundAmount(
-          Number(allocation.advanceApplied || 0) + applied
-        )
-        advanceRemaining = roundAmount(advanceRemaining - applied)
-        due = roundAmount(due - applied)
-      }
-
-      if (cashRemaining > 0 && due > 0) {
-        const paid = roundAmount(Math.min(cashRemaining, due))
-
-        allocation.payments.push({
-          amount: paid,
-          paymentDate: date,
-          paymentMethod,
-          note: note?.trim() || ""
-        })
-
-        allocation.paidAmount = roundAmount(
-          Number(allocation.paidAmount || 0) + paid
-        )
-
-        cashRemaining = roundAmount(cashRemaining - paid)
-      }
-
-      await expense.save()
-
-      if (advanceRemaining <= 0 && cashRemaining <= 0) break
-    }
-
-    const updatedExpenses = await Expense.find({
-      paidBy: "teachers",
-      "allocations.teacherId": teacherId
-    })
-
-    let paidTotal = 0
-    let dueTotal = 0
-
-    for (const expense of updatedExpenses) {
-      const allocation = getAllocation(expense, teacherId)
-      if (!allocation) continue
-
-      paidTotal += Number(allocation.paidAmount || 0)
-      dueTotal += getContributionDue(allocation, expense.isCancelled)
-    }
+    const dueAmount = getContributionDue(allocation, false)
+    const newAvailableAdvance = await getAvailableTeacherAdvance(teacherId)
 
     return res.status(200).json({
       message: "Teacher contribution recorded successfully",
-      paidThisTime: cashAmount,
+      paidAmount: allocation.paidAmount,
+      advanceApplied: Number(allocation.advanceApplied || 0),
       advanceUsed,
-      paidAmount: roundAmount(paidTotal),
-      availableAdvance: await getAvailableTeacherAdvance(teacherId),
-      dueAmount: roundAmount(dueTotal),
-      status: dueTotal <= 0 ? "Paid" : paidTotal > 0 ? "Partial" : "Due"
+      availableAdvance: newAvailableAdvance,
+      dueAmount,
+      status: getContributionStatus(
+        allocation.allocatedAmount,
+        allocation.paidAmount,
+        dueAmount
+      )
     })
   } catch (error) {
     return res.status(500).json({ message: error.message })
@@ -605,10 +600,6 @@ export const cancelExpense = async (req, res) => {
   try {
     const { expenseId } = req.params
     const { cancelReason } = req.body
-
-    if (!cancelReason?.trim()) {
-      return res.status(400).json({ message: "Cancellation reason is required" })
-    }
 
     const expense = await Expense.findById(expenseId)
 
@@ -621,14 +612,20 @@ export const cancelExpense = async (req, res) => {
     }
 
     for (const allocation of expense.allocations) {
-      const unpaid = getContributionDue(allocation)
+      const unpaidAmount = roundAmount(Math.max(
+        Number(allocation.allocatedAmount || 0) -
+        Number(allocation.paidAmount || 0) -
+        Number(allocation.advanceApplied || 0) -
+        Number(allocation.reversedAmount || 0),
+        0
+      ))
 
       allocation.reversedAmount = roundAmount(
-        Number(allocation.reversedAmount || 0) + unpaid
+        allocation.reversedAmount + unpaidAmount
       )
 
       if (
-        Number(allocation.paidAmount || 0) > 0 ||
+        allocation.paidAmount > 0 ||
         Number(allocation.advanceApplied || 0) > 0
       ) {
         allocation.adjustmentRequired = true
@@ -637,120 +634,13 @@ export const cancelExpense = async (req, res) => {
 
     expense.isCancelled = true
     expense.cancelledAt = new Date()
-    expense.cancelReason = cancelReason.trim()
-
-    if (expense.schema.path("cancelledBy")) {
-      expense.cancelledBy = req.user.userId
-    }
+    expense.cancelReason = cancelReason?.trim() || ""
 
     await expense.save()
 
-    const notifications = []
-
-    for (const allocation of expense.allocations) {
-      if (
-        getCashRefundDue(allocation) <= 0 &&
-        Number(allocation.advanceApplied || 0) <= 0
-      ) continue
-
-      const teacher = await Teacher.findById(allocation.teacherId).select("userId")
-      if (!teacher?.userId) continue
-
-      const refundDue = getCashRefundDue(allocation)
-      const message = refundDue > 0
-        ? `The expense "${expense.category}" has been cancelled. A cash contribution refund of ₹${refundDue.toFixed(2)} is pending. Please contact the coaching centre office.`
-        : `The expense "${expense.category}" has been cancelled. Your applied advance requires adjustment. Please contact the coaching centre office.`
-
-      notifications.push({
-        sender: req.user.userId,
-        senderRole: "admin",
-        targetType: "individual_teacher",
-        recipients: [teacher.userId],
-        title: "Expense Cancelled",
-        message
-      })
-    }
-
-    if (notifications.length) await Notification.insertMany(notifications)
-
     return res.status(200).json({
-      message: "Expense cancelled successfully. Affected teachers have been notified.",
-      refundsToRecord: expense.allocations.map(allocation => ({
-        teacherId: allocation.teacherId,
-        paidAmount: Number(allocation.paidAmount || 0),
-        alreadyRefunded: getTotalRefunded(allocation),
-        refundDue: getCashRefundDue(allocation),
-        advanceApplied: Number(allocation.advanceApplied || 0)
-      })).filter(item => item.refundDue > 0 || item.advanceApplied > 0),
+      message: "Expense cancelled. Unpaid allocations were reversed, and any cash payment or applied advance is now available as teacher credit.",
       expense
-    })
-  } catch (error) {
-    return res.status(500).json({ message: error.message })
-  }
-}
-
-export const recordTeacherRefund = async (req, res) => {
-  try {
-    const { expenseId, teacherId } = req.params
-    const { amount, refundDate, paymentMethod = "cash", note } = req.body
-    const refundAmount = roundAmount(amount)
-
-    if (!Number.isFinite(Number(amount)) || refundAmount <= 0) {
-      return res.status(400).json({ message: "Enter a valid refund amount" })
-    }
-
-    if (!["cash", "upi", "bank_transfer", "other"].includes(paymentMethod)) {
-      return res.status(400).json({ message: "Invalid refund payment method" })
-    }
-
-    const expense = await Expense.findById(expenseId)
-
-    if (!expense) {
-      return res.status(404).json({ message: "Expense not found" })
-    }
-
-    if (!expense.isCancelled) {
-      return res.status(400).json({
-        message: "Refunds can only be recorded for cancelled expenses"
-      })
-    }
-
-    const allocation = getAllocation(expense, teacherId)
-
-    if (!allocation) {
-      return res.status(404).json({
-        message: "Teacher allocation not found for this expense"
-      })
-    }
-
-    const refundDue = getCashRefundDue(allocation)
-
-    if (refundAmount > refundDue) {
-      return res.status(400).json({
-        message: `Refund cannot exceed the remaining ₹${refundDue.toFixed(2)}`
-      })
-    }
-
-    const date = refundDate ? new Date(refundDate) : new Date()
-
-    if (Number.isNaN(date.getTime())) {
-      return res.status(400).json({ message: "Invalid refund date" })
-    }
-
-    allocation.refunds.push({
-      amount: refundAmount,
-      refundDate: date,
-      paymentMethod,
-      note: note?.trim() || "",
-      recordedBy: req.user.userId
-    })
-
-    await expense.save()
-
-    return res.status(200).json({
-      message: "Teacher refund recorded successfully",
-      refundedAmount: getTotalRefunded(allocation),
-      refundDue: getCashRefundDue(allocation)
     })
   } catch (error) {
     return res.status(500).json({ message: error.message })
