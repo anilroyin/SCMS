@@ -64,7 +64,10 @@ function Finances() {
   const [error, setError] = useState("")
   const [paymentAmounts, setPaymentAmounts] = useState({})
   const [paymentMethods, setPaymentMethods] = useState({})
-  const [useAdvance, setUseAdvance] = useState({})
+  const [selectedCancelledExpense, setSelectedCancelledExpense] = useState(null)
+  const [refundAmounts, setRefundAmounts] = useState({})
+  const [refundMethods, setRefundMethods] = useState({})
+  const [refundSaving, setRefundSaving] = useState({})
 
   const [expenseForm, setExpenseForm] = useState({
     category: "",
@@ -132,7 +135,7 @@ function Finances() {
 
       const [expenseSummary, expenseList, yearExpenses] = await Promise.all([
         request(`/expenses/summary?financialYear=${financialYear}`),
-        request(`/expenses?month=${billingMonth}`),
+        request(`/expenses?month=${billingMonth}&includeCancelled=true`),
         request(`/expenses?financialYear=${financialYear}&includeCancelled=true`)
       ])
 
@@ -170,7 +173,6 @@ function Finances() {
     loadFinance()
   }, [loadFinance])
 
-  
   // Automatically dismiss success messages after 2.5 seconds.
   useEffect(() => {
     if (!message) return
@@ -181,7 +183,6 @@ function Finances() {
 
     return () => clearTimeout(timer)
   }, [message])
-
 
   const handleCreateExpense = async event => {
     event.preventDefault()
@@ -245,22 +246,14 @@ function Finances() {
   const handleContributionPayment = async teacher => {
     const key = teacher.id
     const amount = Number(paymentAmounts[key] || 0)
-    const applyAdvance = Boolean(useAdvance[key])
-    const advanceToUse = applyAdvance
-      ? Math.min(Number(teacher.availableAdvance || 0), teacher.due)
-      : 0
-    const cashDue = Math.max(0, teacher.due - advanceToUse)
 
     if (
       !Number.isFinite(amount) ||
-      amount < 0 ||
-      amount > cashDue ||
-      (amount === 0 && advanceToUse <= 0)
+      amount <= 0 ||
+      amount > teacher.due
     ) {
       setError(
-        `Enter a cash amount from ${money(0)} to ${money(cashDue)}${
-          advanceToUse > 0 ? " or use the available advance" : ""
-        }.`
+        `Enter a payment amount from ${money(0.01)} to ${money(teacher.due)}.`
       )
       return
     }
@@ -273,13 +266,11 @@ function Finances() {
         method: "POST",
         body: JSON.stringify({
           amount,
-          useAdvance: applyAdvance,
           paymentMethod: paymentMethods[key] || "cash"
         })
       })
 
       setPaymentAmounts(previous => ({ ...previous, [key]: "" }))
-      setUseAdvance(previous => ({ ...previous, [key]: false }))
       setMessage("Teacher contribution recorded.")
       await loadFinance()
     } catch (err) {
@@ -287,10 +278,68 @@ function Finances() {
     }
   }
 
+  const handleTeacherRefund = async (expense, allocation) => {
+    const teacher = allocation.teacherId
+    const key = `${expense._id}-${teacher._id}`
+    const amount = Number(refundAmounts[key] || 0)
+
+    const alreadyRefunded = (allocation.refunds || []).reduce(
+      (total, refund) => total + Number(refund.amount || 0),
+      0
+    )
+
+    const refundDue = Math.max(
+      0,
+      Number(allocation.paidAmount || 0) - alreadyRefunded
+    )
+
+    if (!Number.isFinite(amount) || amount <= 0 || amount > refundDue) {
+      setError(
+        `Enter a refund amount from ${money(0.01)} to ${money(refundDue)}.`
+      )
+      return
+    }
+
+    setRefundSaving(previous => ({ ...previous, [key]: true }))
+    setError("")
+    setMessage("")
+
+    try {
+      await request(
+        `/expenses/${expense._id}/contributions/${teacher._id}/refund`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            amount,
+            paymentMethod: refundMethods[key] || "cash"
+          })
+        }
+      )
+
+      setRefundAmounts(previous => ({ ...previous, [key]: "" }))
+      setMessage("Teacher refund recorded.")
+      await loadFinance()
+
+      const updatedExpenses = await request(
+        `/expenses?month=${billingMonth}&includeCancelled=true`
+      )
+
+      const updatedExpense = updatedExpenses.find(
+        item => item._id === expense._id
+      )
+
+      setSelectedCancelledExpense(updatedExpense || null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setRefundSaving(previous => ({ ...previous, [key]: false }))
+    }
+  }
+
   const teacherContributions = {}
 
   contributionExpenses.forEach(expense => {
-    if (expense.paidBy === "centre") return
+    if (expense.paidBy === "centre" || expense.isCancelled) return
 
     ;(expense.allocations || []).forEach(allocation => {
       const teacher = allocation.teacherId
@@ -305,35 +354,19 @@ function Finances() {
           teacherId: teacher.teacherId,
           allocated: 0,
           paid: 0,
-          due: 0,
-          availableAdvance: 0
+          due: 0
         }
       }
 
       const row = teacherContributions[id]
       const allocated = Number(allocation.allocatedAmount || 0)
       const paid = Number(allocation.paidAmount || 0)
-      const applied = Number(allocation.advanceApplied || 0)
-      const reversed = Number(allocation.reversedAmount || 0)
+      const due = Math.max(0, allocated - paid)
 
-      if (expense.isCancelled) {
-        row.availableAdvance += paid + applied
-        row.paid += paid
-        return
-      }
-
-      const due = Math.max(0, allocated - paid - applied - reversed)
-
-      row.allocated += Math.max(0, allocated - reversed)
+      row.allocated += allocated
       row.paid += paid
       row.due += due
-      row.availableAdvance -= applied
     })
-  })
-
-  Object.values(teacherContributions).forEach(teacher => {
-    teacher.allocated = Math.max(0, teacher.allocated)
-    teacher.availableAdvance = Math.max(0, teacher.availableAdvance)
   })
 
   const contributionRows = Object.values(teacherContributions)
@@ -497,7 +530,10 @@ function Finances() {
                   <input
                     value={expenseForm.category}
                     onChange={event =>
-                      setExpenseForm({ ...expenseForm, category: event.target.value })
+                      setExpenseForm({
+                        ...expenseForm,
+                        category: event.target.value
+                      })
                     }
                     required
                     maxLength={100}
@@ -513,7 +549,10 @@ function Finances() {
                     step="0.01"
                     value={expenseForm.amount}
                     onChange={event =>
-                      setExpenseForm({ ...expenseForm, amount: event.target.value })
+                      setExpenseForm({
+                        ...expenseForm,
+                        amount: event.target.value
+                      })
                     }
                     required
                   />
@@ -525,7 +564,10 @@ function Finances() {
                     type="date"
                     value={expenseForm.expenseDate}
                     onChange={event =>
-                      setExpenseForm({ ...expenseForm, expenseDate: event.target.value })
+                      setExpenseForm({
+                        ...expenseForm,
+                        expenseDate: event.target.value
+                      })
                     }
                     required
                   />
@@ -536,7 +578,10 @@ function Finances() {
                   <select
                     value={expenseForm.paidBy}
                     onChange={event =>
-                      setExpenseForm({ ...expenseForm, paidBy: event.target.value })
+                      setExpenseForm({
+                        ...expenseForm,
+                        paidBy: event.target.value
+                      })
                     }
                     required
                   >
@@ -550,7 +595,10 @@ function Finances() {
                   <input
                     value={expenseForm.description}
                     onChange={event =>
-                      setExpenseForm({ ...expenseForm, description: event.target.value })
+                      setExpenseForm({
+                        ...expenseForm,
+                        description: event.target.value
+                      })
                     }
                     placeholder="Optional"
                   />
@@ -590,31 +638,60 @@ function Finances() {
                         sum + Math.max(
                           0,
                           Number(allocation.allocatedAmount || 0) -
-                          Number(allocation.paidAmount || 0) -
-                          Number(allocation.advanceApplied || 0) -
-                          Number(allocation.reversedAmount || 0)
+                          Number(allocation.paidAmount || 0)
                         ),
                       0
                     )
 
+                  const teachersToRefund = (expense.allocations || []).filter(
+                    allocation => Number(allocation.paidAmount || 0) > 0
+                  )
+
+                  const allRefunded = teachersToRefund.length > 0 &&
+                    teachersToRefund.every(allocation => {
+                      const refunded = (allocation.refunds || []).reduce(
+                        (total, refund) =>
+                          total + Number(refund.amount || 0),
+                        0
+                      )
+
+                      return refunded >= Number(allocation.paidAmount || 0)
+                    })
+
                   return (
                     <tr key={expense._id}>
-                      <td>{new Date(expense.expenseDate).toLocaleDateString("en-IN")}</td>
+                      <td>
+                        {new Date(expense.expenseDate).toLocaleDateString("en-IN")}
+                      </td>
                       <td>
                         <strong>{expense.category}</strong>
                         {expense.description && (
-                          <div className="table-secondary">{expense.description}</div>
+                          <div className="table-secondary">
+                            {expense.description}
+                          </div>
                         )}
                       </td>
-                      <td>{expense.paidBy === "centre" ? "Centre" : "Teachers"}</td>
+                      <td>
+                        {expense.paidBy === "centre" ? "Centre" : "Teachers"}
+                      </td>
                       <td>{money(expense.amount)}</td>
                       <td>
-                        {expense.paidBy === "centre" ? "—" : expense.teacherCountSnapshot}
+                        {expense.paidBy === "centre"
+                          ? "—"
+                          : expense.teacherCountSnapshot}
                       </td>
-                      <td>{money(due)}</td>
+                      <td>{money(expense.isCancelled ? 0 : due)}</td>
                       <td>
                         {expense.isCancelled ? (
-                          <span className="status cancelled">Cancelled</span>
+                          <button
+                            type="button"
+                            className="finance-text-button status cancelled"
+                            onClick={() => setSelectedCancelledExpense(expense)}
+                          >
+                            {allRefunded
+                              ? "Refunded / Details"
+                              : "Cancelled / Details"}
+                          </button>
                         ) : (
                           <button
                             type="button"
@@ -645,7 +722,7 @@ function Finances() {
           <div className="finances-section-header">
             <div>
               <h2>Teacher Contributions</h2>
-              <p>Track each teacher's share, outstanding contribution and advance balance.</p>
+              <p>Track each teacher's share and outstanding contribution.</p>
             </div>
 
             <button
@@ -675,16 +752,14 @@ function Finances() {
               <tbody>
                 {contributionRows.map(teacher => {
                   const key = teacher.id
-                  const advanceToUse = useAdvance[key]
-                    ? Math.min(teacher.availableAdvance, teacher.due)
-                    : 0
-                  const cashDue = Math.max(0, teacher.due - advanceToUse)
 
                   return (
                     <tr key={teacher.id}>
                       <td>
                         <strong>{teacher.name}</strong>
-                        <div className="table-secondary">{teacher.teacherId}</div>
+                        <div className="table-secondary">
+                          {teacher.teacherId}
+                        </div>
                       </td>
                       <td>{money(teacher.allocated)}</td>
                       <td>{money(teacher.paid)}</td>
@@ -715,8 +790,8 @@ function Finances() {
                           <div className="finance-contribution-row">
                             <input
                               type="number"
-                              min="0"
-                              max={cashDue}
+                              min="0.01"
+                              max={teacher.due}
                               step="0.01"
                               placeholder="Enter amount"
                               value={paymentAmounts[key] || ""}
@@ -728,26 +803,6 @@ function Finances() {
                               }
                               aria-label={`Payment amount for ${teacher.name}`}
                             />
-
-                            {teacher.availableAdvance > 0 && (
-                              <label className="finance-advance-control">
-                                <input
-                                  type="checkbox"
-                                  checked={Boolean(useAdvance[key])}
-                                  onChange={event =>
-                                    setUseAdvance(previous => ({
-                                      ...previous,
-                                      [key]: event.target.checked
-                                    }))
-                                  }
-                                />
-                                Use advance ({money(Math.min(
-                                  teacher.availableAdvance,
-                                  teacher.due
-                                ))})
-                              </label>
-                            )}
-
                             <button
                               type="button"
                               className="finance-primary-button"
@@ -775,6 +830,193 @@ function Finances() {
             </table>
           </div>
         </section>
+
+        {selectedCancelledExpense && (
+          <div
+            className="finance-modal-backdrop"
+            role="presentation"
+            onClick={event => {
+              if (event.target === event.currentTarget) {
+                setSelectedCancelledExpense(null)
+              }
+            }}
+          >
+            <section
+              className="finance-refund-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cancelled-expense-title"
+            >
+              <div className="finance-modal-header">
+                <div>
+                  <h2 id="cancelled-expense-title">
+                    Cancelled Expense Details
+                  </h2>
+                  <p>
+                    {selectedCancelledExpense.category} ·{" "}
+                    {new Date(
+                      selectedCancelledExpense.expenseDate
+                    ).toLocaleDateString("en-IN")}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="finance-icon-button"
+                  onClick={() => setSelectedCancelledExpense(null)}
+                  aria-label="Close expense details"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <p>
+                <strong>Expense amount:</strong>{" "}
+                {money(selectedCancelledExpense.amount)}
+              </p>
+
+              {selectedCancelledExpense.description && (
+                <p>
+                  <strong>Description:</strong>{" "}
+                  {selectedCancelledExpense.description}
+                </p>
+              )}
+
+              {selectedCancelledExpense.cancelReason && (
+                <p>
+                  <strong>Cancellation reason:</strong>{" "}
+                  {selectedCancelledExpense.cancelReason}
+                </p>
+              )}
+
+              <div className="table-container">
+                <table className="finances-table">
+                  <thead>
+                    <tr>
+                      <th>Teacher</th>
+                      <th>Paid</th>
+                      <th>Refunded</th>
+                      <th>Refund Due</th>
+                      <th>Status / Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {(selectedCancelledExpense.allocations || [])
+                      .filter(
+                        allocation =>
+                          Number(allocation.paidAmount || 0) > 0
+                      )
+                      .map(allocation => {
+                        const teacher = allocation.teacherId
+                        if (!teacher?._id) return null
+
+                        const key =
+                          `${selectedCancelledExpense._id}-${teacher._id}`
+
+                        const refunded = (allocation.refunds || []).reduce(
+                          (total, refund) =>
+                            total + Number(refund.amount || 0),
+                          0
+                        )
+
+                        const refundDue = Math.max(
+                          0,
+                          Number(allocation.paidAmount || 0) - refunded
+                        )
+
+                        const isRefunded = refundDue <= 0
+
+                        return (
+                          <tr key={key}>
+                            <td>
+                              <strong>{teacher.name}</strong>
+                              <div className="table-secondary">
+                                {teacher.teacherId}
+                              </div>
+                            </td>
+
+                            <td>{money(allocation.paidAmount)}</td>
+                            <td>{money(refunded)}</td>
+                            <td>{money(refundDue)}</td>
+
+                            <td>
+                              {isRefunded ? (
+                                <span className="status paid">Refunded</span>
+                              ) : (
+                                <div className="finance-contribution-row">
+                                  <input
+                                    type="number"
+                                    min="0.01"
+                                    max={refundDue}
+                                    step="0.01"
+                                    placeholder="Refund amount"
+                                    value={refundAmounts[key] || ""}
+                                    onChange={event =>
+                                      setRefundAmounts(previous => ({
+                                        ...previous,
+                                        [key]: event.target.value
+                                      }))
+                                    }
+                                    aria-label={`Refund amount for ${teacher.name}`}
+                                  />
+
+                                  <select
+                                    value={refundMethods[key] || "cash"}
+                                    onChange={event =>
+                                      setRefundMethods(previous => ({
+                                        ...previous,
+                                        [key]: event.target.value
+                                      }))
+                                    }
+                                    aria-label={`Refund method for ${teacher.name}`}
+                                  >
+                                    <option value="cash">Cash</option>
+                                    <option value="upi">UPI</option>
+                                    <option value="bank_transfer">
+                                      Bank transfer
+                                    </option>
+                                    <option value="other">Other</option>
+                                  </select>
+
+                                  <button
+                                    type="button"
+                                    className="finance-primary-button"
+                                    disabled={Boolean(refundSaving[key])}
+                                    onClick={() =>
+                                      handleTeacherRefund(
+                                        selectedCancelledExpense,
+                                        allocation
+                                      )
+                                    }
+                                  >
+                                    {refundSaving[key]
+                                      ? "Saving..."
+                                      : "Record Refund"}
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+
+                    {!(selectedCancelledExpense.allocations || []).some(
+                      allocation =>
+                        Number(allocation.paidAmount || 0) > 0
+                    ) && (
+                      <tr>
+                        <td colSpan="5" className="empty-state">
+                          No teacher contributions were paid for this expense.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        )}
       </main>
     </div>
   )
