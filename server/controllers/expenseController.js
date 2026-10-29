@@ -2,9 +2,15 @@
 import Expense from "../models/expense.js"
 import Teacher from "../models/teacher.js"
 import Notification from "../models/notification.js"
+import mongoose from "mongoose"
 
 const roundAmount = amount =>
   Math.round((Number(amount || 0) + Number.EPSILON) * 100) / 100
+
+const isValidObjectId = value => mongoose.isValidObjectId(value)
+
+const invalidIdResponse = (res, label = "ID") =>
+  res.status(400).json({ message: `Invalid ${label}` })
 
 const getDateFilter = query => {
   const filter = {}
@@ -128,7 +134,11 @@ const getExpenseHistoryItem = (expense, allocation) => {
     refundDue: expense.isCancelled ? getCashRefundDue(allocation) : 0,
     status: expense.isCancelled
       ? "Cancelled"
-      : getContributionStatus(allocation.allocatedAmount, allocation.paidAmount, due),
+      : getContributionStatus(
+          allocation.allocatedAmount,
+          allocation.paidAmount,
+          due
+        ),
     payments: allocation.payments || [],
     refunds: allocation.refunds || []
   }
@@ -148,15 +158,21 @@ export const createExpense = async (req, res) => {
     const date = new Date(expenseDate)
 
     if (!category?.trim()) {
-      return res.status(400).json({ message: "Expense category is required" })
+      return res.status(400).json({
+        message: "Expense category is required"
+      })
     }
 
     if (!Number.isFinite(expenseAmount) || expenseAmount <= 0) {
-      return res.status(400).json({ message: "Enter a valid expense amount" })
+      return res.status(400).json({
+        message: "Enter a valid expense amount"
+      })
     }
 
     if (!expenseDate || Number.isNaN(date.getTime())) {
-      return res.status(400).json({ message: "Enter a valid expense date" })
+      return res.status(400).json({
+        message: "Enter a valid expense date"
+      })
     }
 
     if (!["centre", "teachers"].includes(paidBy)) {
@@ -166,21 +182,34 @@ export const createExpense = async (req, res) => {
     }
 
     const totalAmount = roundAmount(expenseAmount)
+
+    if (totalAmount <= 0) {
+      return res.status(400).json({
+        message: "Expense amount must be at least ₹0.01"
+      })
+    }
+
     let allocations = []
     let teacherCount = 0
 
-    // Centre-paid expenses are recorded only; no teacher allocations.
+    // Centre-paid expenses are recorded without teacher allocations.
     if (paidBy === "teachers") {
-      const teachers = await Teacher.find({ status: "active" }).select("_id")
+      const teachers = await Teacher.find({
+        status: "active"
+      }).select("_id")
+
       teacherCount = teachers.length
 
       if (!teacherCount) {
         return res.status(400).json({
-          message: "No active teachers are available for expense allocation"
+          message:
+            "No active teachers are available to share this expense. Choose Centre or activate a teacher first."
         })
       }
 
-      const baseShare = Math.floor((totalAmount / teacherCount) * 100) / 100
+      const baseShare =
+        Math.floor((totalAmount / teacherCount) * 100) / 100
+
       let allocatedTotal = 0
 
       allocations = teachers.map((teacher, index) => {
@@ -188,7 +217,9 @@ export const createExpense = async (req, res) => {
           ? roundAmount(totalAmount - allocatedTotal)
           : baseShare
 
-        allocatedTotal = roundAmount(allocatedTotal + allocatedAmount)
+        allocatedTotal = roundAmount(
+          allocatedTotal + allocatedAmount
+        )
 
         return {
           teacherId: teacher._id,
@@ -214,14 +245,18 @@ export const createExpense = async (req, res) => {
       createdBy: req.user.userId
     })
 
-    const result = await populateExpense(Expense.findById(expense._id))
+    const result = await populateExpense(
+      Expense.findById(expense._id)
+    )
 
     return res.status(201).json({
       message: "Expense created successfully",
       expense: result
     })
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
@@ -237,50 +272,92 @@ export const getExpenses = async (req, res) => {
     if (dateFilter) filter.expenseDate = dateFilter
 
     const expenses = await populateExpense(
-      Expense.find(filter).sort({ expenseDate: -1, createdAt: -1 })
+      Expense.find(filter).sort({
+        expenseDate: -1,
+        createdAt: -1
+      })
     )
 
     return res.status(200).json(expenses)
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
 export const getExpenseSummary = async (req, res) => {
   try {
     const expenses = await Expense.find(getExpenseFilter(req.query))
-    const teacherExpenses = expenses.filter(expense => expense.paidBy === "teachers")
+
+    const teacherExpenses = expenses.filter(
+      expense => expense.paidBy === "teachers"
+    )
 
     const totalExpenses = roundAmount(
-      expenses.reduce((total, expense) => total + Number(expense.amount || 0), 0)
+      expenses.reduce(
+        (total, expense) => total + Number(expense.amount || 0),
+        0
+      )
     )
 
     const totalAllocated = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + Number(allocation.allocatedAmount || 0), 0
-        ), 0)
+      teacherExpenses.reduce(
+        (total, expense) =>
+          total + expense.allocations.reduce(
+            (sum, allocation) =>
+              sum + Number(allocation.allocatedAmount || 0),
+            0
+          ),
+        0
+      )
     )
 
     const totalContributionsPaid = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + Number(allocation.paidAmount || 0), 0
-        ), 0)
+      teacherExpenses.reduce(
+        (total, expense) =>
+          total + expense.allocations.reduce(
+            (sum, allocation) =>
+              sum + Number(allocation.paidAmount || 0),
+            0
+          ),
+        0
+      )
     )
 
     const totalContributionDue = roundAmount(
-      teacherExpenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + getContributionDue(allocation), 0
-        ), 0)
+      teacherExpenses.reduce(
+        (total, expense) =>
+          total + expense.allocations.reduce(
+            (sum, allocation) =>
+              sum + getContributionDue(allocation),
+            0
+          ),
+        0
+      )
     )
 
+    // Refunds are historical cash movements. Include refunds recorded
+    // against cancelled expenses, without including cancelled expenses
+    // in the active expense totals.
+    const dateFilter = getDateFilter(req.query)
+    const refundFilter = dateFilter
+      ? { expenseDate: dateFilter }
+      : {}
+
+    const refundExpenses = await Expense.find(refundFilter)
+      .select("allocations")
+
     const totalRefundsRecorded = roundAmount(
-      expenses.reduce((total, expense) =>
-        total + expense.allocations.reduce(
-          (sum, allocation) => sum + getTotalRefunded(allocation), 0
-        ), 0)
+      refundExpenses.reduce(
+        (total, expense) =>
+          total + (expense.allocations || []).reduce(
+            (sum, allocation) =>
+              sum + getTotalRefunded(allocation),
+            0
+          ),
+        0
+      )
     )
 
     return res.status(200).json({
@@ -291,7 +368,9 @@ export const getExpenseSummary = async (req, res) => {
       totalRefundsRecorded
     })
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
@@ -332,7 +411,9 @@ export const getTeacherContributions = async (req, res) => {
         const summary = teacherMap.get(id)
 
         if (!expense.isCancelled) {
-          summary.totalAllocated += Number(allocation.allocatedAmount || 0)
+          summary.totalAllocated += Number(
+            allocation.allocatedAmount || 0
+          )
           summary.totalDue += getContributionDue(allocation)
         }
 
@@ -357,23 +438,35 @@ export const getTeacherContributions = async (req, res) => {
         totalDue: roundAmount(teacher.totalDue),
         totalRefunded: roundAmount(teacher.totalRefunded),
         refundDue: roundAmount(teacher.refundDue),
-        availableAdvance: await getAvailableTeacherAdvance(teacher.teacherId),
+        availableAdvance: await getAvailableTeacherAdvance(
+          teacher.teacherId
+        ),
         status: getContributionStatus(
-          teacher.totalAllocated, teacher.totalPaid, teacher.totalDue
+          teacher.totalAllocated,
+          teacher.totalPaid,
+          teacher.totalDue
         )
       }))
     )
 
     return res.status(200).json(contributions)
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
 export const getTeacherContributionHistory = async (req, res) => {
   try {
     const { teacherId } = req.params
+
+    if (!isValidObjectId(teacherId)) {
+      return invalidIdResponse(res, "teacher ID")
+    }
+
     const dateFilter = getDateFilter(req.query)
+
     const filter = {
       "allocations.teacherId": teacherId,
       paidBy: "teachers"
@@ -388,24 +481,34 @@ export const getTeacherContributionHistory = async (req, res) => {
 
     const history = expenses.map(expense => {
       const allocation = getAllocation(expense, teacherId)
-      return allocation ? getExpenseHistoryItem(expense, allocation) : null
+
+      return allocation
+        ? getExpenseHistoryItem(expense, allocation)
+        : null
     }).filter(Boolean)
 
     return res.status(200).json(history)
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
 export const getMyContributions = async (req, res) => {
   try {
-    const teacher = await Teacher.findOne({ userId: req.user.userId })
+    const teacher = await Teacher.findOne({
+      userId: req.user.userId
+    })
 
     if (!teacher) {
-      return res.status(404).json({ message: "Teacher profile not found" })
+      return res.status(404).json({
+        message: "Teacher profile not found"
+      })
     }
 
     const dateFilter = getDateFilter(req.query)
+
     const filter = {
       "allocations.teacherId": teacher._id,
       paidBy: "teachers"
@@ -420,18 +523,35 @@ export const getMyContributions = async (req, res) => {
 
     const history = expenses.map(expense => {
       const allocation = getAllocation(expense, teacher._id)
-      return allocation ? getExpenseHistoryItem(expense, allocation) : null
+
+      return allocation
+        ? getExpenseHistoryItem(expense, allocation)
+        : null
     }).filter(Boolean)
 
-    const activeHistory = history.filter(item => !item.isCancelled)
+    const activeHistory = history.filter(
+      item => !item.isCancelled
+    )
+
     const totalAllocated = roundAmount(
-      activeHistory.reduce((sum, item) => sum + Number(item.allocatedAmount || 0), 0)
+      activeHistory.reduce(
+        (sum, item) => sum + Number(item.allocatedAmount || 0),
+        0
+      )
     )
+
     const totalPaid = roundAmount(
-      history.reduce((sum, item) => sum + Number(item.paidAmount || 0), 0)
+      history.reduce(
+        (sum, item) => sum + Number(item.paidAmount || 0),
+        0
+      )
     )
+
     const totalDue = roundAmount(
-      activeHistory.reduce((sum, item) => sum + Number(item.dueAmount || 0), 0)
+      activeHistory.reduce(
+        (sum, item) => sum + Number(item.dueAmount || 0),
+        0
+      )
     )
 
     return res.status(200).json({
@@ -445,27 +565,48 @@ export const getMyContributions = async (req, res) => {
         totalPaid,
         totalDue,
         totalRefunded: roundAmount(
-          history.reduce((sum, item) => sum + item.refundAmount, 0)
+          history.reduce(
+            (sum, item) => sum + item.refundAmount,
+            0
+          )
         ),
         refundDue: roundAmount(
-          history.reduce((sum, item) => sum + item.refundDue, 0)
+          history.reduce(
+            (sum, item) => sum + item.refundDue,
+            0
+          )
         ),
-        availableAdvance: await getAvailableTeacherAdvance(teacher._id),
-        adjustmentRequired: activeHistory.some(item => item.adjustmentRequired),
-        status: getContributionStatus(totalAllocated, totalPaid, totalDue)
+        availableAdvance: await getAvailableTeacherAdvance(
+          teacher._id
+        ),
+        adjustmentRequired: activeHistory.some(
+          item => item.adjustmentRequired
+        ),
+        status: getContributionStatus(
+          totalAllocated,
+          totalPaid,
+          totalDue
+        )
       },
       history
     })
   } catch (error) {
-    return res.status(400).json({ message: error.message })
+    return res.status(400).json({
+      message: error.message
+    })
   }
 }
 
-// Records a teacher payment against their outstanding shared expenses,
+// Records teacher payments against outstanding shared expenses,
 // oldest first. Centre-paid expenses are never considered.
 export const recordTeacherContribution = async (req, res) => {
   try {
     const { teacherId } = req.params
+
+    if (!isValidObjectId(teacherId)) {
+      return invalidIdResponse(res, "teacher ID")
+    }
+
     const {
       amount,
       paymentDate,
@@ -476,36 +617,62 @@ export const recordTeacherContribution = async (req, res) => {
 
     const cashAmount = roundAmount(amount)
 
-    if (!Number.isFinite(Number(amount)) || cashAmount < 0) {
-      return res.status(400).json({ message: "Enter a valid payment amount" })
+    if (
+      amount === undefined ||
+      amount === null ||
+      amount === "" ||
+      !Number.isFinite(Number(amount)) ||
+      cashAmount < 0
+    ) {
+      return res.status(400).json({
+        message: "Enter a valid payment amount"
+      })
     }
 
     if (!["cash", "upi", "bank_transfer", "other"].includes(paymentMethod)) {
-      return res.status(400).json({ message: "Invalid payment method" })
+      return res.status(400).json({
+        message: "Invalid payment method"
+      })
     }
 
-    const date = paymentDate ? new Date(paymentDate) : new Date()
+    if (typeof useAdvance !== "boolean") {
+      return res.status(400).json({
+        message: "useAdvance must be a boolean value"
+      })
+    }
+
+    const date = paymentDate
+      ? new Date(paymentDate)
+      : new Date()
 
     if (Number.isNaN(date.getTime())) {
-      return res.status(400).json({ message: "Invalid payment date" })
+      return res.status(400).json({
+        message: "Invalid payment date"
+      })
     }
 
     const expenses = await Expense.find({
       paidBy: "teachers",
       isCancelled: { $ne: true },
       "allocations.teacherId": teacherId
-    }).sort({ expenseDate: 1, createdAt: 1 })
+    }).sort({
+      expenseDate: 1,
+      createdAt: 1
+    })
 
     const allocations = expenses.map(expense => ({
       expense,
       allocation: getAllocation(expense, teacherId)
     })).filter(item =>
-      item.allocation && getContributionDue(item.allocation) > 0
+      item.allocation &&
+      getContributionDue(item.allocation) > 0
     )
 
     const totalDue = roundAmount(
       allocations.reduce(
-        (sum, item) => sum + getContributionDue(item.allocation), 0
+        (sum, item) =>
+          sum + getContributionDue(item.allocation),
+        0
       )
     )
 
@@ -519,12 +686,18 @@ export const recordTeacherContribution = async (req, res) => {
       ? await getAvailableTeacherAdvance(teacherId)
       : 0
 
-    const advanceUsed = roundAmount(Math.min(availableAdvance, totalDue))
-    const cashLimit = roundAmount(totalDue - advanceUsed)
+    const advanceUsed = roundAmount(
+      Math.min(availableAdvance, totalDue)
+    )
+
+    const cashLimit = roundAmount(
+      totalDue - advanceUsed
+    )
 
     if (cashAmount > cashLimit) {
       return res.status(400).json({
-        message: `Payment cannot exceed ₹${cashLimit.toFixed(2)} after applying advance`
+        message:
+          `Payment cannot exceed ₹${cashLimit.toFixed(2)} after applying advance`
       })
     }
 
@@ -541,16 +714,25 @@ export const recordTeacherContribution = async (req, res) => {
       let due = getContributionDue(allocation)
 
       if (advanceRemaining > 0 && due > 0) {
-        const applied = roundAmount(Math.min(advanceRemaining, due))
+        const applied = roundAmount(
+          Math.min(advanceRemaining, due)
+        )
+
         allocation.advanceApplied = roundAmount(
           Number(allocation.advanceApplied || 0) + applied
         )
-        advanceRemaining = roundAmount(advanceRemaining - applied)
+
+        advanceRemaining = roundAmount(
+          advanceRemaining - applied
+        )
+
         due = roundAmount(due - applied)
       }
 
       if (cashRemaining > 0 && due > 0) {
-        const paid = roundAmount(Math.min(cashRemaining, due))
+        const paid = roundAmount(
+          Math.min(cashRemaining, due)
+        )
 
         allocation.payments.push({
           amount: paid,
@@ -563,12 +745,16 @@ export const recordTeacherContribution = async (req, res) => {
           Number(allocation.paidAmount || 0) + paid
         )
 
-        cashRemaining = roundAmount(cashRemaining - paid)
+        cashRemaining = roundAmount(
+          cashRemaining - paid
+        )
       }
 
       await expense.save()
 
-      if (advanceRemaining <= 0 && cashRemaining <= 0) break
+      if (advanceRemaining <= 0 && cashRemaining <= 0) {
+        break
+      }
     }
 
     const updatedExpenses = await Expense.find({
@@ -584,7 +770,11 @@ export const recordTeacherContribution = async (req, res) => {
       if (!allocation) continue
 
       paidTotal += Number(allocation.paidAmount || 0)
-      dueTotal += getContributionDue(allocation, expense.isCancelled)
+
+      dueTotal += getContributionDue(
+        allocation,
+        expense.isCancelled
+      )
     }
 
     return res.status(200).json({
@@ -594,10 +784,16 @@ export const recordTeacherContribution = async (req, res) => {
       paidAmount: roundAmount(paidTotal),
       availableAdvance: await getAvailableTeacherAdvance(teacherId),
       dueAmount: roundAmount(dueTotal),
-      status: dueTotal <= 0 ? "Paid" : paidTotal > 0 ? "Partial" : "Due"
+      status: dueTotal <= 0
+        ? "Paid"
+        : paidTotal > 0
+          ? "Partial"
+          : "Due"
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    return res.status(500).json({
+      message: error.message
+    })
   }
 }
 
@@ -606,18 +802,28 @@ export const cancelExpense = async (req, res) => {
     const { expenseId } = req.params
     const { cancelReason } = req.body
 
+    if (!isValidObjectId(expenseId)) {
+      return invalidIdResponse(res, "expense ID")
+    }
+
     if (!cancelReason?.trim()) {
-      return res.status(400).json({ message: "Cancellation reason is required" })
+      return res.status(400).json({
+        message: "Cancellation reason is required"
+      })
     }
 
     const expense = await Expense.findById(expenseId)
 
     if (!expense) {
-      return res.status(404).json({ message: "Expense not found" })
+      return res.status(404).json({
+        message: "Expense not found"
+      })
     }
 
     if (expense.isCancelled) {
-      return res.status(400).json({ message: "Expense is already cancelled" })
+      return res.status(400).json({
+        message: "Expense is already cancelled"
+      })
     }
 
     for (const allocation of expense.allocations) {
@@ -651,12 +857,18 @@ export const cancelExpense = async (req, res) => {
       if (
         getCashRefundDue(allocation) <= 0 &&
         Number(allocation.advanceApplied || 0) <= 0
-      ) continue
+      ) {
+        continue
+      }
 
-      const teacher = await Teacher.findById(allocation.teacherId).select("userId")
+      const teacher = await Teacher.findById(
+        allocation.teacherId
+      ).select("userId")
+
       if (!teacher?.userId) continue
 
       const refundDue = getCashRefundDue(allocation)
+
       const message = refundDue > 0
         ? `The expense "${expense.category}" has been cancelled. A cash contribution refund of ₹${refundDue.toFixed(2)} is pending. Please contact the coaching centre office.`
         : `The expense "${expense.category}" has been cancelled. Your applied advance requires adjustment. Please contact the coaching centre office.`
@@ -671,42 +883,80 @@ export const cancelExpense = async (req, res) => {
       })
     }
 
-    if (notifications.length) await Notification.insertMany(notifications)
+    if (notifications.length) {
+      await Notification.insertMany(notifications)
+    }
 
     return res.status(200).json({
-      message: "Expense cancelled successfully. Affected teachers have been notified.",
+      message:
+        "Expense cancelled successfully. Affected teachers have been notified.",
       refundsToRecord: expense.allocations.map(allocation => ({
         teacherId: allocation.teacherId,
         paidAmount: Number(allocation.paidAmount || 0),
         alreadyRefunded: getTotalRefunded(allocation),
         refundDue: getCashRefundDue(allocation),
         advanceApplied: Number(allocation.advanceApplied || 0)
-      })).filter(item => item.refundDue > 0 || item.advanceApplied > 0),
+      })).filter(item =>
+        item.refundDue > 0 || item.advanceApplied > 0
+      ),
       expense
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    return res.status(500).json({
+      message: error.message
+    })
   }
 }
 
 export const recordTeacherRefund = async (req, res) => {
   try {
     const { expenseId, teacherId } = req.params
-    const { amount, refundDate, paymentMethod = "cash", note } = req.body
+    const {
+      amount,
+      refundDate,
+      paymentMethod = "cash",
+      note
+    } = req.body
+
+    if (!isValidObjectId(expenseId)) {
+      return invalidIdResponse(res, "expense ID")
+    }
+
+    if (!isValidObjectId(teacherId)) {
+      return invalidIdResponse(res, "teacher ID")
+    }
+
+    if (
+      amount === undefined ||
+      amount === null ||
+      amount === "" ||
+      !Number.isFinite(Number(amount))
+    ) {
+      return res.status(400).json({
+        message: "Enter a valid refund amount"
+      })
+    }
+
     const refundAmount = roundAmount(amount)
 
-    if (!Number.isFinite(Number(amount)) || refundAmount <= 0) {
-      return res.status(400).json({ message: "Enter a valid refund amount" })
+    if (refundAmount <= 0) {
+      return res.status(400).json({
+        message: "Enter a valid refund amount"
+      })
     }
 
     if (!["cash", "upi", "bank_transfer", "other"].includes(paymentMethod)) {
-      return res.status(400).json({ message: "Invalid refund payment method" })
+      return res.status(400).json({
+        message: "Invalid refund payment method"
+      })
     }
 
     const expense = await Expense.findById(expenseId)
 
     if (!expense) {
-      return res.status(404).json({ message: "Expense not found" })
+      return res.status(404).json({
+        message: "Expense not found"
+      })
     }
 
     if (!expense.isCancelled) {
@@ -727,14 +977,19 @@ export const recordTeacherRefund = async (req, res) => {
 
     if (refundAmount > refundDue) {
       return res.status(400).json({
-        message: `Refund cannot exceed the remaining ₹${refundDue.toFixed(2)}`
+        message:
+          `Refund cannot exceed the remaining ₹${refundDue.toFixed(2)}`
       })
     }
 
-    const date = refundDate ? new Date(refundDate) : new Date()
+    const date = refundDate
+      ? new Date(refundDate)
+      : new Date()
 
     if (Number.isNaN(date.getTime())) {
-      return res.status(400).json({ message: "Invalid refund date" })
+      return res.status(400).json({
+        message: "Invalid refund date"
+      })
     }
 
     allocation.refunds.push({
@@ -753,6 +1008,8 @@ export const recordTeacherRefund = async (req, res) => {
       refundDue: getCashRefundDue(allocation)
     })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    return res.status(500).json({
+      message: error.message
+    })
   }
 }
