@@ -24,6 +24,18 @@ const money = value =>
     maximumFractionDigits: 2
   })}`
 
+const getPaymentMethodLabel = method => {
+  const labels = {
+    cash: "Cash",
+    upi: "UPI",
+    bank_transfer: "Bank Transfer",
+    other: "Other"
+  }
+
+  const key = String(method || "").toLowerCase()
+  return labels[key] || (method ? String(method) : "Unknown")
+}
+
 const getMonthLabel = month => {
   const [year, number] = month.split("-").map(Number)
 
@@ -354,18 +366,34 @@ function Finances() {
           teacherId: teacher.teacherId,
           allocated: 0,
           paid: 0,
-          due: 0
+          due: 0,
+          paymentMethods: []
         }
       }
 
       const row = teacherContributions[id]
       const allocated = Number(allocation.allocatedAmount || 0)
       const paid = Number(allocation.paidAmount || 0)
-      const due = Math.max(0, allocated - paid)
+      const advanceApplied = Number(allocation.advanceApplied || 0)
+      const reversedAmount = Number(allocation.reversedAmount || 0)
+      const due = Math.max(
+        0,
+        allocated - paid - advanceApplied - reversedAmount
+      )
 
       row.allocated += allocated
       row.paid += paid
       row.due += due
+
+      // Preserve the actual methods used across all recorded payments.
+      ;(allocation.payments || []).forEach(payment => {
+        if (payment.paymentMethod) {
+          const label = getPaymentMethodLabel(payment.paymentMethod)
+          if (!row.paymentMethods.includes(label)) {
+            row.paymentMethods.push(label)
+          }
+        }
+      })
     })
   })
 
@@ -404,8 +432,11 @@ function Finances() {
     { label: "Teacher Contribution Due", value: annual.expenseDue },
     {
       label: "Net Centre Earnings",
+      // Expenses paid by teachers should not reduce centre earnings twice.
+      // Contributions received offset the teacher-paid expense allocation.
       value: Number(annual.centreEarnings || 0) -
-        Number(annual.expenses || 0)
+        Number(annual.expenses || 0) +
+        Number(annual.expenseReceived || 0)
     }
   ]
 
@@ -638,7 +669,9 @@ function Finances() {
                         sum + Math.max(
                           0,
                           Number(allocation.allocatedAmount || 0) -
-                          Number(allocation.paidAmount || 0)
+                          Number(allocation.paidAmount || 0) -
+                          Number(allocation.advanceApplied || 0) -
+                          Number(allocation.reversedAmount || 0)
                         ),
                       0
                     )
@@ -765,26 +798,42 @@ function Finances() {
                       <td>{money(teacher.paid)}</td>
                       <td>{money(teacher.due)}</td>
                       <td>
-                        {teacher.due > 0 ? (
-                          <select
-                            value={paymentMethods[key] || "cash"}
-                            onChange={event =>
-                              setPaymentMethods(previous => ({
-                                ...previous,
-                                [key]: event.target.value
-                              }))
-                            }
-                            aria-label={`Payment method for ${teacher.name}`}
-                          >
-                            <option value="cash">Cash</option>
-                            <option value="upi">UPI</option>
-                            <option value="bank_transfer">Bank transfer</option>
-                            <option value="other">Other</option>
-                          </select>
-                        ) : (
-                          <span className="status paid">Paid</span>
-                        )}
-                      </td>
+  {teacher.paymentMethods.length > 0 ? (
+    teacher.due <= 0 ? (
+      <span className="status paid">
+        Paid by {teacher.paymentMethods.join(", ")}
+      </span>
+    ) : (
+      <div className="table-secondary">
+        Paid by {teacher.paymentMethods.join(", ")}
+      </div>
+    )
+  ) : teacher.paid > 0 ? (
+    <div className="table-secondary">
+      Payment method not recorded
+    </div>
+  ) : teacher.due <= 0 ? (
+    <span className="status paid">No payment required</span>
+  ) : null}
+
+  {teacher.due > 0 && (
+    <select
+      value={paymentMethods[key] || "cash"}
+      onChange={event =>
+        setPaymentMethods(previous => ({
+          ...previous,
+          [key]: event.target.value
+        }))
+      }
+      aria-label={`Payment method for next payment by ${teacher.name}`}
+    >
+      <option value="cash">Cash</option>
+      <option value="upi">UPI</option>
+      <option value="bank_transfer">Bank transfer</option>
+      <option value="other">Other</option>
+    </select>
+  )}
+</td>
                       <td>
                         {teacher.due > 0 ? (
                           <div className="finance-contribution-row">

@@ -304,7 +304,7 @@
 
 .finances-table th,
 .finances-table td {
-  padding: 13px 14px;
+  padding: 8px 14px;
   border-bottom: 1px solid #e5e7eb;
   vertical-align: middle;
 }
@@ -681,3 +681,4 @@
     padding: 12px;
   }
 }
+
