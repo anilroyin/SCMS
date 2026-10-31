@@ -29,13 +29,32 @@ const generateFees = async (req, res) => {
 
     for (const student of students) {
       for (const enrollment of student.subjects) {
-        const startedMonth = enrollment.startedAt
-          .toISOString()
-          .slice(0, 7)
+        
+        if (!enrollment.startedAt) {
+          continue
+          }
 
-        if (startedMonth > billingMonth) {
+        const startedAt = new Date(enrollment.startedAt)
+
+        if (Number.isNaN(startedAt.getTime())) {
           continue
         }
+
+        const dateParts = new Intl.DateTimeFormat("en-CA", {
+         timeZone: "Asia/Kolkata",
+         year: "numeric",
+         month: "2-digit"
+        }).formatToParts(startedAt)
+
+         const year = dateParts.find(part => part.type === "year").value
+        const month = dateParts.find(part => part.type === "month").value
+
+        const startedMonth = `${year}-${month}`
+
+         if (startedMonth > billingMonth) {
+          continue
+         }
+
 
         const teacher = await Teacher.findById(
           enrollment.teacherId
