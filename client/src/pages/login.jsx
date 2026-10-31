@@ -91,8 +91,8 @@ function Login() {
     },
     {
       icon: IndianRupee,
-      title: "Track Fees",
-      description: "Fee collection, discounts and dues"
+      title: "Track Fees & Finance",
+      description: "Track collection, discounts and dues"
     },
     {
       icon: ReceiptText,
