@@ -754,8 +754,8 @@ function Finances() {
         <section className="finances-section">
           <div className="finances-section-header">
             <div>
-              <h2>Teacher Contributions</h2>
-              <p>Track each teacher's share and outstanding contribution.</p>
+              <h2>Teacher's Expense Contributions</h2>
+              <p>Track each teacher's share and outstanding contribution till date(TD).</p>
             </div>
 
             <button
@@ -774,9 +774,9 @@ function Finances() {
               <thead>
                 <tr>
                   <th>Teacher</th>
-                  <th>Allocated</th>
-                  <th>Paid</th>
-                  <th>Due</th>
+                  <th>Allocated(TD)</th>
+                  <th>Paid(TD)</th>
+                  <th>Due(TD)</th>
                   <th>Payment Method</th>
                   <th>Record Payment</th>
                 </tr>
