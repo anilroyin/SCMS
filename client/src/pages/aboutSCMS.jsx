@@ -209,15 +209,14 @@ function AboutSCMS() {
           <div className="about-scms-title">
             <div>
               <h2>Academic Project</h2>
-              <p>BCA Final-Year Major Project</p>
+              <p>Final-Year Major Project | Amity University Online</p>
             </div>
           </div>
           <p>
-            SCMS is a BCA final-year major project at Amity University Online, 
-            developed to address real administrative challenges at a coaching centre. 
-            It aims to reduce reliance on traditional offline administration, 
-            handwritten registers, and spreadsheets by providing a centralised 
-            web-based solution for managing daily coaching centre operations.
+            The Smart Coaching Management System (SCMS) was developed as a BCA final-year major 
+            project to address real administrative challenges at a coaching centre. It provides 
+            a centralised digital solution for managing students, teachers, fees, receipt generation,
+            schedules, payments, and financial records and reports.
           </p>
         </section>
 
