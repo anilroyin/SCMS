@@ -1,4 +1,3 @@
-
 import Fee from "../models/fee.js"
 import Student from "../models/student.js"
 import Teacher from "../models/teacher.js"
@@ -9,9 +8,13 @@ import Schedule from "../models/schedule.js"
 
 const round = (value) => Number(value.toFixed(2))
 
+const TIME_ZONE = "Asia/Kolkata"
+const IST_OFFSET_MINUTES = 330
+
+// Always determine the billing month using Indian Standard Time.
 const getBillingMonth = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
+    timeZone: TIME_ZONE,
     year: "numeric",
     month: "2-digit"
   }).formatToParts(date)
@@ -27,31 +30,63 @@ const getBillingMonth = (date = new Date()) => {
   return `${year}-${month}`
 }
 
+// Get the exact start of a billing month in IST.
+// JavaScript Date stores timestamps in UTC, so these dates represent
+// midnight IST as the corresponding UTC timestamp.
+const getBillingMonthStart = (billingMonth) => {
+  const [year, month] = billingMonth.split("-").map(Number)
+
+  return new Date(
+    Date.UTC(year, month - 1, 1) -
+    IST_OFFSET_MINUTES * 60 * 1000
+  )
+}
+
+const getNextBillingMonthStart = (billingMonth) => {
+  const [year, month] = billingMonth.split("-").map(Number)
+
+  return new Date(
+    Date.UTC(year, month, 1) -
+    IST_OFFSET_MINUTES * 60 * 1000
+  )
+}
+
+// Get the calendar day of a date in Indian Standard Time.
+const getISTDay = (date) => {
+  return Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: TIME_ZONE,
+      day: "numeric"
+    }).format(date)
+  )
+}
+
 const getAdminDashboard = async (req, res) => {
   try {
     const now = new Date()
 
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, "0")
-    const billingMonth = `${year}-${month}`
+    // FIX: Never use the server's local timezone to determine
+    // the current billing month.
+    const billingMonth = getBillingMonth(now)
 
-    const startOfMonth = new Date(year, now.getMonth(), 1)
-    const startOfNextMonth = new Date(year, now.getMonth() + 1, 1)
+    const startOfMonth = getBillingMonthStart(billingMonth)
+    const startOfNextMonth =
+      getNextBillingMonthStart(billingMonth)
 
     const today = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
-      timeZone: "Asia/Kolkata"
+      timeZone: TIME_ZONE
     }).format(now)
 
     const currentTime = new Intl.DateTimeFormat("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-      timeZone: "Asia/Kolkata"
+      timeZone: TIME_ZONE
     }).format(now)
 
     const birthdayFormatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Asia/Kolkata",
+      timeZone: TIME_ZONE,
       year: "numeric",
       month: "numeric",
       day: "numeric"
@@ -94,27 +129,41 @@ const getAdminDashboard = async (req, res) => {
       Student.find().select(
         "name status dateOfBirth"
       ),
+
       Teacher.find().select(
         "name teacherId commission dateOfBirth"
       ),
-      Fee.find({ billingMonth }).populate(
+
+      // Only retrieve fee records for the current IST billing month.
+      Fee.find({
+        billingMonth
+      }).populate(
         "studentId",
         "studentId name"
       ),
+
       Fee.find({
         payments: {
           $exists: true,
-          $not: { $size: 0 }
+          $not: {
+            $size: 0
+          }
         }
       })
         .populate("studentId", "studentId name")
         .populate("subjectId", "name")
-        .sort({ updatedAt: -1 })
+        .sort({
+          updatedAt: -1
+        })
         .limit(10),
+
       Notification.find()
-        .sort({ createdAt: -1 })
+        .sort({
+          createdAt: -1
+        })
         .limit(3)
         .populate("sender", "name role"),
+
       Schedule.find({
         day: today,
         status: "active"
@@ -124,9 +173,12 @@ const getAdminDashboard = async (req, res) => {
           "teacherId",
           "teacherId name"
         )
-        .sort({ startTime: 1 })
+        .sort({
+          startTime: 1
+        })
     ])
 
+    // Upcoming birthdays
     const upcomingBirthdays = []
 
     const addBirthday = (person, type) => {
@@ -166,18 +218,19 @@ const getAdminDashboard = async (req, res) => {
       }
     }
 
-    students.forEach(student =>
+    students.forEach(student => {
       addBirthday(student, "student")
-    )
+    })
 
-    teachers.forEach(teacher =>
+    teachers.forEach(teacher => {
       addBirthday(teacher, "teacher")
-    )
+    })
 
     upcomingBirthdays.sort(
       (a, b) => a.daysUntil - b.daysUntil
     )
 
+    // Student statistics
     const totalStudents = students.length
 
     const activeStudents = students.filter(
@@ -190,6 +243,7 @@ const getAdminDashboard = async (req, res) => {
         student.status === "left"
     ).length
 
+    // Current month's fee collection and outstanding balance
     let thisMonthCollection = 0
     let outstandingFees = 0
 
@@ -209,9 +263,12 @@ const getAdminDashboard = async (req, res) => {
     const studentFeeStatus = {}
 
     for (const fee of monthlyFees) {
-      const paidAmount = fee.paidAmount || 0
+      const paidAmount = Number(fee.paidAmount) || 0
+
       const dueAmount =
-        fee.dueAmount ?? fee.netFee
+        Number(
+          fee.dueAmount ?? fee.netFee ?? 0
+        ) || 0
 
       thisMonthCollection += paidAmount
       outstandingFees += dueAmount
@@ -227,23 +284,34 @@ const getAdminDashboard = async (req, res) => {
           }
         }
 
-        studentFeeStatus[studentId].paid +=
-          paidAmount
-
-        studentFeeStatus[studentId].due +=
-          dueAmount
+        studentFeeStatus[studentId].paid += paidAmount
+        studentFeeStatus[studentId].due += dueAmount
       }
 
+      // Weekly collection graph:
+      // Count payments that actually occurred during the current
+      // billing month, using IST month boundaries and calendar days.
       for (const payment of fee.payments || []) {
+        if (!payment.paymentDate) {
+          continue
+        }
+
         const paymentDate = new Date(
           payment.paymentDate
         )
+
+        if (Number.isNaN(paymentDate.getTime())) {
+          continue
+        }
 
         if (
           paymentDate >= startOfMonth &&
           paymentDate < startOfNextMonth
         ) {
-          const day = paymentDate.getDate()
+          // FIX: getDate() uses the server's local timezone.
+          // Use the Indian calendar day instead.
+          const day = getISTDay(paymentDate)
+
           const amount =
             Number(payment.amount) || 0
 
@@ -260,10 +328,9 @@ const getAdminDashboard = async (req, res) => {
       }
     }
 
-    for (const student of Object.values(
-      studentFeeStatus
-    )) {
-      if (student.due === 0) {
+    // Fee status counts unique students with fees this month.
+    for (const student of Object.values(studentFeeStatus)) {
+      if (student.due <= 0) {
         feeStatus.paid++
       } else if (student.paid > 0) {
         feeStatus.partial++
@@ -272,6 +339,7 @@ const getAdminDashboard = async (req, res) => {
       }
     }
 
+    // Recent payments
     const payments = []
 
     for (const fee of recentPayments) {
@@ -279,8 +347,7 @@ const getAdminDashboard = async (req, res) => {
         payments.push({
           id: payment._id,
           amount: payment.amount,
-          paymentMethod:
-            payment.paymentMethod,
+          paymentMethod: payment.paymentMethod,
           paymentDate: payment.paymentDate,
           studentName:
             fee.studentId?.name || "Unknown",
@@ -298,9 +365,9 @@ const getAdminDashboard = async (req, res) => {
         new Date(a.paymentDate)
     )
 
-    const recentPaymentList =
-      payments.slice(0, 10)
+    const recentPaymentList = payments.slice(0, 10)
 
+    // Teacher payment chart data for the current billing month
     const teacherPaymentData = {}
 
     for (const fee of monthlyFees) {
@@ -332,23 +399,21 @@ const getAdminDashboard = async (req, res) => {
       }
 
       const paidAmount =
-        fee.paidAmount || 0
+        Number(fee.paidAmount) || 0
+
+      const commissionPercentage =
+        Number(teacher.commission) || 0
 
       const centerCommission =
-        (paidAmount * teacher.commission) / 100
+        (paidAmount * commissionPercentage) / 100
 
-      teacherPaymentData[
-        teacherId
-      ].collectedAmount += paidAmount
+      teacherPaymentData[teacherId].collectedAmount +=
+        paidAmount
 
-      teacherPaymentData[
-        teacherId
-      ].centerCommission +=
+      teacherPaymentData[teacherId].centerCommission +=
         centerCommission
 
-      teacherPaymentData[
-        teacherId
-      ].teacherPayment +=
+      teacherPaymentData[teacherId].teacherPayment +=
         paidAmount - centerCommission
     }
 
@@ -367,6 +432,7 @@ const getAdminDashboard = async (req, res) => {
       )
     }))
 
+    // Today's upcoming classes
     const upcomingClasses = schedules
       .filter(
         schedule =>
@@ -374,35 +440,45 @@ const getAdminDashboard = async (req, res) => {
       )
       .slice(0, 5)
 
+    // Dashboard response
     res.json({
       billingMonth,
+
       summary: {
         totalStudents,
         activeStudents,
         studentChurn,
         totalTeachers: teachers.length,
+
         thisMonthCollection:
           round(thisMonthCollection),
+
         outstandingFees:
           round(outstandingFees)
       },
+
       feeCollection: Object.entries(
         weeklyCollection
       ).map(([week, amount]) => ({
         week,
         amount: round(amount)
       })),
+
       feeStatus,
+
       recentPayments: recentPaymentList,
+
       teacherPayments,
+
       upcomingClasses,
+
       upcomingBirthdays,
+
       recentNotifications: notifications
     })
   } catch (error) {
     res.status(500).json({
-      message:
-        "Failed to load admin dashboard",
+      message: "Failed to load admin dashboard",
       error: error.message
     })
   }
@@ -425,22 +501,32 @@ const getTeacherDashboard = async (req, res) => {
 
     const today = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
-      timeZone: "Asia/Kolkata"
+      timeZone: TIME_ZONE
     }).format(now)
 
-    const currentMonthDate = new Date(
-      `${billingMonth}-01T00:00:00+05:30`
-    )
+    // Generate the previous six billing months without relying
+    // on the server's local timezone.
+    const [currentYear, currentMonth] =
+      billingMonth.split("-").map(Number)
 
     const previousMonths = []
 
     for (let i = 5; i >= 0; i--) {
-      const date = new Date(currentMonthDate)
-      date.setMonth(date.getMonth() - i)
-
-      previousMonths.push(
-        getBillingMonth(date)
+      const monthDate = new Date(
+        Date.UTC(
+          currentYear,
+          currentMonth - 1 - i,
+          1
+        )
       )
+
+      const year = monthDate.getUTCFullYear()
+
+      const month = String(
+        monthDate.getUTCMonth() + 1
+      ).padStart(2, "0")
+
+      previousMonths.push(`${year}-${month}`)
     }
 
     const [
@@ -459,18 +545,23 @@ const getTeacherDashboard = async (req, res) => {
           "studentId name className subjects"
         )
         .populate("subjects.subjectId", "name"),
+
       Schedule.find({
         teacherId: teacher._id,
         day: today
       })
         .populate("subjectId", "name")
-        .sort({ startTime: 1 }),
+        .sort({
+          startTime: 1
+        }),
+
       Fee.find({
         teacherId: teacher._id,
         billingMonth
       }).select(
         "studentId paidAmount dueAmount netFee paymentStatus"
       ),
+
       TeacherEarning.find({
         teacherId: teacher._id,
         billingMonth: {
@@ -479,10 +570,12 @@ const getTeacherDashboard = async (req, res) => {
       }).select(
         "billingMonth teacherEarned collectedAmount"
       ),
+
       TeacherPayment.find({
         teacherId: teacher._id,
         billingMonth
       }).select("amount"),
+
       Notification.find({
         $or: [
           {
@@ -495,11 +588,14 @@ const getTeacherDashboard = async (req, res) => {
           }
         ]
       })
-        .sort({ createdAt: -1 })
+        .sort({
+          createdAt: -1
+        })
         .limit(5)
         .populate("sender", "name role")
     ])
 
+    // Fee status
     const feeStatus = {
       paid: 0,
       partial: 0,
@@ -509,7 +605,12 @@ const getTeacherDashboard = async (req, res) => {
     const studentFeeTotals = {}
 
     for (const fee of fees) {
-      const studentId = fee.studentId.toString()
+      const studentId =
+        fee.studentId?.toString()
+
+      if (!studentId) {
+        continue
+      }
 
       if (!studentFeeTotals[studentId]) {
         studentFeeTotals[studentId] = {
@@ -519,16 +620,16 @@ const getTeacherDashboard = async (req, res) => {
       }
 
       studentFeeTotals[studentId].paid +=
-        fee.paidAmount || 0
+        Number(fee.paidAmount) || 0
 
       studentFeeTotals[studentId].due +=
-        fee.dueAmount ?? fee.netFee
-      }
+        Number(
+          fee.dueAmount ?? fee.netFee ?? 0
+        ) || 0
+    }
 
-    for (const totals of Object.values(
-      studentFeeTotals
-    )) {
-      if (totals.due === 0) {
+    for (const totals of Object.values(studentFeeTotals)) {
+      if (totals.due <= 0) {
         feeStatus.paid++
       } else if (totals.paid > 0) {
         feeStatus.partial++
@@ -537,6 +638,7 @@ const getTeacherDashboard = async (req, res) => {
       }
     }
 
+    // Monthly earnings graph
     const earningsByMonth = {}
 
     for (const month of previousMonths) {
@@ -547,18 +649,25 @@ const getTeacherDashboard = async (req, res) => {
     let totalEarned = 0
 
     for (const earning of earnings) {
-      earningsByMonth[earning.billingMonth] +=
-        earning.teacherEarned
+      if (
+        earningsByMonth[earning.billingMonth] !== undefined
+      ) {
+        earningsByMonth[earning.billingMonth] +=
+          Number(earning.teacherEarned) || 0
+      }
 
       if (earning.billingMonth === billingMonth) {
-        totalCollected += earning.collectedAmount
-        totalEarned += earning.teacherEarned
+        totalCollected +=
+          Number(earning.collectedAmount) || 0
+
+        totalEarned +=
+          Number(earning.teacherEarned) || 0
       }
     }
 
     const totalPaid = payments.reduce(
       (total, payment) =>
-        total + payment.amount,
+        total + (Number(payment.amount) || 0),
       0
     )
 
@@ -571,6 +680,7 @@ const getTeacherDashboard = async (req, res) => {
 
     res.json({
       billingMonth,
+
       summary: {
         myStudents: assignedStudents.length,
         mySubjects: teacher.subjects.length,
@@ -580,21 +690,24 @@ const getTeacherDashboard = async (req, res) => {
         paymentsReceived: round(totalPaid),
         payable: round(totalEarned - totalPaid)
       },
+
       subjects: teacher.subjects,
+
       todaysSchedule: schedules,
+
       feeStatus,
+
       monthlyEarnings,
+
       recentNotifications: notifications
     })
   } catch (error) {
     res.status(500).json({
-      message:
-        "Failed to load teacher dashboard",
+      message: "Failed to load teacher dashboard",
       error: error.message
     })
   }
 }
-
 
 const getStudentDashboard = async (req, res) => {
   try {
@@ -615,7 +728,7 @@ const getStudentDashboard = async (req, res) => {
 
     const today = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
-      timeZone: "Asia/Kolkata"
+      timeZone: TIME_ZONE
     }).format(now)
 
     const [fees, schedules, notifications] =
@@ -623,7 +736,8 @@ const getStudentDashboard = async (req, res) => {
         Fee.find({
           studentId: student._id,
           billingMonth
-        }).populate("subjectId", "name")
+        })
+          .populate("subjectId", "name")
           .populate("teacherId", "name teacherId"),
 
         Schedule.find({
@@ -632,7 +746,9 @@ const getStudentDashboard = async (req, res) => {
         })
           .populate("subjectId", "name")
           .populate("teacherId", "name teacherId")
-          .sort({ startTime: 1 }),
+          .sort({
+            startTime: 1
+          }),
 
         Notification.find({
           $or: [
@@ -646,7 +762,9 @@ const getStudentDashboard = async (req, res) => {
             }
           ]
         })
-          .sort({ createdAt: -1 })
+          .sort({
+            createdAt: -1
+          })
           .limit(5)
           .populate("sender", "name role")
       ])
@@ -663,18 +781,25 @@ const getStudentDashboard = async (req, res) => {
     )
 
     const totalFee = fees.reduce(
-      (total, fee) => total + (fee.netFee || 0),
+      (total, fee) =>
+        total + (Number(fee.netFee) || 0),
       0
     )
 
     const totalPaid = fees.reduce(
-      (total, fee) => total + (fee.paidAmount || 0),
+      (total, fee) =>
+        total + (Number(fee.paidAmount) || 0),
       0
     )
 
     const totalDue = fees.reduce(
       (total, fee) =>
-        total + (fee.dueAmount ?? fee.netFee ?? 0),
+        total +
+        (
+          Number(
+            fee.dueAmount ?? fee.netFee ?? 0
+          ) || 0
+        ),
       0
     )
 
@@ -690,19 +815,26 @@ const getStudentDashboard = async (req, res) => {
 
       summary: {
         mySubjects: enrolledSubjects.length,
+
         myTeachers: new Set(
           enrolledSubjects
-            .map(subject => subject.teacherId?._id?.toString())
+            .map(subject =>
+              subject.teacherId?._id?.toString()
+            )
             .filter(Boolean)
         ).size,
+
         totalFee: round(totalFee),
         totalPaid: round(totalPaid),
         totalDue: round(totalDue)
       },
 
       subjects: enrolledSubjects,
+
       todaysSchedule,
+
       fees,
+
       recentNotifications: notifications
     })
   } catch (error) {
