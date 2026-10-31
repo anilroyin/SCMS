@@ -23,9 +23,15 @@ function Fees() {
   const { studentId } = useParams()
   const [searchParams] = useSearchParams()
 
-  const [billingMonth, setBillingMonth] = useState(() => {
-    return new Date().toISOString().slice(0, 7)
-  })
+  
+const [billingMonth, setBillingMonth] = useState(() => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, "0")
+
+  return `${year}-${month}`
+})
+
 
   const [students, setStudents] = useState([])
   const [teachers, setTeachers] = useState([])
