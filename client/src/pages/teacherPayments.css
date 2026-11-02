@@ -70,7 +70,7 @@
 .payment-controls {
   display: flex;
   align-items: flex-end;
-  padding: 18px 20px;
+  padding: 12px 20px;
   margin-bottom: 18px;
   background: #ffffff;
   border: 1px solid #d9dee3;
@@ -147,7 +147,8 @@
 
 .teacher-summary-card {
   min-width: 0;
-  padding: 18px 20px;
+  height: 72px;
+  padding: 12px 14px;
   box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #d9dee3;

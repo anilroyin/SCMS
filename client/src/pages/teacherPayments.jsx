@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/sidebar"
 import {
   ChevronLeft,
   Wallet,
@@ -13,7 +15,7 @@ import {
   ReceiptText,
   Banknote,
   Eye,
-  CreditCard 
+  CreditCard
 } from "lucide-react"
 import "./teacherPayments.css"
 
@@ -21,7 +23,11 @@ function TeacherPayments() {
   const navigate = useNavigate()
 
   const [billingMonth, setBillingMonth] = useState(() => {
-    return new Date().toISOString().slice(0, 7)
+  const now = new Date()
+
+  return `${now.getFullYear()}-${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}`
   })
 
   const [teachers, setTeachers] = useState([])
@@ -95,16 +101,14 @@ function TeacherPayments() {
     fetchTeacherPayments()
   }, [billingMonth])
 
-  const filteredTeachers = teachers.filter(
-    (teacher) => {
-      const searchValue = search.toLowerCase().trim()
+  const filteredTeachers = teachers.filter((teacher) => {
+    const searchValue = search.toLowerCase().trim()
 
-      return (
-        teacher.teacherId.toLowerCase().includes(searchValue) ||
-        teacher.name.toLowerCase().includes(searchValue)
-      )
-    }
-  )
+    return (
+      teacher.teacherId.toLowerCase().includes(searchValue) ||
+      teacher.name.toLowerCase().includes(searchValue)
+    )
+  })
 
   const openTeacherDetails = (teacherId) => {
     navigate(
@@ -114,197 +118,211 @@ function TeacherPayments() {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <p>Loading teacher payments...</p>
+      <div className="dashboard-layout">
+        <Sidebar />
+
+        <div className="dashboard-content">
+          <div className="page-container">
+            <p>Loading teacher payments...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1><CreditCard size={22} />Teacher Payments</h1>
-          <p>Manage teacher earnings and payments.</p>
-        </div>
+    <div className="dashboard-layout">
+      <Sidebar />
 
-        <button
-          className="back-button"
-          onClick={() =>
-            navigate(
-              sessionStorage.getItem("teacherPaymentsReturnPath") || "/teachers",
-              { replace: true }
-            )
-          }
-        >
-          <ChevronLeft size={17} />
-          Back
-        </button>
-      </div>
+      <div className="dashboard-content">
+        <div className="page-container">
+          <div className="page-header">
+            <div>
+              <h1>
+                <CreditCard size={22} />
+                Teacher Payments
+              </h1>
+              <p>Manage teacher earnings and payments.</p>
+            </div>
 
-      <div className="payment-controls">
-        <div>
-          <label htmlFor="billingMonth">
-            <ReceiptText size={16} />
-            Billing Month
-          </label>
-
-          <input
-            id="billingMonth"
-            type="month"
-            value={billingMonth}
-            onChange={(event) => {
-              setBillingMonth(event.target.value)
-              setSearch("")
-              setMessage("")
-            }}
-          />
-        </div>
-      </div>
-
-      {message && (
-        <div className="payment-message">
-          {message}
-        </div>
-      )}
-
-      <div className="teacher-summary-grid">
-        <div className="teacher-summary-card">
-          <span className="teacher-summary-label">
-            <IndianRupee size={18} />
-            Total Student Collection
-          </span>
-          <strong>{formatCurrency(summary.totalCollected)}</strong>
-        </div>
-
-        <div className="teacher-summary-card">
-          <span className="teacher-summary-label">
-            <Wallet size={18} />
-            Total Teacher Earned
-          </span>
-          <strong>{formatCurrency(summary.totalTeacherEarned)}</strong>
-        </div>
-
-        <div className="teacher-summary-card">
-          <span className="teacher-summary-label">
-            <Building2 size={18} />
-            Total Center Earned
-          </span>
-          <strong>{formatCurrency(summary.totalCenterEarned)}</strong>
-        </div>
-
-        <div className="teacher-summary-card">
-          <span className="teacher-summary-label">
-            <CircleCheck size={18} />
-            Total Paid to Teachers
-          </span>
-          <strong>{formatCurrency(summary.totalPaid)}</strong>
-        </div>
-
-        <div className="teacher-summary-card">
-          <span className="teacher-summary-label">
-            <Clock size={18} />
-            Total Teacher Payable
-          </span>
-          <strong>{formatCurrency(summary.totalPayable)}</strong>
-        </div>
-      </div>
-
-      <div className="payments-card">
-        <div className="payments-card-header">
-          <div>
-            <h2>
-              <Banknote size={19} />
-              Teacher Payments
-            </h2>
-            <p>{formatMonth(billingMonth)}</p>
+            <button
+              className="back-button"
+              onClick={() =>
+                navigate(
+                  sessionStorage.getItem("teacherPaymentsReturnPath") || "/teachers",
+                  { replace: true }
+                )
+              }
+            >
+              <ChevronLeft size={17} />
+              Back
+            </button>
           </div>
 
-          <span className="teacher-count">
-            <Users size={15} />
-            {filteredTeachers.length} teachers
-          </span>
-        </div>
+          <div className="payment-controls">
+            <div>
+              <label htmlFor="billingMonth">
+                <ReceiptText size={16} />
+                Billing Month
+              </label>
 
-        <div className="payment-filters">
-          <div className="search-box">
-            <label htmlFor="teacherSearch">
-              <Search size={15} />
-              Search Teacher
-            </label>
+              <input
+                id="billingMonth"
+                type="month"
+                value={billingMonth}
+                onChange={(event) => {
+                  setBillingMonth(event.target.value)
+                  setSearch("")
+                  setMessage("")
+                }}
+              />
+            </div>
+          </div>
 
-            <input
-              id="teacherSearch"
-              type="text"
-              placeholder="Search by ID or name"
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value)
-              }}
-            />
+          {message && (
+            <div className="payment-message">
+              {message}
+            </div>
+          )}
+
+          <div className="teacher-summary-grid">
+            <div className="teacher-summary-card">
+              <span className="teacher-summary-label">
+                <IndianRupee size={18} />
+                Total Student Collection
+              </span>
+              <strong>{formatCurrency(summary.totalCollected)}</strong>
+            </div>
+
+            <div className="teacher-summary-card">
+              <span className="teacher-summary-label">
+                <Wallet size={18} />
+                Total Teacher Earned
+              </span>
+              <strong>{formatCurrency(summary.totalTeacherEarned)}</strong>
+            </div>
+
+            <div className="teacher-summary-card">
+              <span className="teacher-summary-label">
+                <Building2 size={18} />
+                Total Center Earned
+              </span>
+              <strong>{formatCurrency(summary.totalCenterEarned)}</strong>
+            </div>
+
+            <div className="teacher-summary-card">
+              <span className="teacher-summary-label">
+                <CircleCheck size={18} />
+                Total Paid to Teachers
+              </span>
+              <strong>{formatCurrency(summary.totalPaid)}</strong>
+            </div>
+
+            <div className="teacher-summary-card">
+              <span className="teacher-summary-label">
+                <Clock size={18} />
+                Total Teacher Payable
+              </span>
+              <strong>{formatCurrency(summary.totalPayable)}</strong>
+            </div>
+          </div>
+
+          <div className="payments-card">
+            <div className="payments-card-header">
+              <div>
+                <h2>
+                  <Banknote size={19} />
+                  Teacher Payments
+                </h2>
+              </div>
+
+              <span className="teacher-count">
+                <Users size={15} />
+                {filteredTeachers.length} teachers
+              </span>
+            </div>
+
+            <div className="payment-filters">
+              <div className="search-box">
+                <label htmlFor="teacherSearch">
+                  <Search size={15} />
+                  Search Teacher
+                </label>
+
+                <input
+                  id="teacherSearch"
+                  type="text"
+                  placeholder="Search by ID or name"
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value)
+                  }}
+                />
+              </div>
+            </div>
+
+            {filteredTeachers.length === 0 ? (
+              <div className="empty-state">
+                No teacher payment records found.
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="payments-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <GraduationCap size={15} />
+                        Teacher
+                      </th>
+                      <th>
+                        <Wallet size={15} />
+                        Total Earned
+                      </th>
+                      <th>
+                        <CircleCheck size={15} />
+                        Total Paid
+                      </th>
+                      <th>
+                        <Clock size={15} />
+                        Payable
+                      </th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {filteredTeachers.map((teacher) => (
+                      <tr key={teacher.teacherId}>
+                        <td>
+                          <strong>{teacher.teacherId}</strong>
+                          <span className="table-secondary">
+                            {teacher.name}
+                          </span>
+                        </td>
+
+                        <td>{formatCurrency(teacher.totalEarned)}</td>
+                        <td>{formatCurrency(teacher.totalPaid)}</td>
+                        <td>{formatCurrency(teacher.payable)}</td>
+
+                        <td>
+                          <button
+                            className="view-button"
+                            onClick={() =>
+                              openTeacherDetails(teacher.id)
+                            }
+                          >
+                            Pay | View
+                            <Eye size={15} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
-
-        {filteredTeachers.length === 0 ? (
-          <div className="empty-state">
-            No teacher payment records found.
-          </div>
-        ) : (
-          <div className="table-container">
-            <table className="payments-table">
-              <thead>
-                <tr>
-                  <th>
-                    <GraduationCap size={15} />
-                    Teacher
-                  </th>
-                  <th>
-                    <Wallet size={15} />
-                    Total Earned
-                  </th>
-                  <th>
-                    <CircleCheck size={15} />
-                    Total Paid
-                  </th>
-                  <th>
-                    <Clock size={15} />
-                    Payable
-                  </th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredTeachers.map((teacher) => (
-                  <tr key={teacher.teacherId}>
-                    <td>
-                      <strong>{teacher.teacherId}</strong>
-                      <span className="table-secondary">
-                        {teacher.name}
-                      </span>
-                    </td>
-
-                    <td>{formatCurrency(teacher.totalEarned)}</td>
-                    <td>{formatCurrency(teacher.totalPaid)}</td>
-                    <td>{formatCurrency(teacher.payable)}</td>
-
-                    <td>
-                      <button
-                        className="view-button"
-                        onClick={() =>
-                          openTeacherDetails(teacher.id)
-                        }
-                      >
-                        Pay | View
-                        <Eye size={15} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </div>
   )
