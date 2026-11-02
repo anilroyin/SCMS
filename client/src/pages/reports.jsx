@@ -486,7 +486,7 @@ function Reports() {
                         name="Collection"
                         fill={CHART_COLORS.primary}
                        
-                        barSize={35}
+                        barSize={30}
                       />
                     </BarChart>
                   </ResponsiveContainer>
@@ -742,7 +742,7 @@ function Reports() {
                         dataKey="students"
                         name="Students"
                         fill={CHART_COLORS.student}
-                        barSize={22}
+                        barSize={30}
                       />
                     </BarChart>
                   </ResponsiveContainer>
