@@ -1,18 +1,23 @@
-.page-container {
-  padding: 30px;
-  background: #f5f7f9;
-  min-height: 100vh;
+
+.dashboard-content > .page-container {
+  width: 100%;
+  margin: 0;
+  padding: 0 !important;
   box-sizing: border-box;
 }
 
 .page-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #26313f;
   font-size: 24px;
@@ -30,11 +35,12 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+  padding: 9px 13px;
   border-radius: 7px;
-  padding: 11px 18px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .primary-button {
@@ -60,20 +66,22 @@
 
 .fee-controls {
   display: flex;
-  justify-content: space-between;
   align-items: flex-end;
-  gap: 20px;
-  padding: 18px 20px;
-  margin-bottom: 18px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .fee-controls > div {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  min-width: 0;
 }
 
 .fee-controls label,
@@ -82,7 +90,7 @@
 .status-filter label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   color: #6b7280;
   font-size: 13px;
   font-weight: 600;
@@ -90,11 +98,11 @@
 
 .fee-controls input {
   width: 180px;
-  padding: 10px 12px;
+  padding: 9px 11px;
   border: 1px solid #d9dee3;
   border-radius: 7px;
-  color: #26313f;
   background: #ffffff;
+  color: #26313f;
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -108,8 +116,8 @@
 }
 
 .fee-message {
-  padding: 11px 16px;
-  margin-bottom: 18px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
   border: 1px solid #d9dee3;
   border-radius: 7px;
   background: #ffffff;
@@ -117,76 +125,92 @@
   font-size: 14px;
 }
 
-/* Summary Cards */
-
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
 .summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
   min-width: 0;
-  padding: 16px 18px;
-  box-sizing: border-box;
+  min-height: 72px;
+  height: 72px;
+  padding: 12px 14px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .summary-card .summary-card-label {
-  display: inline-flex;
+  display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center;
-  gap: 9px;
-  margin-bottom: 6px;
+  gap: 7px;
+  width: auto;
+  margin: 0;
   color: #6b7280;
-  font-size: 13px;
-  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
 }
 
-.summary-card-label svg {
-  flex-shrink: 0;
+.summary-card .summary-card-label svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
   color: #80919f;
 }
 
 .summary-card strong {
   display: block;
+  margin: 0;
   color: #26313f;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .collection-value {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  flex-wrap: wrap;
 }
 
 .full-tag {
   display: inline-block;
-  padding: 5px 9px;
+  padding: 4px 7px;
   border-radius: 5px;
   background: #e8f5e9;
   color: #2e7d32;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
-
-/* Fees Card */
 
 .fees-card {
   padding: 20px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .fees-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .fees-card-header > div {
@@ -208,7 +232,7 @@
 }
 
 .fees-card-header p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   color: #6b7280;
   font-size: 13px;
 }
@@ -222,12 +246,10 @@
   white-space: nowrap;
 }
 
-/* Search and Filters */
-
 .fee-filters {
   display: flex;
   align-items: flex-end;
-  gap: 15px;
+  gap: 14px;
   margin-bottom: 18px;
 }
 
@@ -250,7 +272,7 @@
 .search-box input,
 .teacher-filter select,
 .status-filter select {
-  padding: 10px 12px;
+  padding: 9px 11px;
   border: 1px solid #d9dee3;
   border-radius: 7px;
   background: #ffffff;
@@ -271,9 +293,8 @@
   width: 150px;
 }
 
-/* Table */
-
 .table-container {
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -285,9 +306,9 @@
 
 .fees-table th,
 .fees-table td {
-  padding: 12px;
-  text-align: left;
+  padding: 12px 10px;
   border-bottom: 1px solid #e5e7eb;
+  text-align: left;
   font-size: 14px;
   white-space: nowrap;
 }
@@ -298,49 +319,45 @@
   font-weight: 600;
 }
 
-/* Student */
+.fees-table td {
+  color: #26313f;
+}
+
 .fees-table th:nth-child(1),
 .fees-table td:nth-child(1) {
   width: 10%;
 }
 
-/* Total Subjects */
 .fees-table th:nth-child(2),
 .fees-table td:nth-child(2) {
   width: 9%;
 }
 
-/* Original Fee */
 .fees-table th:nth-child(3),
 .fees-table td:nth-child(3) {
   width: 12%;
 }
 
-/* Discount */
 .fees-table th:nth-child(4),
 .fees-table td:nth-child(4) {
   width: 10%;
 }
 
-/* Net Fee */
 .fees-table th:nth-child(5),
 .fees-table td:nth-child(5) {
   width: 12%;
 }
 
-/* Paid */
 .fees-table th:nth-child(6),
 .fees-table td:nth-child(6) {
   width: 11%;
 }
 
-/* Due */
 .fees-table th:nth-child(7),
 .fees-table td:nth-child(7) {
   width: 11%;
 }
 
-/* Status */
 .fees-table th:nth-child(8),
 .fees-table td:nth-child(8) {
   width: 8%;
@@ -348,13 +365,9 @@
 
 .fees-table th svg {
   display: inline-block;
-  vertical-align: middle;
   margin-right: 5px;
   color: #80919f;
-}
-
-.fees-table td {
-  color: #26313f;
+  vertical-align: middle;
 }
 
 .fees-table tbody tr:hover {
@@ -377,8 +390,6 @@
 .clickable-row {
   cursor: pointer;
 }
-
-/* Status */
 
 .status {
   display: inline-block;
@@ -405,39 +416,36 @@
 }
 
 .empty-state {
-  padding: 35px 20px;
-  text-align: center;
+  padding: 30px 20px;
   color: #6b7280;
   font-size: 14px;
+  text-align: center;
 }
-
-/* Tablet */
 
 @media (max-width: 1100px) {
   .fee-filters {
     flex-wrap: wrap;
   }
-}
 
-@media (max-width: 900px) {
   .summary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
-  .search-box input,
-  .teacher-filter select,
-  .status-filter select {
-    width: 100%;
+  .summary-card {
+    padding: 10px;
+  }
+
+  .summary-card strong {
+    font-size: 15px;
+  }
+
+  .summary-card .summary-card-label {
+    gap: 5px;
+    font-size: 11px;
   }
 }
-
-/* Mobile */
 
 @media (max-width: 700px) {
-  .page-container {
-    padding: 20px;
-  }
-
   .page-header {
     align-items: flex-start;
     flex-direction: column;
@@ -453,16 +461,53 @@
     flex-direction: column;
   }
 
-  .fee-controls input {
-    width: 100%;
-  }
-
+  .fee-controls input,
   .fee-controls .primary-button {
     width: 100%;
   }
 
   .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 6px;
+  }
+
+  .summary-card {
+    min-height: 76px;
+    padding: 8px 5px;
+    gap: 5px;
+    border-radius: 7px;
+  }
+
+  .summary-card .summary-card-label {
+    flex-direction: column !important;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+  }
+
+  .summary-card .summary-card-label svg {
+    width: 14px;
+    height: 14px;
+    flex-basis: 14px;
+  }
+
+  .summary-card strong {
+    font-size: 12px;
+  }
+
+  .fees-card {
+    padding: 14px;
+  }
+
+  .fees-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .fee-count {
+    white-space: normal;
   }
 
   .fee-filters {
@@ -475,26 +520,27 @@
   .status-filter select {
     width: 100%;
   }
-
-  .fees-card {
-    padding: 16px;
-  }
-
-  .fees-card-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-  }
 }
-
-/* Small Mobile */
 
 @media (max-width: 450px) {
   .summary-grid {
-    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .summary-card {
+    padding: 7px 4px;
+  }
+
+  .summary-card .summary-card-label {
+    font-size: 9px;
+  }
+
+  .summary-card strong {
+    font-size: 11px;
   }
 
   .collection-value {
     flex-wrap: wrap;
+    gap: 4px;
   }
 }

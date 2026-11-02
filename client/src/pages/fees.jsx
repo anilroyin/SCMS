@@ -16,6 +16,7 @@ import {
   Percent,
   UserRound
 } from "lucide-react"
+import Sidebar from "../components/sidebar"
 import "./fees.css"
 
 function Fees() {
@@ -23,15 +24,13 @@ function Fees() {
   const { studentId } = useParams()
   const [searchParams] = useSearchParams()
 
-  
-const [billingMonth, setBillingMonth] = useState(() => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
+  const [billingMonth, setBillingMonth] = useState(() => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, "0")
 
-  return `${year}-${month}`
-})
-
+    return `${year}-${month}`
+  })
 
   const [students, setStudents] = useState([])
   const [teachers, setTeachers] = useState([])
@@ -236,263 +235,271 @@ const [billingMonth, setBillingMonth] = useState(() => {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <p>Loading fees...</p>
+      <div className="dashboard-layout">
+        <Sidebar />
+
+        <main className="dashboard-content">
+          <div className="page-container">
+            <p>Loading fees...</p>
+          </div>
+        </main>
       </div>
     )
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1><Wallet size={22} />Fees</h1>
-          <p>Manage student monthly fees and collections.</p>
-        </div>
+    <div className="dashboard-layout">
+      <Sidebar />
 
-        <button
-          className="back-button"
-          onClick={() =>
-            navigate(
-              sessionStorage.getItem("feesReturnPath") || "/",
-              { replace: true }
-            )
-          }
-        >
-          <ChevronLeft size={17} aria-hidden="true" />
-          Back
-        </button>
-      </div>
+      <main className="dashboard-content">
+        <div className="page-container">
+          <div className="page-header">
+            <div>
+              <h1><Wallet size={22} />Fees</h1>
+              <p>Manage student monthly fees and collections.</p>
+            </div>
 
-      <div className="fee-controls">
-        <div>
-          <label htmlFor="billingMonth">Billing Month</label>
+            <button
+              className="back-button"
+              onClick={() =>
+                navigate(
+                  sessionStorage.getItem("feesReturnPath") || "/",
+                  { replace: true }
+                )
+              }
+            >
+              <ChevronLeft size={17} aria-hidden="true" />
+              Back
+            </button>
+          </div>
 
-          <input
-            id="billingMonth"
-            type="month"
-            value={billingMonth}
-            onChange={(event) => {
-              setBillingMonth(event.target.value)
-              setMessage("")
-            }}
-          />
-        </div>
+          <div className="fee-controls">
+            <div>
+              <label htmlFor="billingMonth">Billing Month</label>
 
-        <button
-          className="primary-button"
-          onClick={generateFees}
-          disabled={generating}
-        >
-          <PlusCircle size={17} aria-hidden="true" />
-          {generating ? "Generating..." : "Generate Fees"}
-        </button>
-      </div>
+              <input
+                id="billingMonth"
+                type="month"
+                value={billingMonth}
+                onChange={(event) => {
+                  setBillingMonth(event.target.value)
+                  setMessage("")
+                }}
+              />
+            </div>
 
-      {message && (
-        <div className="fee-message">
-          {message}
-        </div>
-      )}
+            <button
+              className="primary-button"
+              onClick={generateFees}
+              disabled={generating}
+            >
+              <PlusCircle size={17} aria-hidden="true" />
+              {generating ? "Generating..." : "Generate Fees"}
+            </button>
+          </div>
 
-      <div className="summary-grid">
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <ReceiptText size={18} aria-hidden="true" />
-            Total Original Fee
-          </span>
-          <strong>{formatCurrency(summary.totalOriginalFee)}</strong>
-        </div>
+          {message && (
+            <div className="fee-message">
+              {message}
+            </div>
+          )}
 
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <IndianRupee size={18} aria-hidden="true" />
-            Total Net Fee
-          </span>
-          <strong>{formatCurrency(summary.totalNetFee)}</strong>
-        </div>
+          <div className="summary-grid">
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <ReceiptText size={18} aria-hidden="true" />
+                Total Original Fee
+              </span>
+              <strong>{formatCurrency(summary.totalOriginalFee)}</strong>
+            </div>
 
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <UserCheck size={18} aria-hidden="true" />
-            Fee Paid Students
-          </span>
-          <strong>{paidStudents}</strong>
-        </div>
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <IndianRupee size={18} aria-hidden="true" />
+                Total Net Fee
+              </span>
+              <strong>{formatCurrency(summary.totalNetFee)}</strong>
+            </div>
 
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <UserRound size={18} aria-hidden="true" />
-            Fee Due Students
-          </span>
-          <strong>{dueStudents}</strong>
-        </div>
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <UserCheck size={18} aria-hidden="true" />
+                Fee Paid Students
+              </span>
+              <strong>{paidStudents}</strong>
+            </div>
 
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <Wallet size={18} aria-hidden="true" />
-            Total Collection
-          </span>
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <UserRound size={18} aria-hidden="true" />
+                Fee Due Students
+              </span>
+              <strong>{dueStudents}</strong>
+            </div>
 
-          <div className="collection-value">
-            <strong>{formatCurrency(summary.totalCollection)}</strong>
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <Wallet size={18} aria-hidden="true" />
+                Total Collection
+              </span>
 
-            {collectionComplete && (
-              <span className="full-tag">Full</span>
+              <div className="collection-value">
+                <strong>{formatCurrency(summary.totalCollection)}</strong>
+
+                {collectionComplete && (
+                  <span className="full-tag">Full</span>
+                )}
+              </div>
+            </div>
+
+            <div className="summary-card">
+              <span className="summary-card-label">
+                <CircleAlert size={18} aria-hidden="true" />
+                Total Due
+              </span>
+              <strong>{formatCurrency(summary.totalDue)}</strong>
+            </div>
+          </div>
+
+          <div className="fees-card">
+            <div className="fees-card-header">
+              <div>
+                <h2>
+                  <ReceiptText size={19} aria-hidden="true" />
+                  Student Fees
+                </h2>
+              </div>
+
+              <span className="fee-count">
+                <Users size={15} aria-hidden="true" />
+                {filteredStudents.length} students
+              </span>
+            </div>
+
+            <div className="fee-filters">
+              <div className="search-box">
+                <label htmlFor="studentSearch">
+                  <Search size={15} aria-hidden="true" />
+                  Search Student
+                </label>
+
+                <input
+                  id="studentSearch"
+                  type="text"
+                  placeholder="Search by ID or name"
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value)
+                  }}
+                />
+              </div>
+
+              <div className="teacher-filter">
+                <label htmlFor="teacherFilter">
+                  <GraduationCap size={15} aria-hidden="true" />
+                  Teacher
+                </label>
+
+                <select
+                  id="teacherFilter"
+                  value={teacherFilter}
+                  onChange={(event) => {
+                    setTeacherFilter(event.target.value)
+                    setSearch("")
+                    setStatusFilter("all")
+                  }}
+                >
+                  <option value="all">All Teachers</option>
+
+                  {teachers.map((teacher) => (
+                    <option key={teacher._id} value={teacher._id}>
+                      {teacher.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="status-filter">
+                <label htmlFor="statusFilter">
+                  <ChartNoAxesCombined size={15} aria-hidden="true" />
+                  Payment Status
+                </label>
+
+                <select
+                  id="statusFilter"
+                  value={statusFilter}
+                  onChange={(event) => {
+                    setStatusFilter(event.target.value)
+                  }}
+                >
+                  <option value="all">All</option>
+                  <option value="paid">Full</option>
+                  <option value="partial">Partial</option>
+                  <option value="due">Due</option>
+                </select>
+              </div>
+            </div>
+
+            {filteredStudents.length === 0 ? (
+              <div className="empty-state">
+                No students found.
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="fees-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Total Subjects</th>
+                      <th>Original Fee</th>
+                      <th>
+                        <Percent size={15} aria-hidden="true" />
+                        Discount
+                      </th>
+                      <th>Net Fee</th>
+                      <th>Paid</th>
+                      <th>Due</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {filteredStudents.map((student) => (
+                      <tr
+                        key={student.studentId}
+                        className="clickable-row"
+                        onClick={() => openStudentFees(student.id)}
+                      >
+                        <td>
+                          <strong>{student.studentId}</strong>
+                          <span className="table-secondary">
+                            {student.name}
+                          </span>
+                        </td>
+
+                        <td>{student.totalSubjects}</td>
+                        <td>{formatCurrency(student.originalFee)}</td>
+                        <td>{student.discount}%</td>
+                        <td>{formatCurrency(student.netFee)}</td>
+                        <td>{formatCurrency(student.paidAmount)}</td>
+                        <td>{formatCurrency(student.dueAmount)}</td>
+
+                        <td>
+                          <span className={`status ${student.paymentStatus}`}>
+                            {student.paymentStatus === "paid"
+                              ? "Full"
+                              : student.paymentStatus}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
-
-        <div className="summary-card">
-          <span className="summary-card-label">
-            <CircleAlert size={18} aria-hidden="true" />
-            Total Due
-          </span>
-          <strong>{formatCurrency(summary.totalDue)}</strong>
-        </div>
-      </div>
-
-      <div className="fees-card">
-        <div className="fees-card-header">
-          <div>
-            <h2>
-              <ReceiptText size={19} aria-hidden="true" />
-              Student Fees
-            </h2>
-            <p>{formatMonth(billingMonth)}</p>
-          </div>
-
-          <span className="fee-count">
-            <Users size={15} aria-hidden="true" />
-            {filteredStudents.length} students
-          </span>
-        </div>
-
-        <div className="fee-filters">
-          <div className="search-box">
-            <label htmlFor="studentSearch">
-              <Search size={15} aria-hidden="true" />
-              Search Student
-            </label>
-
-            <input
-              id="studentSearch"
-              type="text"
-              placeholder="Search by ID or name"
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value)
-              }}
-            />
-          </div>
-
-          <div className="teacher-filter">
-            <label htmlFor="teacherFilter">
-              <GraduationCap size={15} aria-hidden="true" />
-              Teacher
-            </label>
-
-            <select
-              id="teacherFilter"
-              value={teacherFilter}
-              onChange={(event) => {
-                setTeacherFilter(event.target.value)
-                setSearch("")
-                setStatusFilter("all")
-              }}
-            >
-              <option value="all">All Teachers</option>
-
-              {teachers.map((teacher) => (
-                <option key={teacher._id} value={teacher._id}>
-                  {teacher.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="status-filter">
-            <label htmlFor="statusFilter">
-              <ChartNoAxesCombined size={15} aria-hidden="true" />
-              Payment Status
-            </label>
-
-            <select
-              id="statusFilter"
-              value={statusFilter}
-              onChange={(event) => {
-                setStatusFilter(event.target.value)
-              }}
-            >
-              <option value="all">All</option>
-              <option value="paid">Full</option>
-              <option value="partial">Partial</option>
-              <option value="due">Due</option>
-            </select>
-          </div>
-        </div>
-
-        {filteredStudents.length === 0 ? (
-          <div className="empty-state">
-            No students found.
-          </div>
-        ) : (
-          <div className="table-container">
-            <table className="fees-table">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>
-                   
-                    Total Subjects
-                  </th>
-                  <th>Original Fee</th>
-                  <th>
-                    <Percent size={15} aria-hidden="true" />
-                    Discount
-                  </th>
-                  <th>Net Fee</th>
-                  <th>Paid</th>
-                  <th>Due</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredStudents.map((student) => (
-                  <tr
-                    key={student.studentId}
-                    className="clickable-row"
-                    onClick={() => openStudentFees(student.id)}
-                  >
-                    <td>
-                      <strong>{student.studentId}</strong>
-                      <span className="table-secondary">
-                        {student.name}
-                      </span>
-                    </td>
-
-                    <td>{student.totalSubjects}</td>
-                    <td>{formatCurrency(student.originalFee)}</td>
-                    <td>{student.discount}%</td>
-                    <td>{formatCurrency(student.netFee)}</td>
-                    <td>{formatCurrency(student.paidAmount)}</td>
-                    <td>{formatCurrency(student.dueAmount)}</td>
-
-                    <td>
-                      <span className={`status ${student.paymentStatus}`}>
-                        {student.paymentStatus === "paid"
-                          ? "Full"
-                          : student.paymentStatus}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   )
 }
