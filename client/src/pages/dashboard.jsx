@@ -163,7 +163,7 @@ function Dashboard() {
     )
   }
 
-  const renderFeeStatusChart = (feeStatus, height = 280, radius = 90) => (
+  const renderFeeStatusChart = (feeStatus, height = 260, radius = 90) => (
     <div className="dashboard-pie">
       <ResponsiveContainer width="100%" height={height}>
         <PieChart>
@@ -309,8 +309,8 @@ function Dashboard() {
                       <Line
                         type="monotone"
                         dataKey="amount"
-                        stroke="#80919f"
-                        strokeWidth={3}
+                        stroke="#0C1D37"
+                        strokeWidth={2}
                         dot={{ r: 4 }}
                       />
                     </LineChart>
@@ -460,7 +460,7 @@ function Dashboard() {
                         payload?.[0]?.payload?.teacherName || label
                       }
                     />
-                    <Bar dataKey="teacherPayment" fill="#80919f" barSize={45} />
+                    <Bar dataKey="teacherPayment" fill="#4b6276" barSize={35} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
