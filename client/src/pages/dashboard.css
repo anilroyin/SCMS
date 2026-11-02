@@ -162,6 +162,7 @@
 }
 .dashboard-summary-card {
   min-width: 0;
+  height: 72px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
