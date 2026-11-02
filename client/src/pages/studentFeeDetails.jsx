@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import Sidebar from "../components/sidebar"
 import "./studentFeeDetails.css"
-import { ReceiptText,ChevronLeft } from "lucide-react";
+import { ReceiptText, ChevronLeft } from "lucide-react"
 
 function StudentFeeDetails() {
   const { studentId } = useParams()
@@ -490,237 +491,256 @@ function StudentFeeDetails() {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading">Loading fee details...</div>
+      <div className="dashboard-layout">
+        <Sidebar />
+        <div className="dashboard-content">
+          <div className="page-container">
+            <div className="loading">Loading fee details...</div>
+          </div>
+        </div>
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="page-container">
-        <div className="fee-message">
-          {message || "No fee data found."}
+      <div className="dashboard-layout">
+        <Sidebar />
+        <div className="dashboard-content">
+          <div className="page-container">
+            <div className="fee-message">
+              {message || "No fee data found."}
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div className="title-group">
-          <h1><ReceiptText size={22} />Fee Details :</h1>
-          <p>{formatMonth(billingMonth)}</p>
-        </div>
+    <div className="dashboard-layout">
+      <Sidebar />
 
-        <button
-          className="back-button"
-          onClick={() => navigate(-1)}
-        > <ChevronLeft size={18} />
-          Back
-        </button>
-      </div>
-
-      <div className="student-fee-card">
-        <div className="student-info-row">
-          <div>
-            <strong>Student ID: </strong>
-            <span>{data.student.studentId}</span>
-          </div>
-
-          <div>
-            <strong>Name: </strong>
-            <span>{data.student.name}</span>
-          </div>
-
-          <div>
-            <strong>Class: </strong>
-            <span>{data.student.className}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="summary-grid">
-        <div className="summary-card">
-          <span>Original Fee</span>
-          <strong>
-            {formatCurrency(data.totals.totalOriginalFee)}
-          </strong>
-        </div>
-
-        <div className="summary-card">
-          <span>Net Fee</span>
-          <strong>
-            {formatCurrency(data.totals.totalNetFee)}
-          </strong>
-        </div>
-
-        <div className="summary-card">
-          <span>Paid</span>
-          <strong>
-            {formatCurrency(data.totals.totalPaid)}
-          </strong>
-        </div>
-
-        <div className="summary-card">
-          <span>Due</span>
-          <strong>
-            {formatCurrency(data.totals.totalDue)}
-          </strong>
-        </div>
-      </div>
-
-      {message && (
-        <div className="fee-message">
-          {message}
-        </div>
-      )}
-
-      <div className="student-fee-card">
-        <div className="card-header">
-          <div>
-            <h2>Subject-wise Fees</h2>
-            <p>{formatMonth(billingMonth)}</p>
-          </div>
-
-          <span className={`status ${data.totals.paymentStatus}`}>
-            {data.totals.paymentStatus}
-          </span>
-        </div>
-
-        <table className="fees-table">
-          <thead>
-            <tr>
-              <th>Subject</th>
-              <th>Teacher</th>
-              <th>Original Fee</th>
-              <th>Discount</th>
-              <th>Net Fee</th>
-              <th>Paid</th>
-              <th>Due</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {data.subjects.map((subject) => (
-              <tr key={subject.id}>
-                <td>{subject.subject}</td>
-                <td>{subject.teacher}</td>
-                <td>{formatCurrency(subject.originalFee)}</td>
-                <td>{subject.discount}%</td>
-                <td>{formatCurrency(subject.netFee)}</td>
-                <td>{formatCurrency(subject.paidAmount)}</td>
-                <td>{formatCurrency(subject.dueAmount)}</td>
-                <td>
-                  <span className={`status ${subject.paymentStatus}`}>
-                    {subject.paymentStatus}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {paymentHistory?.length > 0 && (
-        <div className="student-fee-card">
-          <div className="card-header">
-            <div>
-              <h2>Payment History</h2>
-              <p>Payments recorded for this month</p>
-            </div>
-          </div>
-
-          <table className="fees-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Subject</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {paymentHistory.map((payment, index) => (
-                <tr
-                  key={
-                    payment._id ||
-                    payment.id ||
-                    `${payment.paymentDate}-${index}`
-                  }
-                >
-                  <td>{formatDate(payment.paymentDate)}</td>
-                  <td>{payment.subject}</td>
-                  <td>{formatCurrency(payment.amount)}</td>
-                  <td>
-                    {formatPaymentMethod(payment.paymentMethod)}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="receipt-button"
-                      onClick={() => printReceipt(payment)}
-                    >
-                      Get Receipt
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {isAdmin && data.totals.totalDue > 0 && (
-        <div className="payment-card">
-          <h2>Record Payment</h2>
-
-          <form onSubmit={recordPayment}>
-            <div>
-              <label>Payment Amount</label>
-
-              <input
-                type="number"
-                min="1"
-                step="0.01"
-                value={paymentAmount}
-                onChange={(event) =>
-                  setPaymentAmount(event.target.value)
-                }
-                placeholder="Enter payment amount"
-              />
-            </div>
-
-            <div>
-              <label>Payment Method</label>
-
-              <select
-                value={paymentMethod}
-                onChange={(event) =>
-                  setPaymentMethod(event.target.value)
-                }
-              >
-                <option value="cash">Cash</option>
-                <option value="upi">UPI</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="card">Card</option>
-                <option value="other">Other</option>
-              </select>
+      <div className="dashboard-content">
+        <div className="page-container">
+          <div className="page-header">
+            <div className="title-group">
+              <h1>
+                <ReceiptText size={22} />
+                Fee Details :
+              </h1>
+              <p>{formatMonth(billingMonth)}</p>
             </div>
 
             <button
-              type="submit"
-              disabled={saving}
+              className="back-button"
+              onClick={() => navigate(-1)}
             >
-              {saving ? "Recording..." : "Record Payment"}
+              <ChevronLeft size={18} />
+              Back
             </button>
-          </form>
+          </div>
+
+          <div className="student-fee-card">
+            <div className="student-info-row">
+              <div>
+                <strong>Student ID: </strong>
+                <span>{data.student.studentId}</span>
+              </div>
+
+              <div>
+                <strong>Name: </strong>
+                <span>{data.student.name}</span>
+              </div>
+
+              <div>
+                <strong>Class: </strong>
+                <span>{data.student.className}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="summary-grid">
+            <div className="summary-card">
+              <span>Original Fee</span>
+              <strong>
+                {formatCurrency(data.totals.totalOriginalFee)}
+              </strong>
+            </div>
+
+            <div className="summary-card">
+              <span>Net Fee</span>
+              <strong>
+                {formatCurrency(data.totals.totalNetFee)}
+              </strong>
+            </div>
+
+            <div className="summary-card">
+              <span>Paid</span>
+              <strong>
+                {formatCurrency(data.totals.totalPaid)}
+              </strong>
+            </div>
+
+            <div className="summary-card">
+              <span>Due</span>
+              <strong>
+                {formatCurrency(data.totals.totalDue)}
+              </strong>
+            </div>
+          </div>
+
+          {message && (
+            <div className="fee-message">
+              {message}
+            </div>
+          )}
+
+          <div className="student-fee-card">
+            <div className="card-header">
+              <div>
+                <h2>Subject-wise Fees</h2>
+              </div>
+
+              <span className={`status ${data.totals.paymentStatus}`}>
+                {data.totals.paymentStatus}
+              </span>
+            </div>
+
+            <table className="fees-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Teacher</th>
+                  <th>Original Fee</th>
+                  <th>Discount</th>
+                  <th>Net Fee</th>
+                  <th>Paid</th>
+                  <th>Due</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {data.subjects.map((subject) => (
+                  <tr key={subject.id}>
+                    <td>{subject.subject}</td>
+                    <td>{subject.teacher}</td>
+                    <td>{formatCurrency(subject.originalFee)}</td>
+                    <td>{subject.discount}%</td>
+                    <td>{formatCurrency(subject.netFee)}</td>
+                    <td>{formatCurrency(subject.paidAmount)}</td>
+                    <td>{formatCurrency(subject.dueAmount)}</td>
+                    <td>
+                      <span className={`status ${subject.paymentStatus}`}>
+                        {subject.paymentStatus}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {paymentHistory?.length > 0 && (
+            <div className="student-fee-card">
+              <div className="card-header">
+                <div>
+                  <h2>Payment History</h2>
+                  <p>Payments recorded for this month</p>
+                </div>
+              </div>
+
+              <table className="fees-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Receipt</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paymentHistory.map((payment, index) => (
+                    <tr
+                      key={
+                        payment._id ||
+                        payment.id ||
+                        `${payment.paymentDate}-${index}`
+                      }
+                    >
+                      <td>{formatDate(payment.paymentDate)}</td>
+                      <td>{payment.subject}</td>
+                      <td>{formatCurrency(payment.amount)}</td>
+                      <td>
+                        {formatPaymentMethod(payment.paymentMethod)}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="receipt-button"
+                          onClick={() => printReceipt(payment)}
+                        >
+                          Get Receipt
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {isAdmin && data.totals.totalDue > 0 && (
+            <div className="payment-card">
+              <h2>Record Payment</h2>
+
+              <form onSubmit={recordPayment}>
+                <div>
+                  <label>Payment Amount</label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={paymentAmount}
+                    onChange={(event) =>
+                      setPaymentAmount(event.target.value)
+                    }
+                    placeholder="Enter payment amount"
+                  />
+                </div>
+
+                <div>
+                  <label>Payment Method</label>
+
+                  <select
+                    value={paymentMethod}
+                    onChange={(event) =>
+                      setPaymentMethod(event.target.value)
+                    }
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="upi">UPI</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="card">Card</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                >
+                  {saving ? "Recording..." : "Record Payment"}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

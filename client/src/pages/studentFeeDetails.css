@@ -103,9 +103,10 @@
 
 .summary-card {
   background: #ffffff;
+  height: 72px;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 16px 18px;
+  padding: 14px 20px;
 }
 
 .summary-card span {
