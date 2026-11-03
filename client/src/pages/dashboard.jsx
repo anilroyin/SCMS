@@ -628,7 +628,7 @@ function Dashboard() {
                     <Tooltip
                       formatter={(value) => [formatMoney(value), "Teacher Earnings"]}
                     />
-                    <Bar dataKey="amount" fill="#80919f" barSize={40} />
+                    <Bar dataKey="amount" fill="#4b6276" barSize={35} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
