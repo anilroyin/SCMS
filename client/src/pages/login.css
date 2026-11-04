@@ -422,9 +422,31 @@ button {
     padding: 24px 18px;
   }
 
-  .login-main {
-    gap: 32px;
-  }
+ .login-main {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Separate the brand and features visually */
+.login-intro {
+  display: contents;
+}
+
+/* Logo first */
+.login-brand {
+  order: 1;
+}
+
+/* Login form second */
+.login-card {
+  order: 2;
+}
+
+/* Introduction and features last */
+.login-features {
+  order: 3;
+}
 
   .login-intro {
     gap: 16px;
