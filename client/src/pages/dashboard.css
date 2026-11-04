@@ -839,3 +839,143 @@
   justify-content: center;
   gap: 7px;
 }
+
+/* Mobile topbar*/
+
+.mobile-topbar {
+  display: none;
+}
+
+/*Mobile responsive layout */
+
+@media (max-width: 650px) {
+
+  /* Dashboard Layout */
+  .dashboard-layout {
+    display: block;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Main Page Content */
+  .dashboard-content {
+    width: 100%;
+    min-width: 0;
+    padding: 84px 16px 20px;
+  }
+
+  /* Fixed Topbar */
+  .mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1003;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    width: 100%;
+    height: 74px;
+    padding: 10px 10px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Topbar Buttons */
+  .mobile-topbar-menu,
+  .mobile-topbar-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 45px;
+    height: 40px;
+    padding: 0;
+
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #26313f;
+
+    cursor: pointer;
+  }
+.mobile-topbar-menu svg,
+.mobile-topbar-logout svg {
+  width: 25px;
+  height: 25px;
+  stroke-width: 2.2;
+}
+  .mobile-topbar-menu:hover,
+  .mobile-topbar-logout:hover {
+    background: #f1f3f5;
+  }
+
+  /* User Information */
+  .mobile-topbar-user {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .mobile-topbar-user strong {
+    overflow: hidden;
+    color: #26313f;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-topbar-user span {
+    margin-top: 3px;
+    color: #7b8491;
+    font-size: 11px;
+  }
+
+  /* Hide Duplicate Desktop Header Information */
+  .dashboard-header .dashboard-user,
+  .dashboard-header p {
+    display: none;
+  }
+
+  /* =========================================
+     MOBILE SIDEBAR DRAWER
+  ========================================= */
+
+  .sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    z-index: 1001;
+
+    width: 250px;
+    max-width: 85vw;
+    height: calc(100vh - 64px);
+    height: calc(100dvh - 64px);
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.mobile-sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* Sidebar Overlay */
+  .dashboard-mobile-overlay {
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+
+    background: rgba(0, 0, 0, 0.45);
+  }
+}
