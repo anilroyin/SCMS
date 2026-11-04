@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react"
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   Users,
@@ -14,18 +14,20 @@ import {
   UserRound,
   CircleDollarSign,
   Headset,
-  BriefcaseBusiness
+  BriefcaseBusiness,
+  Menu,
+  X,
+  LogOut
 } from "lucide-react"
 
 function Sidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const [role, setRole] = useState(() => {
     const token = localStorage.getItem("token")
 
-    if (!token) {
-      return ""
-    }
+    if (!token) return ""
 
     try {
       const payload = token.split(".")[1]
@@ -39,6 +41,9 @@ function Sidebar() {
     }
   })
 
+  const [userName, setUserName] = useState("")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   const [unreadNotifications, setUnreadNotifications] = useState(() => {
     const count = localStorage.getItem("unreadNotifications")
     return count ? Number(count) : 0
@@ -47,9 +52,7 @@ function Sidebar() {
   const getUnreadNotificationCount = async () => {
     const token = localStorage.getItem("token")
 
-    if (!token) {
-      return
-    }
+    if (!token) return
 
     try {
       const payload = token.split(".")[1]
@@ -70,9 +73,7 @@ function Sidebar() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        return
-      }
+      if (!response.ok) return
 
       const notifications = Array.isArray(data)
         ? data
@@ -102,9 +103,7 @@ function Sidebar() {
     const getUser = async () => {
       const token = localStorage.getItem("token")
 
-      if (!token) {
-        return
-      }
+      if (!token) return
 
       try {
         const response = await fetch(
@@ -120,9 +119,10 @@ function Sidebar() {
 
         if (response.ok) {
           setRole(data.user.role)
+          setUserName(data.user.name)
         }
       } catch (error) {
-        console.error("Failed to get user role")
+        console.error("Failed to get user details")
       }
     }
 
@@ -152,6 +152,30 @@ function Sidebar() {
       clearInterval(interval)
     }
   }, [])
+
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape)
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    navigate("/login")
+  }
 
   const adminLinks = [
     { label: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -235,67 +259,119 @@ function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <h2>SCMS</h2>
-        <p>Smart Coaching Management System</p>
+    <>
+      {/* Mobile Topbar */}
+      <div className="mobile-topbar">
+        <button
+          type="button"
+          className="mobile-topbar-menu"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? <X size={23} /> : <Menu size={23} />}
+        </button>
+
+        <div className="mobile-topbar-user">
+          <strong>
+            {role
+              ? role.charAt(0).toUpperCase() + role.slice(1)
+              : "User"}
+            {userName ? `: ${userName}` : ""}
+          </strong>
+          <span>Welcome back!</span>
+        </div>
+
+        <button
+          type="button"
+          className="mobile-topbar-logout"
+          onClick={handleLogout}
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={21} />
+        </button>
       </div>
 
-      <nav className="sidebar-nav">
-        {links.map((link) => {
-          const Icon = link.icon
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="dashboard-mobile-overlay"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
 
-          return (
-            <NavLink
-              key={link.path}
-              to={link.path}
-              state={
-                ["/fees", "/teacher-payments"].includes(link.path)
-                  ? { from: location.pathname }
-                  : undefined
-              }
-              onClick={() => {
-                if (link.path === "/fees") {
-                  sessionStorage.setItem(
-                    "feesReturnPath",
-                    location.pathname
-                  )
+      {/* Sidebar */}
+      <aside
+        className={`sidebar${mobileMenuOpen ? " mobile-sidebar-open" : ""}`}
+      >
+        <div className="sidebar-logo">
+          <h2>SCMS</h2>
+          <p>Smart Coaching Management System</p>
+        </div>
+
+        <nav className="sidebar-nav">
+          {links.map((link) => {
+            const Icon = link.icon
+
+            return (
+              <NavLink
+                key={link.path}
+                to={link.path}
+                state={
+                  ["/fees", "/teacher-payments"].includes(link.path)
+                    ? { from: location.pathname }
+                    : undefined
                 }
+                onClick={() => {
+                  setMobileMenuOpen(false)
 
-                if (link.path === "/teacher-payments") {
-                  sessionStorage.setItem(
-                    "teacherPaymentsReturnPath",
-                    location.pathname
-                  )
-                }
+                  if (link.path === "/fees") {
+                    sessionStorage.setItem(
+                      "feesReturnPath",
+                      location.pathname
+                    )
+                  }
 
-                if (link.path === "/notifications") {
-                  sessionStorage.setItem(
-                    "notificationsReturnPath",
-                    location.pathname
-                  )
-                }
-              }}
-            >
-              <span className="sidebar-link-content">
-                <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                  if (link.path === "/teacher-payments") {
+                    sessionStorage.setItem(
+                      "teacherPaymentsReturnPath",
+                      location.pathname
+                    )
+                  }
 
-                <span className="sidebar-link-label">
-                  {link.label}
+                  if (link.path === "/notifications") {
+                    sessionStorage.setItem(
+                      "notificationsReturnPath",
+                      location.pathname
+                    )
+                  }
+                }}
+              >
+                <span className="sidebar-link-content">
+                  <Icon
+                    size={19}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
+
+                  <span className="sidebar-link-label">
+                    {link.label}
+                  </span>
+
+                  {link.label === "Notifications" &&
+                    unreadNotifications > 0 && (
+                      <span className="sidebar-notification-badge">
+                        {unreadNotifications}
+                      </span>
+                    )}
                 </span>
-
-                {link.label === "Notifications" &&
-                  unreadNotifications > 0 && (
-                    <span className="sidebar-notification-badge">
-                      {unreadNotifications}
-                    </span>
-                  )}
-              </span>
-            </NavLink>
-          )
-        })}
-      </nav>
-    </aside>
+              </NavLink>
+            )
+          })}
+        </nav>
+      </aside>
+    </>
   )
 }
 
