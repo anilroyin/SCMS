@@ -265,11 +265,11 @@ function Sidebar() {
         <button
           type="button"
           className="mobile-topbar-menu"
-          onClick={() => setMobileMenuOpen((open) => !open)}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          onClick={() => setMobileMenuOpen(true)}
+          aria-label="Open menu"
           aria-expanded={mobileMenuOpen}
         >
-          {mobileMenuOpen ? <X size={23} /> : <Menu size={23} />}
+          <Menu size={23} />
         </button>
 
         <div className="mobile-topbar-user">
@@ -305,6 +305,16 @@ function Sidebar() {
       <aside
         className={`sidebar${mobileMenuOpen ? " mobile-sidebar-open" : ""}`}
       >
+        {/* Mobile Sidebar Close Button */}
+        <button
+          type="button"
+          className="mobile-sidebar-close"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Close menu"
+        >
+          <X size={23} />
+        </button>
+
         <div className="sidebar-logo">
           <h2>SCMS</h2>
           <p>Smart Coaching Management System</p>
