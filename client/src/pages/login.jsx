@@ -132,7 +132,7 @@ function Login() {
 
           <div className="login-features">
             <h2>
-              Manage your coaching centre,
+              Manage the coaching centre,
               <br />
               all in one place.
             </h2>

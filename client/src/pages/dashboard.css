@@ -723,54 +723,7 @@
   }
 }
 
-@media (max-width: 650px) {
-  .dashboard-content {
-    padding: 20px 16px;
-  }
-
-  .dashboard-header {
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 24px;
-  }
-
-  .dashboard-user {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  .dashboard-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .student-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-pie-legend {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .dashboard-panel {
-    padding: 18px;
-  }
-
-  .student-schedule-item {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .student-fee-summary {
-    grid-template-columns: 1fr;
-  }
-}
-
-
+/* Sidebar Support */
 .sidebar-support-item {
   display: flex;
   align-items: center;
@@ -785,7 +738,7 @@
   position: relative;
 }
 
-
+/* Sidebar Link Content */
 .sidebar-link-content {
   display: flex;
   align-items: center;
@@ -807,7 +760,7 @@
   flex-shrink: 0;
 }
 
-/* Dashboard summary card icons */
+/* Dashboard Summary Card Icons */
 .dashboard-summary-label {
   display: flex;
   align-items: center;
@@ -820,7 +773,7 @@
   color: #80919f;
 }
 
-/* Dashboard section heading icons */
+/* Dashboard Section Heading Icons */
 .dashboard-section-title {
   display: flex;
   align-items: center;
@@ -832,7 +785,7 @@
   color: #80919f;
 }
 
-/* Dashboard logout button icon */
+/* Dashboard Logout Button Icon */
 .dashboard-logout-button {
   display: inline-flex;
   align-items: center;
@@ -840,13 +793,13 @@
   gap: 7px;
 }
 
-/* Mobile topbar*/
-
-.mobile-topbar {
+/* Mobile Topbar and Sidebar Close Button */
+.mobile-topbar,
+.mobile-sidebar-close {
   display: none;
 }
 
-/*Mobile responsive layout */
+/* MOBILE RESPONSIVE LAYOUT*/
 
 @media (max-width: 650px) {
 
@@ -861,10 +814,10 @@
   .dashboard-content {
     width: 100%;
     min-width: 0;
-    padding: 84px 16px 20px;
+    padding: 94px 16px 20px;
   }
 
-  /* Fixed Topbar */
+  /* Fixed Mobile Topbar */
   .mobile-topbar {
     position: fixed;
     top: 0;
@@ -877,8 +830,8 @@
     gap: 12px;
 
     width: 100%;
-    height: 74px;
-    padding: 10px 10px;
+    height: 78px;
+    padding: 10px;
 
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
@@ -903,12 +856,14 @@
 
     cursor: pointer;
   }
-.mobile-topbar-menu svg,
-.mobile-topbar-logout svg {
-  width: 25px;
-  height: 25px;
-  stroke-width: 2.2;
-}
+
+  .mobile-topbar-menu svg,
+  .mobile-topbar-logout svg {
+    width: 25px;
+    height: 25px;
+    stroke-width: 3.2;
+  }
+
   .mobile-topbar-menu:hover,
   .mobile-topbar-logout:hover {
     background: #f1f3f5;
@@ -926,7 +881,7 @@
   .mobile-topbar-user strong {
     overflow: hidden;
     color: #26313f;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -935,7 +890,7 @@
   .mobile-topbar-user span {
     margin-top: 3px;
     color: #7b8491;
-    font-size: 11px;
+    font-size: 14px;
   }
 
   /* Hide Duplicate Desktop Header Information */
@@ -944,37 +899,108 @@
     display: none;
   }
 
-  /* =========================================
-     MOBILE SIDEBAR DRAWER
-  ========================================= */
+  /* Dashboard Header */
+  .dashboard-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+
+  .dashboard-user {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  /* Dashboard Summary */
+  .dashboard-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .student-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-pie-legend {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dashboard-panel {
+    padding: 18px;
+  }
+
+  /* Student Schedule */
+  .student-schedule-item {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-fee-summary {
+    grid-template-columns: 1fr;
+  }
+
+  /* MOBILE SIDEBAR DRAWER*/
 
   .sidebar {
     position: fixed;
-    top: 64px;
+    top: 0;
     left: 0;
-    z-index: 1001;
+    z-index: 1005;
 
     width: 250px;
     max-width: 85vw;
-    height: calc(100vh - 64px);
-    height: calc(100dvh - 64px);
+    height: 100vh;
+    height: 100dvh;
 
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+
+    overflow-y: auto;
   }
 
   .sidebar.mobile-sidebar-open {
     transform: translateX(0);
   }
 
+  /* Sidebar Close Button */
+  .mobile-sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #eff1f3;
+
+    cursor: pointer;
+  }
+
+  .mobile-sidebar-close:hover {
+    background: #f1f3f5;
+  }
+
   /* Sidebar Overlay */
   .dashboard-mobile-overlay {
     position: fixed;
-    top: 64px;
+    top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 1004;
 
     background: rgba(0, 0, 0, 0.45);
   }
