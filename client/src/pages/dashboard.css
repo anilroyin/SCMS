@@ -660,69 +660,6 @@
   color: #3949ab;
 }
 
-/* Responsive Layout */
-@media (max-width: 1100px) {
-  .dashboard-summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .dashboard-chart-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-chart-grid .dashboard-panel {
-    margin-bottom: 20px;
-  }
-
-  .dashboard-chart-grid .dashboard-panel:last-child {
-    margin-bottom: 0;
-  }
-
-  .dashboard-two-column {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .student-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .student-dashboard-grid {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  }
-
-  .student-schedule-item {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-}
-
-@media (max-width: 900px) {
-  .sidebar {
-    width: 210px;
-  }
-
-  .dashboard-content {
-    padding: 24px;
-  }
-
-  .dashboard-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .student-dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .student-schedule-item {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
 /* Sidebar Support */
 .sidebar-support-item {
   display: flex;
@@ -799,7 +736,77 @@
   display: none;
 }
 
-/* MOBILE RESPONSIVE LAYOUT*/
+/*Responsive layout for tablet*/
+
+@media (max-width: 1100px) {
+
+  .dashboard-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-chart-grid .dashboard-panel {
+    margin-bottom: 20px;
+  }
+
+  .dashboard-chart-grid .dashboard-panel:last-child {
+    margin-bottom: 0;
+  }
+
+  .dashboard-two-column {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .student-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-dashboard-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .student-schedule-item {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+
+/* Responsive layout for small tablet */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+    width: 210px;
+  }
+
+  .dashboard-content {
+    padding: 24px;
+  }
+
+  .dashboard-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .student-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-schedule-item {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+
+/* Responsive layout for Mobile*/
 
 @media (max-width: 650px) {
 
@@ -823,16 +830,13 @@
     top: 0;
     left: 0;
     z-index: 1003;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-
     width: 100%;
     height: 78px;
     padding: 10px;
-
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
   }
@@ -844,16 +848,13 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-
     width: 45px;
     height: 40px;
     padding: 0;
-
     border: none;
     border-radius: 8px;
     background: transparent;
     color: #26313f;
-
     cursor: pointer;
   }
 
@@ -903,62 +904,127 @@
   .dashboard-header {
     align-items: flex-start;
     gap: 15px;
+    margin-bottom: 20px;
   }
 
   .dashboard-header h1 {
     font-size: 24px;
   }
 
-  .dashboard-user {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-
-  /* Dashboard Summary */
-  .dashboard-summary {
-    grid-template-columns: 1fr;
-  }
-
+  /* Dashboard Summary Cards */
+  .dashboard-summary,
+  .dashboard-summary.teacher-summary,
   .student-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
+  .dashboard-summary-card {
+    height: auto;
+    min-height: 76px;
+    padding: 12px;
+  }
+
+  .dashboard-summary-card span {
+    font-size: 11px;
+  }
+
+  .dashboard-summary-card strong {
+    margin-top: 7px;
+    font-size: 15px;
+  }
+
+  .dashboard-summary-card small {
+    font-size: 10px;
+  }
+
+  .dashboard-summary-label {
+    gap: 6px;
+  }
+
+  .dashboard-summary-label svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Dashboard Charts */
   .dashboard-pie-legend {
     flex-direction: column;
     align-items: center;
     gap: 8px;
   }
 
+  /* Dashboard Panels */
   .dashboard-panel {
     padding: 18px;
+  }
+
+  .dashboard-panel-header {
+    gap: 10px;
+  }
+
+  .dashboard-panel-header h2 {
+    font-size: 16px;
+  }
+
+  .dashboard-panel-header p {
+    font-size: 12px;
   }
 
   /* Student Schedule */
   .student-schedule-item {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
+  /* Student Fee Summary */
   .student-fee-summary {
     grid-template-columns: 1fr;
   }
 
-  /* MOBILE SIDEBAR DRAWER*/
+  /* Student Notifications */
+  .student-notifications-panel {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
 
+  .student-notifications-panel .dashboard-notification-list {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .student-notifications-panel .dashboard-notification-item strong,
+  .student-notifications-panel .dashboard-notification-item p {
+    overflow-wrap: anywhere;
+  }
+
+  .student-notifications-panel .dashboard-notification-item p {
+    display: block;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  /* Dashboard Tables */
+  .dashboard-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile Sidebar Drawer */
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1005;
-
     width: 250px;
     max-width: 85vw;
     height: 100vh;
     height: 100dvh;
-
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-
     overflow-y: auto;
   }
 
@@ -971,21 +1037,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
     position: absolute;
     top: 12px;
     right: 12px;
     z-index: 2;
-
     width: 40px;
     height: 40px;
     padding: 0;
-
     border: none;
     border-radius: 8px;
     background: transparent;
     color: #eff1f3;
-
     cursor: pointer;
   }
 
@@ -1001,7 +1063,6 @@
     bottom: 0;
     left: 0;
     z-index: 1004;
-
     background: rgba(0, 0, 0, 0.45);
   }
 }

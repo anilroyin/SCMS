@@ -484,77 +484,6 @@
   color: #3f6b4d;
 }
 
-/* Responsive layout */
-@media (max-width: 1200px) {
-  .finance-summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .finances-page {
-    padding: 16px;
-  }
-
-  .finances-page .page-header {
-    align-items: flex-start;
-  }
-
-  .finances-page .page-header h1 {
-    font-size: 24px;
-  }
-
-  .finances-section {
-    padding: 15px;
-  }
-
-  .finances-section-header {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .finance-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .finance-description-field {
-    grid-column: auto;
-  }
-
-  .finance-summary-card {
-    min-height: 100px;
-    padding: 14px;
-  }
-
-  .finance-summary-card strong {
-    font-size: 18px;
-  }
-
-  /* Keep the teacher contribution table readable on small screens */
-  .finances-section:has(.finance-contribution-row) .table-container {
-    overflow-x: auto;
-  }
-
-  .finances-section:has(.finance-contribution-row) .finances-table {
-    min-width: 900px;
-  }
-}
-
-@media (max-width: 420px) {
-  .finance-summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .finances-page .page-header {
-    flex-direction: column;
-  }
-
-  .finances-page .back-button {
-    align-self: flex-start;
-  }
-}
-
-
 /* Cancelled Expense Details & Teacher Refund Modal */
 .finance-modal-backdrop {
   position: fixed;
@@ -652,7 +581,132 @@
   display: inline-flex;
 }
 
+/* Responsive Layout*/
+
+@media (max-width: 1200px) {
+  .finance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet and Mobile*/
+
 @media (max-width: 768px) {
+
+  /* Page spacing below fixed mobile topbar */
+  .finances-layout > .page-container.finances-page {
+    padding: 94px 16px 20px !important;
+  }
+
+  /* Page Header */
+  .finances-page .page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .finances-page .page-header > div {
+    flex: 1;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .finances-page .page-header h1,
+  .finances-page .page-header p {
+    text-align: left;
+  }
+
+  .finances-page .page-header h1 {
+    font-size: 24px;
+  }
+
+  /* Hide Back button on mobile */
+  .finances-page .page-header .back-button {
+    display: none !important;
+  }
+
+  /* Overview Cards - 2 Columns */
+  .finance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-summary-card {
+    min-height: 100px;
+    padding: 14px;
+  }
+
+  .finance-summary-card strong {
+    font-size: 18px;
+  }
+
+  /* Finance Sections */
+  .finances-section {
+    padding: 15px;
+  }
+
+  .finances-section-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* Expense Form */
+  .finance-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-description-field {
+    grid-column: auto;
+  }
+
+  /* Horizontal Table Scrolling */
+  .finances-section:has(.finance-contribution-row) .table-container {
+    overflow-x: auto;
+  }
+
+  .finances-section:has(.finance-contribution-row) .finances-table {
+    min-width: 900px;
+  }
+}
+
+/*Small Mobile Screen*/
+
+@media (max-width: 420px) {
+
+  .finances-layout > .page-container.finances-page {
+    padding: 94px 13px 20px !important;
+  }
+
+  /* Keep overview cards in 2 columns */
+  .finance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finances-page .page-header h1 {
+    font-size: 21px;
+  }
+
+  .finances-page .page-header p {
+    font-size: 12px;
+  }
+
+  .finance-summary-card {
+    padding: 12px;
+  }
+
+  .finance-summary-card strong {
+    font-size: 16px;
+  }
+}
+
+/*  Cancelled Expense Details & Teacher Refund Modal*/
+
+@media (max-width: 768px) {
+
   .finance-modal-backdrop {
     align-items: flex-start;
     padding: 12px;
@@ -674,6 +728,7 @@
 }
 
 @media (max-width: 420px) {
+
   .finance-modal-backdrop {
     padding: 8px;
   }
@@ -682,4 +737,3 @@
     padding: 12px;
   }
 }
-

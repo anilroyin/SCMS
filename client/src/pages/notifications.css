@@ -654,6 +654,47 @@
   opacity: 0.6;
 }
 
+
+/* Student notification layout */
+.notification-card:not(.admin-notification) .notification-card-header {
+  flex: 0 1 360px;
+  min-width: 0;
+  gap: 12px;
+}
+
+.notification-card:not(.admin-notification) .notification-card-header > div {
+  min-width: 0;
+  gap: 10px;
+}
+
+.notification-card:not(.admin-notification) .notification-unread {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.notification-card:not(.admin-notification) .notification-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 175px;
+  min-width: 175px;
+  gap: 6px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.notification-card:not(.admin-notification) .notification-footer > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* Responsive layout */
 @media (max-width: 1250px) {
   .notification-card.admin-notification {
@@ -738,6 +779,9 @@
   .notification-modal-actions {
     flex-wrap: wrap;
   }
+  .notifications-header-actions .notifications-back-button {
+    display: none !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -789,44 +833,4 @@
     align-items: flex-start;
     gap: 12px;
   }
-}
-
-/* Student notification layout */
-.notification-card:not(.admin-notification) .notification-card-header {
-  flex: 0 1 360px;
-  min-width: 0;
-  gap: 12px;
-}
-
-.notification-card:not(.admin-notification) .notification-card-header > div {
-  min-width: 0;
-  gap: 10px;
-}
-
-.notification-card:not(.admin-notification) .notification-unread {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  margin-left: 6px;
-  white-space: nowrap;
-}
-
-.notification-card:not(.admin-notification) .notification-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex: 0 0 175px;
-  min-width: 175px;
-  gap: 6px;
-  margin-left: auto;
-  white-space: nowrap;
-}
-
-.notification-card:not(.admin-notification) .notification-footer > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  white-space: nowrap;
 }
