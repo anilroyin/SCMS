@@ -151,7 +151,7 @@
 .dashboard-summary {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  gap: 14px;
   margin-bottom: 20px;
 }
 
