@@ -688,7 +688,7 @@ function Dashboard() {
               <div className="dashboard-summary-card">
                 <div className="dashboard-summary-label">
                   <Wallet size={17} aria-hidden="true" />
-                  <span>Outstanding Due</span>
+                  <span>Fee Due</span>
                 </div>
                 <strong>{formatMoney(dashboard.summary.totalDue)}</strong>
               </div>
