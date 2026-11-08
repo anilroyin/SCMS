@@ -278,14 +278,14 @@ function Dashboard() {
               <div className="dashboard-summary-card">
                 <div className="dashboard-summary-label">
                   <IndianRupee size={17} aria-hidden="true" />
-                  <span>Collection(CM)</span>
+                  <span>Fee Received</span>
                 </div>
                 <strong>{formatMoney(dashboard.summary.thisMonthCollection)}</strong>
               </div>
               <div className="dashboard-summary-card">
                 <div className="dashboard-summary-label">
                   <Wallet size={17} aria-hidden="true" />
-                  <span>Outstanding Fees</span>
+                  <span>Fee Dues</span>
                 </div>
                 <strong>{formatMoney(dashboard.summary.outstandingFees)}</strong>
               </div>
