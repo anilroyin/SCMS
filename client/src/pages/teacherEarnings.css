@@ -280,39 +280,69 @@
 /* Responsive Layout */
 
 @media (max-width: 1100px) {
-  .expense-summary {
+  .earnings-summary {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-@media (max-width: 900px) {
-  .earnings-summary {
+  .expense-summary {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 700px) {
   .teacher-earnings-content {
-    padding: 20px;
+    padding: 94px 20px 20px;
   }
 
   .teacher-earnings-header {
+    display: flex;
     align-items: flex-start;
     flex-direction: column;
     gap: 15px;
+  }
+
+  .billing-month {
+    width: 100%;
   }
 
   .billing-month input {
     width: 100%;
   }
 
-  .earnings-summary,
-  .expense-summary {
+  .earnings-summary{
     grid-template-columns: 1fr;
+  }
+  .expense-summary {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .earning-details,
   .expense-contribution-section {
     padding: 15px;
+  }
+
+  .earning-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .earning-table {
+    min-width: 650px;
+  }
+
+  .expense-contribution-section .earning-table-wrapper {
+    padding-right: 0;
+    overflow-x: auto;
+  }
+
+  .expense-table {
+    min-width: 600px;
+    table-layout: auto;
+  }
+
+  .expense-table th,
+  .expense-table td {
+    white-space: nowrap;
   }
 }
