@@ -109,45 +109,96 @@
 .teacher-details-card .teachers-table tbody tr:hover {
   background: #f8fafc;
 }
-
-@media (max-width: 900px) {
-  .details-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 700px) {
-  .teacher-details-card {
-    padding: 20px;
-  }
-
-  .teacher-details-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .back-button {
-    width: 100%;
-  }
-}
-
 .teacher-header-actions {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
+/* Tablet */
+@media (max-width: 900px) {
+  .teacher-details-card .details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile */
 @media (max-width: 700px) {
+
+  /* Teacher Details Page Header */
+  .dashboard-content:has(.teacher-details-card) > .page-header {
+    display: flex !important;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .dashboard-content:has(.teacher-details-card) > .page-header > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dashboard-content:has(.teacher-details-card) > .page-header h1 {
+    font-size: 20px;
+  }
+
+  /* Header Actions */
   .teacher-header-actions {
-    width: 100%;
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    flex-shrink: 0;
   }
 
   .teacher-header-actions .back-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    white-space: nowrap;
+    padding: 8px 10px;
+  }
+
+  /* Teacher Details Cards */
+  .teacher-details-card {
+    min-width: 0;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .teacher-details-card .teacher-details-header {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  /* Teacher Information - Horizontal Scrolling */
+  .teacher-details-card .details-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 120px) !important;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 16px 12px;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .teacher-details-card .details-grid .detail-item {
+    width: 120px;
+    min-width: 120px;
+    overflow-wrap: break-word;
+  }
+
+  .teacher-details-card .details-grid .detail-item strong {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }

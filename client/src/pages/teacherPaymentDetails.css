@@ -476,83 +476,224 @@
   }
 }
 
+/* Tablet */
 @media (max-width: 1200px) {
-  .teacher-payment-details-page {
-    .teacher-payment-summary {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .teacher-payment-details-page .teacher-payment-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .teacher-payment-details-page {
     padding: 22px;
+  }
 
-    .details-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+  .dashboard-layout:has(.teacher-payment-details-page) > .dashboard-content {
+    padding-top: 94px;
+  }
+
+  .teacher-payment-details-page .details-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
+/* Mobile */
 @media (max-width: 600px) {
+  .dashboard-layout:has(.teacher-payment-details-page) > .dashboard-content {
+    padding: 94px 0 20px;
+  }
+
   .teacher-payment-details-page {
     padding: 16px;
+  }
 
-    .details-header {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 14px;
+  /* Header */
+  .teacher-payment-details-page .details-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
 
-      h1 {
-        font-size: 22px;
-      }
-    }
+  .teacher-payment-details-page .details-header > div {
+    flex: 1;
+    min-width: 0;
+  }
 
-    .details-back-button {
-      align-self: flex-start;
-    }
+  .teacher-payment-details-page .details-header h1 {
+    font-size: 21px;
+  }
 
-    .details-controls {
-      align-items: stretch;
-      flex-direction: column;
+  .teacher-payment-details-page .details-header p {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
 
-      input {
-        width: 100%;
-      }
+  .teacher-payment-details-page .details-back-button {
+    display: inline-flex;
+    align-self: flex-start;
+    flex-shrink: 0;
+    width: auto;
+    min-height: 36px;
+    padding: 8px 12px;
+  }
 
-      > div.billing-month-row {
-        align-items: center;
-        flex-direction: row;
-      }
-    }
+  /* Billing month */
+  .teacher-payment-details-page .details-controls {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
 
-    .teacher-payment-summary {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
+  .teacher-payment-details-page .details-controls > div.billing-month-row {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-    .teacher-payment-summary-card {
-      padding: 13px;
+  .teacher-payment-details-page .selected-month {
+    font-size: 13px;
+  }
 
-      strong {
-        font-size: 17px;
-      }
-    }
+  /* Summary cards */
+  .teacher-payment-details-page .teacher-payment-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
 
-    .details-section {
-      padding: 16px;
-    }
+  .teacher-payment-details-page .teacher-payment-summary-card {
+    min-height: 76px;
+    height: auto;
+    padding: 12px;
+    gap: 7px;
+  }
 
-    .details-section-header h2 {
-      font-size: 17px;
-    }
+  .teacher-payment-details-page .teacher-payment-summary-label {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .teacher-payment-details-page .teacher-payment-summary-label svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .teacher-payment-details-page .teacher-payment-summary-card strong {
+    font-size: 16px;
+  }
+
+  /* Earning details and payment form */
+  .teacher-payment-details-page .details-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+    margin-bottom: 16px;
+  }
+
+  .teacher-payment-details-page .details-grid > .earnings-section,
+  .teacher-payment-details-page .details-grid > .payment-form-section {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .teacher-payment-details-page .details-section {
+    padding: 15px;
+  }
+
+  .teacher-payment-details-page .details-section-header {
+    margin-bottom: 15px;
+  }
+
+  .teacher-payment-details-page .details-section-header h2 {
+    font-size: 17px;
+  }
+
+  .teacher-payment-details-page .details-section-header p {
+    font-size: 12px;
+  }
+
+  /* Tables */
+  .teacher-payment-details-page .details-table-container {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .teacher-payment-details-page .details-table {
+    min-width: 800px;
+  }
+
+  .teacher-payment-details-page .payment-history-section .details-table {
+    min-width: 650px;
+  }
+
+  /* Payment form */
+  .teacher-payment-details-page .teacher-payment-form,
+  .teacher-payment-details-page .form-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .teacher-payment-details-page .form-group input,
+  .teacher-payment-details-page .form-group select,
+  .teacher-payment-details-page .form-group textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .teacher-payment-details-page .teacher-payment-form button[type="submit"] {
+    width: 100%;
+  }
+
+  /* Payment history */
+  .teacher-payment-details-page .payment-history-section {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  /* Messages */
+  .teacher-payment-details-page .details-message,
+  .teacher-payment-details-page .details-error {
+    padding: 11px 12px;
+    font-size: 13px;
   }
 }
 
-@media (max-width: 380px) {
+/* Very small mobile */
+@media (max-width: 350px) {
   .teacher-payment-details-page {
-    .teacher-payment-summary {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    padding: 13px;
+  }
+
+  .teacher-payment-details-page .teacher-payment-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .teacher-payment-details-page .teacher-payment-summary-card {
+    min-height: 68px;
+  }
+
+  .teacher-payment-details-page .details-section {
+    padding: 13px;
+  }
+
+  .teacher-payment-details-page .details-header h1 {
+    font-size: 19px;
+  }
+
+  .teacher-payment-details-page .details-back-button {
+    padding: 7px 9px;
   }
 }
