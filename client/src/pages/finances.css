@@ -167,7 +167,7 @@
   grid-row: 2;
   min-width: 0;
   margin: 0;
-  color: #26313f;
+  color: #4b535e;
   font-size: 18px;
   font-weight: 700;
   text-align: left;
@@ -581,17 +581,17 @@
   display: inline-flex;
 }
 
-/* Responsive Layout*/
+/* Responsive Layout */
 
-@media (max-width: 1200px) {
+/* Tablet */
+@media (max-width: 1100px) {
   .finance-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Tablet and Mobile*/
-
-@media (max-width: 768px) {
+/* Mobile Layout */
+@media (max-width: 700px) {
 
   /* Page spacing below fixed mobile topbar */
   .finances-layout > .page-container.finances-page {
@@ -673,15 +673,13 @@
   }
 }
 
-/*Small Mobile Screen*/
-
-@media (max-width: 420px) {
+/* Small Mobile Screens */
+@media (max-width: 380px) {
 
   .finances-layout > .page-container.finances-page {
     padding: 94px 13px 20px !important;
   }
 
-  /* Keep overview cards in 2 columns */
   .finance-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -703,7 +701,7 @@
   }
 }
 
-/*  Cancelled Expense Details & Teacher Refund Modal*/
+/* Cancelled Expense Details & Teacher Refund Modal */
 
 @media (max-width: 768px) {
 

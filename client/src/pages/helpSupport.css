@@ -312,9 +312,11 @@
   }
 
   .help-support-header {
+    display: flex;
     align-items: flex-start;
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .help-support-header h1 {
@@ -322,20 +324,30 @@
   }
 
   .help-support-back {
-    width: 100%;
+    width: auto;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .support-chat-card {
+    display: flex;
+    flex-direction: column;
     height: calc(100dvh - 220px);
     min-height: 420px;
+    overflow: hidden;
   }
 
   .support-chat-header {
+    flex-shrink: 0;
     padding: 14px 16px;
   }
 
   .support-chat-messages {
+    flex: 1 1 0;
+    min-height: 0;
     padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .support-message {
@@ -343,10 +355,37 @@
   }
 
   .support-suggestions {
-    padding: 12px;
+    flex-shrink: 0;
+    padding: 8px 12px;
+  }
+
+  .support-suggestions > p {
+    margin: 0 0 6px;
+  }
+
+  .support-suggestion-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .support-suggestion-list button {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .support-chat-form {
-    padding: 12px;
+    display: flex;
+    flex-shrink: 0;
+    padding: 10px 12px;
+  }
+
+  .support-chat-note {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0 8px 10px;
   }
 }
