@@ -161,23 +161,30 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .dashboard-summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
   min-width: 0;
   height: 72px;
+  padding: 10px 12px;
   background: #ffffff;
   border: 1px solid #d9dee3;
   border-radius: 10px;
-  padding: 12px;
+  box-sizing: border-box;
 }
 
 .dashboard-summary-card span {
   display: block;
+  margin: 0;
   color: #6b7280;
   font-size: 13px;
+  line-height: 1.2;
 }
 
 .dashboard-summary-card strong {
   display: block;
-  margin-top: 8px;
+  margin: 0;
   color: #26313f;
   font-size: 20px;
   font-weight: 700;
