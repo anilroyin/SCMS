@@ -137,7 +137,6 @@
 }
 
 /* Teacher Summary Cards */
-
 .teacher-summary-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -146,8 +145,12 @@
 }
 
 .teacher-summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
-  height: 72px;
+  min-height: 90px;
+  height: auto;
   padding: 12px 14px;
   box-sizing: border-box;
   background: #ffffff;
@@ -159,10 +162,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 7px;
+  margin: 0 0 5px;
   color: #6b7280;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 .teacher-summary-label svg {
@@ -172,12 +175,14 @@
 
 .teacher-summary-card strong {
   display: block;
+  margin: 0;
   color: #26313f;
-  font-size: 21px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
-
 /* Payments Card */
 
 .payments-card {
