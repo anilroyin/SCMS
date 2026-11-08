@@ -195,6 +195,7 @@
   text-decoration: none;
 }
 
+/* Tablet */
 @media (max-width: 900px) {
   .details-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -205,6 +206,7 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 700px) {
   .student-details-card {
     padding: 20px;
@@ -216,8 +218,27 @@
     gap: 14px;
   }
 
+  /* Student Information - Horizontal Scrolling */
   .details-grid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(4, 120px);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 20px;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .details-grid .detail-item {
+    min-width: 120px;
+  }
+
+  .details-grid .detail-item strong {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .status-management {

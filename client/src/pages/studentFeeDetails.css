@@ -280,10 +280,41 @@
   font-size: 14px;
 }
 
+.receipt-button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background:#80919f;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.receipt-button:hover {
+  background:#4b6276;
+}
+
 @media (max-width: 1100px) {
-  .fees-table {
-    display: block;
+  /* Subject-wise Fees */
+  .subject-fees-table-container {
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .subject-fees-table-container .fees-table {
+    min-width: 850px;
+  }
+
+  /* Payment History */
+  .student-fee-card:has(.card-header p) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .student-fee-card:has(.card-header p) .fees-table {
+    min-width: 650px;
   }
 }
 
@@ -327,21 +358,15 @@
   .payment-card button {
     width: 100%;
   }
+
+  /* Student Information */
+  .student-info-row > div {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .student-info-row strong,
+  .student-info-row span {
+    overflow-wrap: anywhere;
+  }
 }
-
-
-.receipt-button {
-  padding: 8px 14px;
-  border-radius: 6px;
-  background:#80919f;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.receipt-button:hover {
-  background:#4b6276;
-}
-

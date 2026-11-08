@@ -238,38 +238,204 @@
   color: #7a4a4a;
 }
 
+/* ========================================
+   TABLET RESPONSIVE
+======================================== */
+
 @media (max-width: 1100px) {
+
   .student-summary {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .student-filters {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+
+/* ========================================
+   MOBILE RESPONSIVE
+======================================== */
+
 @media (max-width: 700px) {
-  .page-header,
-  .students-card-header {
+
+  /* Page Header */
+  .page-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .page-header h1 {
+    font-size: 21px;
+  }
+
+  .page-header p {
+    font-size: 13px;
+  }
+
+  /* Hide Back Button on Mobile */
+  .page-header .back-button {
+    display: none;
+  }
+
+  /* Primary Button */
+  .page-header .primary-button {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  /* Page Message */
+  .page-message {
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  /* Student Summary Cards */
+  .student-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .summary-card {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .student-summary .summary-card .summary-card-label {
+    gap: 6px;
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .student-summary .summary-card .summary-card-label svg {
+    flex: 0 0 15px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .summary-card strong {
+    font-size: 15px;
+  }
+
+  /* Students Card */
+  .students-card {
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  /* Students Card Header */
+  .students-card-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .students-card-header h2 {
+    font-size: 16px;
+  }
+
+  /* Search */
+  .students-search {
+    width: 100%;
+    gap: 8px;
   }
 
   .search-input {
     width: 100%;
+    min-height: 40px;
     box-sizing: border-box;
+    font-size: 13px;
   }
 
-  .primary-button {
-    width: 100%;
-  }
-
-  .student-summary {
-    grid-template-columns: 1fr;
-  }
-
+  /* Student Filters */
   .student-filters {
     grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .student-filters select {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  /* Student Table */
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .students-table {
+    width: 900px;
+    min-width: 900px;
+    table-layout: auto;
+  }
+
+  .students-table th,
+  .students-table td {
+    padding: 10px 9px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .students-table th svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  /* View Button */
+  .view-button {
+    white-space: nowrap;
+  }
+
+  /* Empty Message */
+  .empty-message {
+    font-size: 13px;
+  }
+}
+
+
+/* ========================================
+   SMALL MOBILE SCREENS
+======================================== */
+
+@media (max-width: 380px) {
+
+  .student-summary {
+    gap: 7px;
+  }
+
+  .summary-card {
+    padding: 10px;
+  }
+
+  .student-summary .summary-card .summary-card-label {
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .summary-card strong {
+    font-size: 13px;
+  }
+
+  .students-card {
+    padding: 11px;
+  }
+
+  .students-card-header h2 {
+    font-size: 15px;
   }
 }

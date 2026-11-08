@@ -158,12 +158,15 @@
 @media (max-width: 700px) {
   .send-notification-header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .send-notification-back-button {
-    width: 100%;
+    width: auto;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .send-notification-actions {
