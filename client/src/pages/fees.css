@@ -177,7 +177,9 @@
   font-size: 17px;
   font-weight: 700;
   line-height: 1.3;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  letter-spacing: -0.3px;
 }
 
 .collection-value {
@@ -438,7 +440,7 @@
   }
 
   .summary-card strong {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .summary-card .summary-card-label {
