@@ -405,9 +405,9 @@ function StudentFeeDetails() {
       <body>
         <main class="receipt">
           <header class="receipt-header">
-            <h1>Curiosity Classes</h1>
-            <p>Smart Coaching Management System</p>
-            <p>Ukilpara (Near Khelaghar School) Jalpaiguri, West Bengal. Mo- 7479116205</p>
+            <h1>SIKSHAM COACHING</h1>
+            <span>Academic Care | Coding & Programming | AI & Robotics</span>
+            <p>Raikatpara, Jalpaiguri, West Bengal 735101, Mo- 7479116205</p>
           </header>
 
           <h2 class="receipt-title">PAYMENT RECEIPT</h2>
@@ -596,51 +596,53 @@ function StudentFeeDetails() {
             </div>
           )}
 
-          <div className="student-fee-card">
-            <div className="card-header">
-              <div>
-                <h2>Subject-wise Fees</h2>
-              </div>
+         <div className="student-fee-card">
+        <div className="card-header">
+          <div>
+           <h2>Subject-wise Fees</h2>
+         </div>
 
-              <span className={`status ${data.totals.paymentStatus}`}>
-                {data.totals.paymentStatus}
+            <span className={`status ${data.totals.paymentStatus}`}>
+              {data.totals.paymentStatus}
+            </span>
+        </div>
+
+     <div className="table-container">
+       <table className="fees-table">
+        <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Teacher</th>
+          <th>Original Fee</th>
+          <th>Discount</th>
+          <th>Net Fee</th>
+          <th>Paid</th>
+          <th>Due</th>
+          <th>Status</th>
+        </tr>
+        </thead>
+
+      <tbody>
+        {data.subjects.map((subject) => (
+          <tr key={subject.id}>
+            <td>{subject.subject}</td>
+            <td>{subject.teacher}</td>
+            <td>{formatCurrency(subject.originalFee)}</td>
+            <td>{subject.discount}%</td>
+            <td>{formatCurrency(subject.netFee)}</td>
+            <td>{formatCurrency(subject.paidAmount)}</td>
+            <td>{formatCurrency(subject.dueAmount)}</td>
+            <td>
+              <span className={`status ${subject.paymentStatus}`}>
+                {subject.paymentStatus}
               </span>
-            </div>
-
-            <table className="fees-table">
-              <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th>Teacher</th>
-                  <th>Original Fee</th>
-                  <th>Discount</th>
-                  <th>Net Fee</th>
-                  <th>Paid</th>
-                  <th>Due</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {data.subjects.map((subject) => (
-                  <tr key={subject.id}>
-                    <td>{subject.subject}</td>
-                    <td>{subject.teacher}</td>
-                    <td>{formatCurrency(subject.originalFee)}</td>
-                    <td>{subject.discount}%</td>
-                    <td>{formatCurrency(subject.netFee)}</td>
-                    <td>{formatCurrency(subject.paidAmount)}</td>
-                    <td>{formatCurrency(subject.dueAmount)}</td>
-                    <td>
-                      <span className={`status ${subject.paymentStatus}`}>
-                        {subject.paymentStatus}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            </td>
+          </tr>
+        ))}
+       </tbody>
+       </table>
+     </div>
+     </div>
 
           {paymentHistory?.length > 0 && (
             <div className="student-fee-card">
