@@ -15,6 +15,7 @@ import notificationRoutes from "./routes/notificationRoutes.js"
 import reportRoutes from "./routes/reportRoutes.js"
 import dashboardRoutes from "./routes/dashboardRoutes.js"
 import expenseRoutes from "./routes/expenseRoutes.js"
+import aiRoutes from "./routes/aiRoutes.js";
 
 dotenv.config({ quiet: true })
 
@@ -60,6 +61,8 @@ app.use(
   "/api/reports",
   reportRoutes
 )
+
+app.use("/api/ai", aiRoutes);
 
 connectDb()
 
