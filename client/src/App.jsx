@@ -25,6 +25,7 @@ import TeacherEarnings from "./pages/teacherEarnings"
 import Notifications from "./pages/notifications"
 import SendNotification from "./pages/sendNotification"
 import SikshaAI from "./pages/sikshaAi";
+import PublicSikshaAI from "./components/publicSikshaAI";
 import ProtectedRoute from "./components/protectedRoute"
 import Reports from "./pages/reports"
 import SessionTimeout from "./components/sessionTimeout"
@@ -42,6 +43,12 @@ function App() {
           path="/login"
           element={<Login />}
         />
+
+        <Route
+          path="/public-chat"
+          element={<PublicSikshaAI />}
+        />
+
         <Route
            path="/forgot-password"
            element={<ForgotPassword />}
