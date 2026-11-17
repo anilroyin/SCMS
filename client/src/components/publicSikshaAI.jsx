@@ -5,7 +5,7 @@ import { ChevronLeft, Send, Sparkles, SquarePen} from "lucide-react";
 import "./publicSikshaAI.css";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:3000/api/ai/public-chat";
+const API_URL = "https://scms-backend-uhfo.onrender.com/api/ai/public-chat";
 
 function PublicSikshaAI() {
   const [messages, setMessages] = useState([]);
