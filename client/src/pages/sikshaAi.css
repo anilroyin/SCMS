@@ -1,0 +1,886 @@
+
+/* Siksha AI Main Page Layout */
+
+.siksha-ai-page {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 28px;
+  background: #f5f7f9;
+  color: #26313f;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.siksha-ai-page * {
+  box-sizing: border-box;
+}
+
+/* Page Header */
+
+.siksha-ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.siksha-ai-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.siksha-ai-heading-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f8fa;
+  color: #2F3A4A;
+  border-radius: 12px;
+  border: 1px solid #e0e4e9;
+}
+
+.siksha-ai-heading h1 {
+  margin: 0;
+  color: #2b2f33;;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.siksha-ai-heading p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.siksha-ai-new-chat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 10px 15px;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #80919f;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.siksha-ai-new-chat:hover:not(:disabled) {
+  background: #80919f;
+  border-color: #d9dee3;
+}
+
+.siksha-ai-new-chat:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Chat Container */
+
+.siksha-ai-chat-container {
+  width: 100%;
+  max-width: none;
+  height: min(690px, calc(100vh - 150px));
+  min-height: 440px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(30, 45, 65, 0.035);
+}
+
+/* Welcome Section */
+
+.siksha-ai-welcome {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 35px 30px 25px;
+  text-align: center;
+}
+
+.siksha-ai-welcome h2 {
+  margin: 0;
+  color: #2b2f33;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.siksha-ai-welcome h3 {
+  margin: 6px 0 0;
+  color: #3b2875;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.siksha-ai-welcome-description {
+  max-width: 540px;
+  margin: 10px 0 13px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.siksha-ai-role-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  background: #f0faf4;
+  border: 1px solid #d9f0e1;
+  border-radius: 30px;
+  color: #278451;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.siksha-ai-status-dot {
+  width: 7px;
+  height: 7px;
+  background: #2fa66a;
+  border-radius: 50%;
+}
+
+/* Suggested Questions */
+
+.siksha-ai-suggestions {
+  width: 100%;
+  max-width: 710px;
+  margin-top: 23px;
+}
+
+.siksha-ai-suggestions h4 {
+  margin: 0 0 11px;
+  color: #5f6b78;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.siksha-ai-suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.siksha-ai-suggestion {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #4b535e;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.siksha-ai-suggestion svg {
+  flex-shrink: 0;
+  color: #80919f;
+}
+
+.siksha-ai-suggestion:hover:not(:disabled) {
+  background: #f5f7f9;
+  border-color: #80919f;
+  color: #26313f;
+}
+
+.siksha-ai-suggestion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Chat Messages */
+
+.siksha-ai-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 24px;
+  scroll-behavior: smooth;
+}
+
+.siksha-ai-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+.siksha-ai-message.user-message {
+  flex-direction: row-reverse;
+}
+
+/* Message Avatar */
+
+.siksha-ai-avatar {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background:#edf0f2;
+  color: #2F3A4A;
+}
+
+.user-message .siksha-ai-avatar {
+  background: #edf0f2;
+  color: #4b6276;
+}
+
+/* Message Content */
+
+.siksha-ai-message-content {
+  max-width: 82%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-message .siksha-ai-message-content {
+  align-items: flex-end;
+}
+
+.siksha-ai-message-name {
+  color: #5f6b78;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.siksha-ai-message-text {
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #f1f3f5;
+  border-radius: 4px 10px 10px 10px;
+  background: #f5f7f9;
+  color: #4b535e;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.user-message .siksha-ai-message-text {
+  background: #f4f5f7;
+  
+  color: #26313f;
+  border-radius: 10px 4px 10px 10px;
+}
+
+/* Markdown Response Formatting */
+
+/* Paragraphs */
+
+.siksha-ai-message-text p {
+  margin: 0 0 6px;
+  padding: 0;
+  line-height: 1.55;
+}
+
+.siksha-ai-message-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists */
+
+.siksha-ai-message-text ul,
+.siksha-ai-message-text ol {
+  margin: 5px 0 6px;
+  padding-left: 21px;
+}
+
+.siksha-ai-message-text li {
+  margin: 2px 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.siksha-ai-message-text li p {
+  margin: 0;
+  padding: 0;
+}
+
+.siksha-ai-message-text li ul,
+.siksha-ai-message-text li ol {
+  margin: 3px 0;
+  padding-left: 19px;
+}
+
+/* Headings */
+
+.siksha-ai-message-text h1,
+.siksha-ai-message-text h2,
+.siksha-ai-message-text h3,
+.siksha-ai-message-text h4 {
+  margin: 9px 0 5px;
+  color: #26313f;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.siksha-ai-message-text h1 {
+  font-size: 18px;
+}
+
+.siksha-ai-message-text h2 {
+  font-size: 16px;
+}
+
+.siksha-ai-message-text h3 {
+  font-size: 14px;
+}
+
+.siksha-ai-message-text h4 {
+  font-size: 13px;
+}
+
+/* Bold Text */
+
+.siksha-ai-message-text strong {
+  color: #26313f;
+  font-weight: 650;
+}
+
+/* Tables */
+
+.siksha-ai-message-text table {
+  width: 100%;
+  margin: 8px 0;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.siksha-ai-message-text th,
+.siksha-ai-message-text td {
+  padding: 7px 9px;
+  border: 1px solid #d9dee3;
+  text-align: left;
+  vertical-align: top;
+}
+
+.siksha-ai-message-text th {
+  background: #f5f7f9;
+  color: #26313f;
+  font-weight: 650;
+}
+
+/* Blockquotes */
+
+.siksha-ai-message-text blockquote {
+  margin: 7px 0;
+  padding: 7px 11px;
+  border-left: 3px solid #7254d8;
+  border-radius: 4px;
+  background: #f5f3ff;
+  color: #4b535e;
+}
+
+/* Code Blocks */
+
+.siksha-ai-message-text pre {
+  margin: 7px 0;
+  padding: 11px;
+  overflow-x: auto;
+  border: 1px solid #d9dee3;
+  border-radius: 7px;
+  background: #f5f7f9;
+  font-size: 12px;
+}
+
+.siksha-ai-message-text code {
+  font-size: 12.5px;
+}
+
+/* Horizontal Divider */
+
+.siksha-ai-message-text hr {
+  margin: 9px 0;
+  border: 0;
+  border-top: 1px solid #d9dee3;
+}
+
+/* Typing Indicator */
+
+.siksha-ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  padding: 11px 14px;
+  background: #f5f7f9;
+  border: 1px solid #edf0f2;
+  border-radius: 4px 10px 10px 10px;
+}
+
+.siksha-ai-typing span {
+  width: 6px;
+  height: 6px;
+  background: #7254d8;
+  border-radius: 50%;
+  animation: sikshaTyping 1.2s infinite ease-in-out;
+}
+
+.siksha-ai-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.siksha-ai-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes sikshaTyping {
+  0%, 60%, 100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* Loading Spinner */
+
+.ai-spin {
+  animation: sikshaSpin 1s linear infinite;
+}
+
+@keyframes sikshaSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Messages */
+
+.siksha-ai-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0 20px 10px;
+  padding: 10px 12px;
+  border: 1px solid #f3d1d1;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #bd4545;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.siksha-ai-error svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Message Input Area */
+
+.siksha-ai-input-area {
+  flex-shrink: 0;
+  padding: 13px 20px 10px;
+  border-top: 1px solid #edf0f2;
+  background: #ffffff;
+}
+
+.siksha-ai-input-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px 9px 14px;
+  border: 1px solid #d9dee3;
+  border-radius: 10px;
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.siksha-ai-input-box:focus-within {
+  border-color: #80919f;
+  box-shadow: 0 0 0 3px rgba(128, 145, 159, 0.12);
+}
+
+.siksha-ai-input-box textarea {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 25px;
+  max-height: 110px;
+  padding: 0;
+  resize: none;
+  overflow-y: auto;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #26313f;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.siksha-ai-input-box textarea::placeholder {
+  color: #8a94a3;
+}
+
+.siksha-ai-input-box textarea:disabled {
+  cursor: not-allowed;
+}
+
+/* Send Button */
+
+.siksha-ai-send-button {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 7px;
+  background: #80919f;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.siksha-ai-send-button:hover:not(:disabled) {
+  background: #80919f;
+}
+
+.siksha-ai-send-button:disabled {
+  background: #e7e8eb;
+  color: #ffffff;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.siksha-ai-send-button:disabled svg {
+  color: #1b2d47;
+  stroke: #0c192c;
+  opacity: 1;
+}
+
+/* Input Footer */
+
+.siksha-ai-input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+  color: #8a94a3;
+  font-size: 10px;
+}
+
+.siksha-ai-input-footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.siksha-ai-input-footer svg {
+  color: #2F3A4A;
+}
+
+/* AI Disclaimer */
+
+.siksha-ai-disclaimer {
+  margin: -7px 0 0;
+  text-align: center;
+  color: #8a94a3;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+/* Scrollbar */
+
+.siksha-ai-messages::-webkit-scrollbar,
+.siksha-ai-welcome::-webkit-scrollbar {
+  width: 6px;
+}
+
+.siksha-ai-messages::-webkit-scrollbar-thumb,
+.siksha-ai-welcome::-webkit-scrollbar-thumb {
+  background: #d9dee3;
+  border-radius: 10px;
+}
+
+.siksha-ai-messages::-webkit-scrollbar-thumb:hover,
+.siksha-ai-welcome::-webkit-scrollbar-thumb:hover {
+  background: #b8c2cc;
+}
+
+/* Accessible Focus States */
+
+.siksha-ai-new-chat:focus-visible,
+.siksha-ai-suggestion:focus-visible,
+.siksha-ai-send-button:focus-visible {
+  outline: 2px solid #80919f;
+  outline-offset: 2px;
+}
+
+
+
+/* Responsive Design */
+
+@media (max-width: 900px) {
+  .siksha-ai-chat-container {
+    height: min(690px, calc(100vh - 150px));
+  }
+
+  .siksha-ai-messages {
+    padding: 18px;
+  }
+
+  .siksha-ai-message-content {
+    max-width: 88%;
+  }
+}
+
+@media (max-width: 768px) {
+  .siksha-ai-page {
+    min-height: calc(100vh - 75px);
+    gap: 13px;
+    padding: 16px 14px 14px;
+  }
+
+  /* Page Header */
+
+  .siksha-ai-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .siksha-ai-heading {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .siksha-ai-heading-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .siksha-ai-heading h1 {
+    font-size: 19px;
+  }
+
+  .siksha-ai-heading p {
+    font-size: 11px;
+  }
+
+  /* New Chat Button */
+
+  .siksha-ai-new-chat {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    align-items: center;
+    justify-content: center;
+    width: fit-content !important;
+    min-width: 0;
+    max-width: max-content;
+    margin: 0 0 0 auto;
+    padding: 9px 11px;
+    gap: 6px;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+
+  .siksha-ai-new-chat svg {
+    flex-shrink: 0;
+  }
+
+  /* Chat Container */
+
+  .siksha-ai-chat-container {
+    height: calc(100dvh - 210px);
+    min-height: 420px;
+    border-radius: 11px;
+  }
+
+  /* Welcome Section */
+
+  .siksha-ai-welcome {
+    justify-content: flex-start;
+    padding: 25px 14px;
+  }
+
+  .siksha-ai-welcome-icon {
+    width: 55px;
+    height: 55px;
+  }
+
+  .siksha-ai-welcome h2 {
+    font-size: 21px;
+  }
+
+  .siksha-ai-welcome h3 {
+    font-size: 16px;
+  }
+
+  .siksha-ai-welcome-description {
+    font-size: 12px;
+  }
+
+  /* Suggested Questions */
+
+  .siksha-ai-suggestions {
+    margin-top: 19px;
+  }
+
+  .siksha-ai-suggestion-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .siksha-ai-suggestion {
+    padding: 10px 12px;
+  }
+
+  /* Chat Messages */
+
+  .siksha-ai-messages {
+    gap: 13px;
+    padding: 15px 12px;
+  }
+
+  .siksha-ai-message {
+    gap: 8px;
+  }
+
+  .siksha-ai-avatar {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+  .siksha-ai-message-content {
+    max-width: calc(100% - 38px);
+  }
+
+  .siksha-ai-message-text {
+    padding: 9px 11px;
+    font-size: 12.5px;
+  }
+
+  /* Message Input */
+
+  .siksha-ai-input-area {
+    padding: 10px 10px 8px;
+  }
+
+  .siksha-ai-input-box {
+    align-items: center;
+    padding: 8px 8px 8px 11px;
+    gap: 8px;
+  }
+
+  .siksha-ai-input-box textarea {
+    font-size: 12.5px;
+  }
+
+  .siksha-ai-send-button {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+
+  /* Input Footer */
+
+  .siksha-ai-input-footer {
+    font-size: 9px;
+  }
+
+  .siksha-ai-disclaimer {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .siksha-ai-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Page Header */
+
+  .siksha-ai-heading h1 {
+    font-size: 17px;
+  }
+
+  .siksha-ai-heading p {
+    font-size: 10px;
+  }
+
+  /* Compact New Chat Button */
+
+  .siksha-ai-new-chat {
+    width: 36px !important;
+    min-width: 36px;
+    height: 36px;
+    padding: 8px;
+    gap: 0;
+  }
+
+  .siksha-ai-new-chat span {
+    display: none;
+  }
+
+  .siksha-ai-new-chat svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* Input Footer */
+
+  .siksha-ai-input-footer {
+    flex-wrap: wrap;
+    font-size: 8.5px;
+  }
+}
+
