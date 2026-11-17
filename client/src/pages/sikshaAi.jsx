@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 
 
-const API_URL = "http://localhost:3000/api/ai/chat";
+const API_URL = "https://scms-backend-uhfo.onrender.com/api/ai/chat";
 // Role-specific welcome content and suggested questions
 const roleContent = {
   admin: {
