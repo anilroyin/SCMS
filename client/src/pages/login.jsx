@@ -10,12 +10,12 @@ import {
   ChartNoAxesColumnIncreasing,
   Mail,
   Lock,
-  Wallet,
   Headset,
   HandCoins,
   UserRound,
   ReceiptText,
-  User
+  Sparkles,
+  ArrowRight
 } from "lucide-react"
 import "./login.css"
 
@@ -239,6 +239,41 @@ function Login() {
               {loading ? "Please wait, signing in..." : "Login"}
             </button>
           </form>
+          <div className="login-ai-divider"></div>
+
+<div
+  className="login-ai-banner"
+  role="button"
+  tabIndex={0}
+  onClick={() => navigate("/public-chat")}
+  onKeyDown={(event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      navigate("/public-chat")
+    }
+  }}
+>
+  <div className="login-ai-banner-icon">
+    <Sparkles size={25} strokeWidth={1.8} />
+  </div>
+
+  <div className="login-ai-banner-content">
+    <div className="login-ai-banner-heading">
+      <h3>Meet Siksha AI</h3>
+      <span>Public AI</span>
+    </div>
+
+    <p>
+      Explore SCMS features, modules and technology
+      with our AI assistant.
+    </p>
+
+    <div className="login-ai-banner-link">
+      Explore Siksha AI
+      <ArrowRight size={17} />
+    </div>
+  </div>
+</div>
         </section>
       </main>
 

@@ -1,4 +1,4 @@
-/*Base styles*/
+/* Base Styles */
 
 * {
   box-sizing: border-box;
@@ -18,7 +18,7 @@ button {
   font-size: inherit;
 }
 
-/*Page container and background*/
+/* Page Container and Background*/
 
 .login-page {
   height: 100vh;
@@ -33,7 +33,7 @@ button {
   padding: 40px 80px;
 }
 
-/*main layout container*/
+/* Main Layout Container*/
 
 .login-main {
   flex: 1;
@@ -46,13 +46,12 @@ button {
   align-items: center;
 }
 
-/* LEFT COLUMN: Brand and features section*/
-
+/*LEFT COLUMN: Brand and Features*/
 .login-intro {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding-bottom: 60px;
+  padding-bottom: 50px;
 }
 
 .login-brand {
@@ -156,17 +155,18 @@ button {
   color: #80919f !important;
 }
 
-/*Login card*/
+/* Login Card */
 
 .login-card {
   background: #ffffff;
   border-radius: 14px;
-  padding: 56px 44px;
-  box-shadow: 0 10px 30px -5px rgba(47, 59, 75, 0.03),
-              0 20px 40px -20px rgba(47, 59, 75, 0.08);
+  padding: 25px 30px;
+  box-shadow:
+    0 10px 30px -5px rgba(47, 59, 75, 0.03),
+    0 20px 40px -20px rgba(47, 59, 75, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.8);
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   justify-self: start;
   z-index: 10;
   transform: translateX(-50px);
@@ -174,11 +174,11 @@ button {
 
 .login-header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 26px;
 }
 
 .login-header h2 {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 600;
   color: #2f3b4b;
   margin-bottom: 8px;
@@ -189,10 +189,12 @@ button {
   color: #6b7280;
 }
 
-/* Form Groups */
+/* =========================================
+   Form Groups
+========================================= */
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 19px;
 }
 
 .form-group label {
@@ -224,7 +226,7 @@ button {
 
 .login-input-wrap input {
   width: 100%;
-  padding: 14px 16px 14px 48px !important;
+  padding: 13px 16px 13px 48px !important;
   font-size: 15px;
   border: 1px solid #d9dee3;
   border-radius: 10px;
@@ -261,19 +263,19 @@ button {
   color: #4b6276;
 }
 
-/* Action Links */
+/* Action Links*/
 
 .login-message {
   font-size: 14px;
   color: #b42318;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   font-weight: 500;
 }
 
 .forgot-password {
   text-align: right;
-  margin-top: 12px;
-  margin-bottom: 24px;
+  margin-top: 10px;
+  margin-bottom: 19px;
 }
 
 .forgot-password button {
@@ -286,13 +288,13 @@ button {
   text-decoration: underline;
 }
 
-/* Primary Button */
+/*  Primary Button */
 
 .login-button {
   width: 100%;
   background-color: #80919f;
   color: #ffffff;
-  padding: 16px;
+  padding: 14px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
@@ -308,7 +310,111 @@ button {
   cursor: not-allowed;
 }
 
-/* Footer section*/
+/* Divider Above Public AI Banner*/
+
+.login-ai-divider {
+  width: 100%;
+  height: 1px;
+  margin: 16px 0;
+  background: #edf0f2;
+}
+
+/* Public Siksha AI Banner */
+
+.login-ai-banner {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9e2f0;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #f5f8ff, #edf3ff);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.login-ai-banner:hover {
+  border-color: #b9cbe7;
+  box-shadow: 0 4px 14px rgba(55, 85, 130, 0.08);
+}
+
+.login-ai-banner:focus-visible {
+  outline: 2px solid #80919f;
+  outline-offset: 3px;
+}
+
+.login-ai-banner-icon {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce5f4;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #526d91;
+}
+
+.login-ai-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-ai-banner-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.login-ai-banner-heading h3 {
+  margin: 0;
+  color: #26313f;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.login-ai-banner-heading span {
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: #e5f0f7;
+  color: #4b6276;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.login-ai-banner-content p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.login-ai-banner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  color: #405f86;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.login-ai-banner-link svg {
+  transition: transform 0.2s ease;
+}
+
+.login-ai-banner:hover .login-ai-banner-link svg {
+  transform: translateX(4px);
+}
+
+/* Footer Section*/
 
 .page-footer {
   margin-top: auto;
@@ -345,6 +451,47 @@ button {
   text-decoration: underline;
 }
 
+/* Wavy Background Decoration - Public AI Banner */
+.login-ai-banner {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(120deg, #f4f8ff, #eaf2ff);
+}
+
+/* Outer, slightly deeper blue curve */
+.login-ai-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 165' preserveAspectRatio='none'%3E%3Cpath d='M520 45 C470 75 435 125 365 165 L520 165 Z' fill='%23dce8ff' fill-opacity='.65'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Inner, lighter blue curve */
+.login-ai-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 165' preserveAspectRatio='none'%3E%3Cpath d='M520 90 C485 112 460 145 420 165 L520 165 Z' fill='%23cbdcff' fill-opacity='.55'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Keep content above the waves */
+.login-ai-banner-icon,
+.login-ai-banner-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Desktop Footer Position= */
+
 @media (min-width: 1101px) {
   .page-footer {
     position: absolute;
@@ -356,7 +503,7 @@ button {
   }
 }
 
-/*Responsive layout*/
+/* Responsive Layout - Tablet */
 
 @media (max-width: 1150px) {
   .login-page {
@@ -417,6 +564,10 @@ button {
   }
 }
 
+/* =========================================
+   Responsive Layout - Mobile
+========================================= */
+
 @media (max-width: 650px) {
   .login-page {
     padding: 24px 18px;
@@ -429,24 +580,28 @@ button {
   }
 
   /* Allow brand, login card and features to be ordered separately */
+
   .login-intro {
     display: contents;
   }
 
   /* Logo first */
+
   .login-brand {
     order: 1;
     gap: 12px;
   }
 
   /* Login form second */
+
   .login-card {
     order: 2;
-    padding: 36px 24px;
+    padding: 30px 24px;
     max-width: 100%;
   }
 
   /* Introduction and features last */
+
   .login-features {
     order: 3;
   }
@@ -489,11 +644,51 @@ button {
   }
 
   .login-header {
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
 
   .login-header h2 {
     font-size: 28px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .forgot-password {
+    margin-bottom: 18px;
+  }
+
+  .login-ai-divider {
+    margin: 15px 0;
+  }
+
+  .login-ai-banner {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .login-ai-banner-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+
+  .login-ai-banner-heading {
+    gap: 7px;
+  }
+
+  .login-ai-banner-heading h3 {
+    font-size: 13px;
+  }
+
+  .login-ai-banner-content p {
+    font-size: 11px;
+  }
+
+  .login-ai-banner-link {
+    font-size: 11px;
+    margin-top: 7px;
   }
 
   .page-footer {
@@ -503,5 +698,64 @@ button {
 
   .footer-links {
     gap: 12px;
+  }
+}
+
+/* =========================================
+   Small Mobile Screens
+========================================= */
+
+@media (max-width: 380px) {
+  .login-page {
+    padding: 20px 14px;
+  }
+
+  .login-card {
+    padding: 26px 18px;
+  }
+
+  .login-brand h1 {
+    font-size: 30px;
+  }
+
+  .login-header h2 {
+    font-size: 25px;
+  }
+
+  .login-ai-banner {
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .login-ai-banner-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .login-ai-banner-heading {
+    gap: 6px;
+  }
+
+  .login-ai-banner-heading h3 {
+    font-size: 12px;
+  }
+
+  .login-ai-banner-heading span {
+    font-size: 9px;
+    padding: 3px 7px;
+  }
+
+  .login-ai-banner-content p {
+    font-size: 10px;
+  }
+
+  .login-ai-banner-link {
+    font-size: 10px;
+  }
+
+  .page-footer p,
+  .footer-links button {
+    font-size: 11px;
   }
 }
