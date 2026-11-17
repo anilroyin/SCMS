@@ -24,7 +24,7 @@ import EditSchedule from "./pages/editSchedule"
 import TeacherEarnings from "./pages/teacherEarnings"
 import Notifications from "./pages/notifications"
 import SendNotification from "./pages/sendNotification"
-import HelpSupport from "./pages/helpSupport"
+import SikshaAI from "./pages/sikshaAi";
 import ProtectedRoute from "./components/protectedRoute"
 import Reports from "./pages/reports"
 import SessionTimeout from "./components/sessionTimeout"
@@ -313,11 +313,12 @@ function App() {
           }
         />
         <Route
-          path="/student/help-support"
-          element={
-          <ProtectedRoute>
-            <HelpSupport />
-          </ProtectedRoute>}
+         path="/ai-assistant"
+         element={
+         <ProtectedRoute>
+        <SikshaAI />
+        </ProtectedRoute>
+        }
         />
         <Route
           path="/reports"
