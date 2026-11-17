@@ -13,7 +13,7 @@ import {
   Bell,
   UserRound,
   CircleDollarSign,
-  Headset,
+  Sparkles,
   BriefcaseBusiness,
   Menu,
   X,
@@ -203,6 +203,11 @@ function Sidebar() {
       label: "Notifications",
       path: "/notifications",
       icon: Bell
+    },
+    { 
+      label: "Siksha AI", 
+      path: "/ai-assistant", 
+      icon: Sparkles 
     }
   ]
 
@@ -224,6 +229,11 @@ function Sidebar() {
       label: "Notifications",
       path: "/notifications",
       icon: Bell
+    },
+    { 
+      label: "Siksha AI",
+      path: "/ai-assistant",
+      icon: Sparkles 
     }
   ]
 
@@ -241,11 +251,12 @@ function Sidebar() {
       path: "/notifications",
       icon: Bell
     },
-    {
-      label: "Help & Support",
-      path: "/student/help-support",
-      icon: Headset
-    }
+
+    { 
+      label: "Siksha AI",
+       path: "/ai-assistant", 
+      icon: Sparkles
+     }
   ]
 
   let links = []
