@@ -525,6 +525,8 @@
 
 /* Responsive Design */
 
+/* Responsive Design */
+
 @media (max-width: 900px) {
   .public-ai-container {
     width: 100%;
@@ -559,15 +561,21 @@
   /* Header */
 
   .public-ai-header {
-     position: sticky;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
     min-height: 76px;
     gap: 8px;
     padding: 12px 14px;
+    box-sizing: border-box;
   }
 
   .public-ai-title {
     flex: 1 1 auto;
     gap: 10px;
+    min-width: 0;
   }
 
   .public-ai-icon {
@@ -584,17 +592,51 @@
     font-size: 11px;
   }
 
-  .public-ai-new-chat {
+  /* Back Button */
+
+  .public-ai-back-btn {
+    display: inline-flex;
     flex: 0 0 auto;
-    align-self: flex-start;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    height: 39px;
+    padding: 9px 12px;
+    margin: 0;
+    box-sizing: border-box;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .public-ai-back-btn svg {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* New Chat Button */
+
+  .public-ai-new-chat {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    height: 39px;
     width: fit-content;
     min-width: 0;
     max-width: max-content;
-    margin: 0 0 0 auto;
+    margin: 0;
     padding: 9px 11px;
     gap: 6px;
+    box-sizing: border-box;
+    line-height: 1;
     white-space: nowrap;
     font-size: 11px;
+  }
+
+  .public-ai-new-chat svg {
+    display: block;
+    flex-shrink: 0;
   }
 
   /* Welcome Section */
@@ -657,7 +699,6 @@
 @media (max-width: 380px) {
   .public-ai-header {
     padding: 10px;
-    position: sticky;
   }
 
   .public-ai-title h2 {
@@ -683,6 +724,10 @@
   .public-ai-new-chat svg {
     width: 17px;
     height: 17px;
+  }
+
+  .public-ai-back-btn {
+    height: 36px;
   }
 
   .public-ai-disclaimer {
