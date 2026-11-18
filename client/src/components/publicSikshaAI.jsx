@@ -122,7 +122,7 @@ function PublicSikshaAI() {
         {messages.length === 0 ? (
           <div className="public-ai-welcome">
             
-            <h3>Hello!!</h3>
+            <h3>Hello!</h3>
 
             <p>
               I'm Siksha AI, your public assistant for Smart
