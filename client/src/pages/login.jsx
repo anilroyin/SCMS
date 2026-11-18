@@ -105,9 +105,9 @@ function Login() {
       description: "Commissions and teacher earnings"
     },
     {
-      icon: Headset,
-      title: "Chatbot Help & Support",
-      description: "Assistance for students"
+      icon: Sparkles,
+      title: "AI-Powered Assistance",
+      description: "Smart Insights & Analytics"
     },
     {
       icon: ChartNoAxesColumnIncreasing,
